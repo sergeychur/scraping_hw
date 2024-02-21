@@ -10,7 +10,7 @@ fi
 seed_url=$1
 path_to_result=$2
 
-# TODO: actual implementation should go here
+echo "Run.sh"
 timeout 10 wget --recursive -w 0.1 -D localhost $seed_url || true
 
 cp test_data/result.jsonl $path_to_result
