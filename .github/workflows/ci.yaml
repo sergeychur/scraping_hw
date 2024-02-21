@@ -1,0 +1,21 @@
+name: Build and test wikipedia scraper
+run-name: Assessing ${{ github.actor }} work
+on: [pull_request]
+jobs:
+  prepare_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      # not user part
+      - name: Checkout repository content
+        uses: actions/checkout@v4 # Checkout the repository content to github runner.
+      - name: Install python3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+      - name: Setup html serving
+        run: sudo ./scripts/setup_nginx.sh
+        # user part
+      - name: Prepare some essential stuff (build or smth else)
+        run: ./scripts/prepare.sh
+      - name: Run test
+        run: ./scripts/run_test.sh
