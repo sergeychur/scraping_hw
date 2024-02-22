@@ -1,3 +1,4 @@
+import time
 import requests
 
 from collections import deque
@@ -7,6 +8,7 @@ from logging import Logger
 from item import Item
 from parsers.css_selector_parser import CssSelectorParser
 from utils.file_sink import FileSink
+from utils.simple_rate_limiter import SimpleRateLimiter
 
 '''
 Runner обходит страницы:
@@ -29,62 +31,59 @@ class SimpleRunner:
         ) -> None:
         self._parser = parser
         self._sink = sink
-        self._logger = logger
-        self._seed_urls = seed_urls
-        self._rate = rate
+        self._logger = logger.getChild('SyncRunner')
+
+        self._rate_limiter = SimpleRateLimiter(rate)
         self._max_tries = max_tries
-        self._host_time_interval_sec = host_time_interval_sec
 
-        self._host2start: dict[str, datetime] = {}
+        self._seen: set[str] = set()
+        self._to_process: deque[Item] = deque()
+        for url in seed_urls:
+            self._submit(Item(url))
 
-        self._seen = set()
-        self._to_process = deque()
-        for url in self._seed_urls:
-            self._to_process.append(Item(url))
-    
-    def _check_time(self, item: Item) -> bool:
-        interval = self._host2start.get(item.host, datetime.now()) - datetime.now() 
-        return interval.total_seconds() > self._host_time_interval_sec
-    
-    def _process(self, item: Item) -> tuple[str | None, list[str]]:
-        self._host2start[item.host] = datetime.now()
-        resp = requests.get(item.url)
-        return self._parser(resp.content, item.url1)
+    def _submit(self, item: Item) -> None:
+        self._to_process.append(item)
+        self._seen.add(item.url)
 
-    def _write(self, item: Item, result: str, err: str | None):
-        # TODO: change
-        if err is not None:
-            self._sink.write({'error': str(err), 'result': None, 'url': item.url})
-        else:
-            self._sink.write({'error': None, 'result': result, 'url': item.url})
+    def _download(self, item: Item) -> tuple[str, list[str] | None]:
+        time.sleep(self._rate_limiter.get_delay())
+        resp = requests.get(item.url, timeout=60)
+        resp.raise_for_status()
+        content = resp.content
+        return self._parser.parse(content, resp.url)
 
     def run(self):
         while self._to_process:
             item = self._to_process.popleft()
-            
-            # for friendly
-            if not self._check_time(item):
-                self._to_process.append(item)
-                continue
+            item.start = time.time()
+            self._logger.info(f'start: {item.url}') 
 
             try:
-                result, next_urls = self._process(item)
+                result, next_urls = self._download(item)
+                item.end = time.time()
             except Exception as e:  # TODO: change exception?, from request, from parser
                 item.tries += 1
+                item.end = time.time()
+                duration = item.end - item.start
 
-                self._logger.error('url=%s; tries=%d; err=%s;', item.url, item.tries, str(e))
+                if item.tries >= self._max_tries:
+                    self._logger.info(f'fail: {item.url} {e}. tries={item.tries}. duration={duration}')
+                    self._write(item, err=str(e))
+                    continue
 
-                if item.tries > self._max_tries:
-                    self._logger.info(
-                        'url=%s; tries=%d; msg=%s', 
-                        item.url, item.tries,
-                        f"max_tries={self._max_tries} is reached"
-                    )
-                    self._write(item, err=e)
-                else:
-                    self._to_process.append(item)
+                self._logger.warning(f'postpone: {item.url} {e}. tries={item.tries}. duration={duration}')
+                self._to_process.append(item)
             else:
+                self._logger.info(f'success: {item.url}. tries={item.tries}. duration={item.end - item.start}')
                 if result is not None:
-                    self._write(result)
-                for url in self._filter(next_urls):
-                    self._to_process.append(Item(url))
+                    self._write(item, result)
+                for url in next_urls:
+                    if url not in self._seen:
+                        self._to_process.append(Item(url))
+    
+    def _write(self, item: Item, result: str, err: str | None) -> None:
+        # TODO: change
+        if result is None and err is None:
+            raise RuntimeError('Invalid result. Both result and error are None')
+        to_write = {'tries': item.tries, 'result': result, 'error': err}
+        self._sink.write(to_write)
