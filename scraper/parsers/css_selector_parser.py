@@ -17,6 +17,8 @@ class CssSelectorParser:
         players = soup.find(id="Текущий_состав")
         if players is not None:
             return None, self._parse_players(players.parent, cur_page_url)
+        
+        return None, []
     
     def _parse_player(stat_h):
         table = stat_h.find_next_sibling('table')   
