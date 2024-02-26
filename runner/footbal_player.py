@@ -20,7 +20,7 @@ class Player:
         self.club_caps = 0
         self.club_conceded = 0
         self.club_scored = 0
-        self.national_caps = int(games_number)
+        self.national_caps = 0
         if self.position == 'вратарь':
             if goals[0] == '−' or goals[0] == '-':
                 self.national_conceded = int(goals[1:])
@@ -64,7 +64,7 @@ class Player:
         self.height = int(height)
 
     def set_club_caps(self, club_caps):
-        self.club_caps = max(int(club_caps), self.club_caps)
+        self.club_caps = int(club_caps)
 
     def set_club_goals(self, club_goals):
         if self.position == 'вратарь':
@@ -74,6 +74,7 @@ class Player:
             self.club_scored = max(int(club_goals), self.club_scored)
 
     def set_national_caps(self, national_caps):
+        print(self.name, national_caps)
         self.national_caps = max(int(national_caps), self.national_caps)
 
     def set_national_goals(self, national_goals):
