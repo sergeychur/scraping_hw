@@ -1,5 +1,5 @@
 import json
-from backports.zoneinfo import zoneinfo
+from backports.zoneinfo import ZoneInfo
 from datetime import datetime
 from urllib.parse import urljoin, urlparse
 
@@ -30,7 +30,7 @@ class Player:
         self.national_team = None
 
         self.birth = int(datetime.strptime(birth, "%Y-%m-%d")
-                         .replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=zoneinfo.ZoneInfo(key='Europe/Moscow'))
+                         .replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=ZoneInfo(key='Europe/Moscow'))
                          .timestamp())
 
         if self.is_url_exists():
