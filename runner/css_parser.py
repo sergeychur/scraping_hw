@@ -14,7 +14,6 @@ class CssSelectorParser:
         for e in table_elems:
             if e.has_attr('title') and 'Сборная' in e['title']:
                 links.append(urljoin(domain, e['href']))
-                break
         return [], links
 
     def _parse_team_page(self, root, domain):
@@ -96,7 +95,6 @@ class CssSelectorParser:
             if not l:
                 l = self._player_page_get_club_inf(tr, tr.th)
             if len(l)>1:
-                print(l)
                 player.set_club_caps(int(l[-2].strip()))
                 player.set_club_goals(int(l[-1].strip().replace('−', '-')))
                 break
