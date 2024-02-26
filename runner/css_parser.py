@@ -1,3 +1,4 @@
+import re
 from bs4 import BeautifulSoup, Tag
 from urllib.parse import urljoin, urlparse
 
@@ -48,7 +49,7 @@ class CssSelectorParser:
                                     break
                                 else:
                                     if tag.has_attr('title'):
-                                        if column_counter == 5 or column_counter == 6:
+                                        if column_counter == 5:
                                             player_params.append(tag.text.strip())
                                         else:
                                             player_params.append(tag['title'].strip())
@@ -90,8 +91,8 @@ class CssSelectorParser:
         table_elems = root.select_one("table.ts-Спортивная_карьера-table.threecolumns.stripped")
         club_section = False
         national_section = False
-        goals_sum = 0
-        games_sum = 0
+        goals_sum = games_sum = 0
+        club = ''
         for tr in table_elems.tbody:
             if isinstance(tr, Tag) and tr.th is not None and 'Клубная карьера' in tr.th:
                 club_section = True
@@ -105,6 +106,7 @@ class CssSelectorParser:
                         l.append(td.text.strip())
                 if l:
                     try:
+                        club = l[-2]
                         games, goals = l[-1].split(' ')
                         goals_sum += int(goals[1:-1].replace('−', '-'))
                         games_sum += int(games)
@@ -126,6 +128,7 @@ class CssSelectorParser:
                     player.set_national_caps(int(games))
         player.set_club_goals(goals_sum)
         player.set_club_caps(games_sum)
+        player.set_club(club.replace('→  ', ''))
         return player, []
 
     def parse(self, content, url):
