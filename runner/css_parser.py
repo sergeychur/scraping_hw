@@ -14,6 +14,7 @@ class CssSelectorParser:
         for e in table_elems:
             if e.has_attr('title') and 'Сборная' in e['title']:
                 links.append(urljoin(domain, e['href']))
+                break
         return [], links
 
     def _parse_team_page(self, root, domain):
@@ -95,6 +96,7 @@ class CssSelectorParser:
             if not l:
                 l = self._player_page_get_club_inf(tr, tr.th)
             if len(l)>1:
+                print(l)
                 player.set_club_caps(int(l[-2].strip()))
                 player.set_club_goals(int(l[-1].strip().replace('−', '-')))
                 break
@@ -102,7 +104,6 @@ class CssSelectorParser:
         club_section = False
         national_section = False
         goals_sum = games_sum = 0
-        club = ''
         national_info = []
         for tr in table_elems.tbody:
             if isinstance(tr, Tag) and tr.th is not None and 'Клубная карьера' in tr.th:
@@ -117,7 +118,6 @@ class CssSelectorParser:
                         l.append(td.text.strip())
                 if l:
                     try:
-                        club = l[-2]
                         games, goals = l[-1].split(' ')
                         goals_sum += int(goals[1:-1].replace('−', '-'))
                         games_sum += int(games)
