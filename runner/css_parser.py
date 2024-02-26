@@ -84,6 +84,9 @@ class CssSelectorParser:
         height = root.find('span', {'data-wikidata-property-id': 'P2048'}).text[:3]
         player.set_height(int(height))
         position = root.find('span', {'data-wikidata-property-id': 'P413'}).text
+        club = root.find('span', {'data-wikidata-property-id': 'P54'})
+        tmp = [a for a in club]
+        player.set_club(tmp[-1].text)
         if position and position is not None:
             player.set_position(position)
         tr_tags = root.select('tr')
@@ -144,7 +147,6 @@ class CssSelectorParser:
 
         player.set_club_goals(goals_sum)
         player.set_club_caps(games_sum)
-        player.set_club(club.replace('→  ', ''))
         return player, []
 
     def parse(self, content, url):

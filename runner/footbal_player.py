@@ -1,5 +1,8 @@
 import json
-from backports.zoneinfo import ZoneInfo
+try:
+    from backports.zoneinfo import ZoneInfo
+except ImportError as e:
+    from zoneinfo import ZoneInfo
 from datetime import datetime
 from urllib.parse import urljoin, urlparse
 
