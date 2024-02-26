@@ -14,7 +14,6 @@ class CssSelectorParser:
         for e in table_elems:
             if e.has_attr('title') and 'Сборная' in e['title']:
                 links.append(urljoin(domain, e['href']))
-                break
         return [], links
 
     def _parse_team_page(self, root, domain):
