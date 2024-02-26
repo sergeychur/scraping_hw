@@ -12,7 +12,7 @@ class CssSelectorParser:
         table_elems = root.select("table.standard.sortable a")
         for e in table_elems:
             if e.has_attr('title') and 'Сборная' in e['title']:
-                links.append((urljoin(domain, e['href']), e['title']))
+                links.append(urljoin(domain, e['href']))
         return [], links
 
     def _parse_team_page(self, root, domain):
