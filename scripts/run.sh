@@ -11,6 +11,6 @@ seed_url=$1
 path_to_result=$2
 
 # TODO: actual implementation should go here
-python3 ./main.py $seed_url $path_to_result
+python3.8 ./main.py $seed_url $path_to_result
 
 echo "Finished running"

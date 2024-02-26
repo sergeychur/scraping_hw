@@ -6,9 +6,5 @@ set -eu
 
 python3.8 -m venv venv
 . venv/bin/activate
-ls
 
 pip install -r requirements.txt
-
-cd venv
-ls
