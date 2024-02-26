@@ -14,6 +14,7 @@ class CssSelectorParser:
         for e in table_elems:
             if e.has_attr('title') and 'Сборная' in e['title']:
                 links.append(urljoin(domain, e['href']))
+                break
         return [], links
 
     def _parse_team_page(self, root, domain):
@@ -26,10 +27,12 @@ class CssSelectorParser:
             for th in table.tbody.tr:
                 stripped_text = th.text.strip()
                 if stripped_text:
+                    print(stripped_text)
                     if stripped_text != self._players_table_columns[index]:
                         is_player_table = False
-                        break
                     index += 1
+                    if index == len(self._players_table_columns):
+                        break
 
             if is_player_table:
                 for row_counter, tr in enumerate(table.tbody):
@@ -62,12 +65,11 @@ class CssSelectorParser:
                                     break
 
                     if player_params:
-                        player = Player(*player_params)
+                        player = Player(*player_params[:7])
                         if player.is_url_exists():
                             links.append(player.get_url())
-                return [], links
 
-        return [], []
+        return [], links
 
     def _player_page_get_club_inf(self, tr, tag):
         l = []
@@ -127,7 +129,6 @@ class CssSelectorParser:
                         if td.a is not None:
                             for a in td:
                                 if isinstance(a, Tag):
-                                    print(a, a.has_attr('title'))
                                     if a.has_attr('title'):
                                         tmp.append(a)
                             if tmp:
