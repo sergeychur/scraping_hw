@@ -14,7 +14,6 @@ class CssSelectorParser:
         for e in table_elems:
             if e.has_attr('title') and 'Сборная' in e['title']:
                 links.append(urljoin(domain, e['href']))
-                break
         return [], links
 
     def _parse_team_page(self, root, domain):
@@ -93,7 +92,6 @@ class CssSelectorParser:
             if not l:
                 l = self._player_page_get_club_inf(tr, tr.th)
             if len(l)>1:
-                print(l)
                 player.set_club_caps(int(l[-2].strip()))
                 player.set_club_goals(int(l[-1].strip().replace('−', '-')))
                 break
@@ -125,13 +123,23 @@ class CssSelectorParser:
             if national_section:
                 for td in tr:
                     if isinstance(td, Tag):
-                        l.append(td.text.strip())
+                        tmp = []
+                        if td.a is not None:
+                            for a in td:
+                                if isinstance(a, Tag):
+                                    print(a, a.has_attr('title'))
+                                    if a.has_attr('title'):
+                                        tmp.append(a)
+                            if tmp:
+                                l.append(tmp[-1]['title'])
+                        else:
+                            l.append(td.text.strip())
                 if l:
                     national_info = l
 
         if len(national_info)>1 and not('(' in national_info[-2]):
             games, goals = national_info[-1].split(' ')
-            player.set_national_team(' '.join(national_info[-2].split(' ')[:4]))
+            player.set_national_team(national_info[-2])
             player.set_national_goals(int(goals[1:-1].replace('−', '-')))
             player.set_national_caps(int(games))
 
