@@ -1,9 +1,11 @@
 import logging
 import sys
+from urllib.parse import urlparse
 
 from runner.simple_runner import SimpleRunner
 from runner.css_parser import CssSelectorParser
 from runner.file_sink import FileSink
+from runner.footbal_player import Player
 
 def main():
     logging.basicConfig(
@@ -13,6 +15,9 @@ def main():
     )
     args = sys.argv
     logger = logging.getLogger('Runner')
+    domain = urlparse(args[1]).netloc
+    if domain:
+        Player.set_domain(domain)
     seed_urls = [args[1]]
     parser = CssSelectorParser()
     sink = FileSink(args[2])

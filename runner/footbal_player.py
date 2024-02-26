@@ -4,9 +4,10 @@ from datetime import datetime
 
 class Player:
     players = {}
+    DOMAIN = 'ru.wikipedia.org'
 
     def __init__(self, position, page_url, full_name, birth, games_number, goals, club, national_team):
-        self.url = 'https://ru.wikipedia.org' + page_url
+        self.url = 'https://' + self.DOMAIN + page_url
         self.name = full_name.replace(',', '').split(' ')[:2]
         self.height = None
         self.position = position.split(' ')[0].lower()
@@ -30,6 +31,16 @@ class Player:
         if self.is_url_exists():
             self.players[self.url] = self
 
+    @classmethod
+    def pop_player(cls, url):
+        player = cls.players[url]
+        del cls.players[url]
+        return player
+
+    @classmethod
+    def set_domain(cls, domain):
+        cls.DOMAIN = domain
+
     def __str__(self):
         return json.dumps(self.__dict__, ensure_ascii=False)
 
@@ -38,12 +49,6 @@ class Player:
 
     def is_url_exists(self):
         return not('redlink=1' in self.url)
-
-    @classmethod
-    def pop_player(cls, url):
-        player = cls.players[url]
-        del cls.players[url]
-        return player
     
     def set_height(self, height):
         self.height = int(height)
