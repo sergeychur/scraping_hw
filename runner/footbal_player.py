@@ -1,7 +1,6 @@
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urljoin, urlparse
-from pytz import timezone
 
 
 class Player:
@@ -28,7 +27,10 @@ class Player:
             self.national_conceded = 0
             self.national_scored = int(goals)
         self.national_team = None
-        self.birth = int(datetime.strptime(birth, "%Y-%m-%d").replace(tzinfo=None).timestamp())
+
+        self.birth = int(datetime.strptime(birth, "%Y-%m-%d")
+                         .replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+                         .timestamp())
 
         if self.is_url_exists():
             self.players[self.url] = self
