@@ -1,6 +1,5 @@
-from bs4 import BeautifulSoup, NavigableString, Tag
-import re
-from urllib.parse import urljoin
+from bs4 import BeautifulSoup, Tag
+from urllib.parse import urljoin, urlparse
 
 from runner.footbal_player import Player
 
@@ -8,19 +7,19 @@ from runner.footbal_player import Player
 class CssSelectorParser:
     _players_table_columns = ['№', 'Позиция', 'Игрок', 'Дата рождения / возраст', 'Матчи', 'Голы', 'Клуб']
 
-    def _parse_root_page(self, root):
+    def _parse_root_page(self, root, domain):
         links = []
-        base_url = 'https://ru.wikipedia.org'
         table_elems = root.select("table.standard.sortable a")
         for e in table_elems:
             if e.has_attr('title') and 'Сборная' in e['title']:
-                links.append(base_url + e['href'])
+                links.append(urljoin('https://' + domain, e['href']))
         return [], links
 
-    def _parse_team_page(self, root):
+    def _parse_team_page(self, root, domain):
         links = []
         tables = root.select('table.wikitable')
         national_team = root.select_one('span.mw-page-title-main').text
+        Player.set_domain(domain)
         for table in tables:
             is_player_table = True
             index = 0
@@ -123,13 +122,14 @@ class CssSelectorParser:
 
     def parse(self, content, url):
         soup = BeautifulSoup(content, 'html.parser')
+        domain = urlparse(url).netloc
         page_title = soup.select_one('div.mw-content-ltr.mw-parser-output').table['data-name']
         if page_title is not None and 'Соревнование' in page_title:
-            result, links = self._parse_root_page(soup)
+            result, links = self._parse_root_page(soup, domain)
             return result, links
 
         if page_title is not None and 'Сборная' in page_title:
-            result, links = self._parse_team_page(soup)
+            result, links = self._parse_team_page(soup, domain)
             return result, links
 
         # else

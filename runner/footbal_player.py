@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from urllib.parse import urljoin
 
 
 class Player:
@@ -7,7 +8,7 @@ class Player:
     DOMAIN = 'ru.wikipedia.org'
 
     def __init__(self, position, page_url, full_name, birth, games_number, goals, club, national_team):
-        self.url = 'https://' + self.DOMAIN + page_url
+        self.url = urljoin('https://' + self.DOMAIN, page_url)
         self.name = full_name.replace(',', '').split(' ')[:2]
         self.height = None
         self.position = position.split(' ')[0].lower()
