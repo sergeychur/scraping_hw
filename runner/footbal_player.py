@@ -7,7 +7,7 @@ class Player:
     players = {}
     DOMAIN = 'https://ru.wikipedia.org'
 
-    def __init__(self, position, page_url, full_name, birth, games_number, goals, club, national_team):
+    def __init__(self, position, page_url, full_name, birth, games_number, goals, club):
         self.url = urljoin(self.DOMAIN, page_url)
         self.name = full_name.replace(',', '').split(' ')[:2]
         self.height = None
@@ -26,7 +26,7 @@ class Player:
         else:
             self.national_conceded = 0
             self.national_scored = int(goals)
-        self.national_team = national_team
+        self.national_team = None
         self.birth = int(datetime.strptime(birth, "%Y-%m-%d").timestamp())
 
         if self.is_url_exists():
@@ -73,3 +73,6 @@ class Player:
             self.national_conceded = max(int(national_goals), self.national_conceded)
         else:
             self.national_scored = max(int(national_goals), self.national_scored)
+
+    def set_national_team(self, team):
+        self.national_team = team

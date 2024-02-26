@@ -12,13 +12,12 @@ class CssSelectorParser:
         table_elems = root.select("table.standard.sortable a")
         for e in table_elems:
             if e.has_attr('title') and 'Сборная' in e['title']:
-                links.append(urljoin(domain, e['href']))
+                links.append((urljoin(domain, e['href']), e['title']))
         return [], links
 
     def _parse_team_page(self, root, domain):
         links = []
         tables = root.select('table.wikitable')
-        national_team = root.select_one('span.mw-page-title-main').text
         Player.set_domain(domain)
         for table in tables:
             is_player_table = True
@@ -62,7 +61,7 @@ class CssSelectorParser:
                                     break
 
                     if player_params:
-                        player = Player(*player_params, national_team)
+                        player = Player(*player_params)
                         if player.is_url_exists():
                             links.append(player.get_url())
                 return [], links
@@ -111,9 +110,15 @@ class CssSelectorParser:
             if national_section:
                 for td in tr:
                     if isinstance(td, Tag):
-                        l.append(td.text.strip())
+                        if td.a is not None:
+                            for a in td:
+                                if isinstance(a, Tag) and a.has_attr('title'):
+                                    l.append(a['title'])
+                        else:
+                            l.append(td.text.strip())
                 if len(l)>1 and not('до' in l[-2]):
                     games, goals = l[-1].split(' ')
+                    player.set_national_team(' '.join(l[-2].split(' ')[:4]))
                     player.set_national_goals(int(goals[1:-1].replace('−', '-')))
                     player.set_national_caps(int(games))
         player.set_club_goals(goals_sum)
