@@ -121,17 +121,14 @@ class CssSelectorParser:
         player.set_club_caps(games_sum)
         return player, []
 
-
-
-
     def parse(self, content, url):
         soup = BeautifulSoup(content, 'html.parser')
-        page_title = soup.select_one('span.mw-page-title-main').text
-        if 'Чемпионат' in page_title:
+        page_title = soup.select_one('div.mw-content-ltr.mw-parser-output').table['data-name']
+        if page_title is not None and 'Соревнование' in page_title:
             result, links = self._parse_root_page(soup)
             return result, links
 
-        if 'Сборная' in page_title:
+        if page_title is not None and 'Сборная' in page_title:
             result, links = self._parse_team_page(soup)
             return result, links
 
