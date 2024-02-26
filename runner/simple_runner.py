@@ -13,7 +13,7 @@ class Item:
 
 
 class SimpleRunner:
-    def __init__(self, parser, sink, logger, seed_urls, rate=10, max_tries=100):
+    def __init__(self, parser, sink, logger, seed_urls, rate=100, max_tries=100):
         self._logger = logger.getChild('SyncRunner')
         self._parser = parser
         self._sink = sink

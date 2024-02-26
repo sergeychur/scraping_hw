@@ -16,7 +16,7 @@ def main():
     seed_urls = [args[1]]
     parser = CssSelectorParser()
     sink = FileSink(args[2])
-    runner = SimpleRunner(parser, sink, logger, seed_urls)
+    runner = SimpleRunner(parser, sink, logger, seed_urls, rate=1)
     runner.run()
 
 
