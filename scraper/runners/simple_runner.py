@@ -2,24 +2,12 @@ import time
 import requests
 
 from collections import deque
-from datetime import datetime
 from logging import Logger
 
-from item import Item
+from runners.item import Item
 from parsers.css_selector_parser import CssSelectorParser
 from utils.file_sink import FileSink
 from utils.simple_rate_limiter import SimpleRateLimiter
-
-'''
-Runner обходит страницы:
-    - делает запрос и получает контент
-    - одает контент парсеру и получает нужную информацию и дочерние страницы
-    - сохраняет нужную информацию  с помощью sink (кто выбирает формат сохранения?)
-    - проходит по страницам
-
-нужную информацию извлекает парсер
-дочерние страницы выбирает парсер
-'''
 
 
 class SimpleRunner:
@@ -27,7 +15,7 @@ class SimpleRunner:
             self, parser: CssSelectorParser, 
             sink: FileSink, logger: Logger, 
             seed_urls: list[str], rate: int = 100, 
-            max_tries: int = 5, host_time_interval_sec: float = 1
+            max_tries: int = 5
         ) -> None:
         self._parser = parser
         self._sink = sink
@@ -59,15 +47,14 @@ class SimpleRunner:
             self._logger.info(f'start: {item.url}') 
 
             try:
+                item.tries += 1
                 result, next_urls = self._download(item)
                 item.end = time.time()
             except Exception as e:  # TODO: change exception?, from request, from parser
-                item.tries += 1
                 item.end = time.time()
                 duration = item.end - item.start
-
                 if item.tries >= self._max_tries:
-                    self._logger.info(f'fail: {item.url} {e}. tries={item.tries}. duration={duration}')
+                    self._logger.error(f'fail: {item.url} {e}. tries={item.tries}. duration={duration}')
                     self._write(item, err=str(e))
                     continue
 
@@ -81,9 +68,8 @@ class SimpleRunner:
                     if url not in self._seen:
                         self._to_process.append(Item(url))
     
-    def _write(self, item: Item, result: str, err: str | None) -> None:
-        # TODO: change
+    def _write(self, item: Item, result: str | None = None, err: str | None = None) -> None:
         if result is None and err is None:
             raise RuntimeError('Invalid result. Both result and error are None')
-        to_write = {'tries': item.tries, 'result': result, 'error': err}
+        to_write = {'url': item.url,'tries': item.tries, 'result': result, 'error': err}
         self._sink.write(to_write)
