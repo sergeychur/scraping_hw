@@ -72,6 +72,9 @@ class CssSelectorParser:
         player = Player.pop_player(url)
         height = root.find('span', {'data-wikidata-property-id': 'P2048'}).text[:3]
         player.set_height(int(height))
+        position = root.find('span', {'data-wikidata-property-id': 'P413'}).text
+        if position and position is not None:
+            player.set_position(position)
         tr_tags = root.select('tr')
         for tr in tr_tags:
             if tr.td is not None:

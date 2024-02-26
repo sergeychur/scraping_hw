@@ -78,3 +78,6 @@ class Player:
 
     def set_national_team(self, team):
         self.national_team = team
+
+    def set_position(self, position):
+        self.position = position
