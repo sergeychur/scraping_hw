@@ -13,7 +13,6 @@ def main():
     )
     args = sys.argv
     logger = logging.getLogger('Runner')
-
     seed_urls = [args[1]]
     parser = CssSelectorParser()
     sink = FileSink(args[2])

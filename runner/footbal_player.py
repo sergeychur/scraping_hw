@@ -5,10 +5,10 @@ from urllib.parse import urljoin
 
 class Player:
     players = {}
-    DOMAIN = 'ru.wikipedia.org'
+    DOMAIN = 'https://ru.wikipedia.org'
 
     def __init__(self, position, page_url, full_name, birth, games_number, goals, club, national_team):
-        self.url = urljoin('https://' + self.DOMAIN, page_url)
+        self.url = urljoin(self.DOMAIN, page_url)
         self.name = full_name.replace(',', '').split(' ')[:2]
         self.height = None
         self.position = position.split(' ')[0].lower()

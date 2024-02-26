@@ -12,7 +12,7 @@ class CssSelectorParser:
         table_elems = root.select("table.standard.sortable a")
         for e in table_elems:
             if e.has_attr('title') and 'Сборная' in e['title']:
-                links.append(urljoin('https://' + domain, e['href']))
+                links.append(urljoin(domain, e['href']))
         return [], links
 
     def _parse_team_page(self, root, domain):
@@ -122,7 +122,9 @@ class CssSelectorParser:
 
     def parse(self, content, url):
         soup = BeautifulSoup(content, 'html.parser')
-        domain = urlparse(url).netloc
+        netloc = urlparse(url).netloc
+        scheme = urlparse(url).scheme
+        domain = scheme + '://' + netloc
         page_title = soup.select_one('div.mw-content-ltr.mw-parser-output').table['data-name']
         if page_title is not None and 'Соревнование' in page_title:
             result, links = self._parse_root_page(soup, domain)
