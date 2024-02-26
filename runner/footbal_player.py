@@ -12,7 +12,7 @@ class Player:
         self.name = full_name.replace(',', '').split(' ')[:2]
         self.height = None
         self.position = position.split(' ')[0].lower()
-        self.current_club = club
+        self.current_club = club[:club.find('(')].strip()
         self.club_caps = 0
         self.club_conceded = 0
         self.club_scored = 0

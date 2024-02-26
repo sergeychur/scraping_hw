@@ -48,7 +48,7 @@ class CssSelectorParser:
                                     break
                                 else:
                                     if tag.has_attr('title'):
-                                        if column_counter == 5:
+                                        if column_counter == 5 or column_counter == 6:
                                             player_params.append(tag.text.strip())
                                         else:
                                             player_params.append(tag['title'].strip())
