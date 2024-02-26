@@ -20,8 +20,27 @@ class CssSelectorParser:
         
         return None, []
     
-    def _parse_player(stat_h):
-        table = stat_h.find_next_sibling('table')   
+    def _parse_player(soup):
+        player_stat = soup.find(id='Статистика_выступлений').parent
+        stat_table = player_stat.find_next_sibling('table')
+
+        surname, name = soup.select_one(".mw-page-title-main").text.split(', ')
+        height = int(soup.find(attrs={"data-wikidata-property-id":"P2048"}).contents[0])
+        position = soup.find(attrs={"data-wikidata-property-id":"P413"}).text.lower().strip()
+        club = soup.find(attrs={"data-wikidata-property-id":"P54"}).text.strip()
+
+        last_row = player_stat.select_one('tr:last-child')
+        club_caps = int(last_row.select_one('td:nth-child(10)').text)
+        if position == 'вратарь':
+            club_conceded = int(last_row.select_one('td:nth-child(11)').text)
+            club_scored = 0
+        else:
+            club_conceded = 0
+            club_scored = int(last_row.select_one('td:nth-child(11)').text)
+        
+
+
+
     
     def _parse_teams(teams_h, cur_page_url: str) -> list[str]:
         urls: list[str] = []
