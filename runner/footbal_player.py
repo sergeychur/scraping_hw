@@ -1,6 +1,6 @@
 import json
-import zoneinfo
-from datetime import datetime, timedelta, timezone
+from backports.zoneinfo import zoneinfo
+from datetime import datetime
 from urllib.parse import urljoin, urlparse
 
 
