@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 
 class Player:
@@ -32,18 +32,20 @@ class Player:
         if self.is_url_exists():
             self.players[self.url] = self
 
+    def __str__(self):
+        return json.dumps(self.__dict__, ensure_ascii=False)
+
     @classmethod
     def pop_player(cls, url):
         player = cls.players[url]
+        parse = urlparse(player.url)
+        player.url = cls.DOMAIN + parse.path
         del cls.players[url]
         return player
 
     @classmethod
     def set_domain(cls, domain):
         cls.DOMAIN = domain
-
-    def __str__(self):
-        return json.dumps(self.__dict__, ensure_ascii=False)
 
     def get_url(self):
         return self.url
