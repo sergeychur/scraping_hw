@@ -38,9 +38,9 @@ class Player:
     @classmethod
     def pop_player(cls, url):
         player = cls.players[url]
-        parse = urlparse(player.url)
-        player.url = cls.DOMAIN + parse.path
         del cls.players[url]
+        parse = urlparse(player.url)
+        player.url = 'https://ru.wikipedia.org' + parse.path
         return player
 
     @classmethod
