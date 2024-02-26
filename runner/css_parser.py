@@ -27,7 +27,6 @@ class CssSelectorParser:
             for th in table.tbody.tr:
                 stripped_text = th.text.strip()
                 if stripped_text:
-                    print(stripped_text)
                     if stripped_text != self._players_table_columns[index]:
                         is_player_table = False
                     index += 1
