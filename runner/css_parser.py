@@ -1,5 +1,5 @@
 import re
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, Tag, NavigableString
 from urllib.parse import urljoin, urlparse
 
 from runner.footbal_player import Player
@@ -14,6 +14,7 @@ class CssSelectorParser:
         for e in table_elems:
             if e.has_attr('title') and 'Сборная' in e['title']:
                 links.append(urljoin(domain, e['href']))
+                break
         return [], links
 
     def _parse_team_page(self, root, domain):
@@ -69,6 +70,16 @@ class CssSelectorParser:
 
         return [], []
 
+    def _player_page_get_club_inf(self, tr, tag):
+        l = []
+        if tag is not None:
+            if 'Всего за карьеру' in tag.text:
+                l = []
+                for td in tr:
+                    if td.text is not None and td.text.strip():
+                        l.append(td.text)
+        return l
+
     def _parse_player_page(self, root, url):
         player = Player.pop_player(url)
         height = root.find('span', {'data-wikidata-property-id': 'P2048'}).text[:3]
@@ -78,21 +89,20 @@ class CssSelectorParser:
             player.set_position(position)
         tr_tags = root.select('tr')
         for tr in tr_tags:
-            if tr.td is not None:
-                if 'Всего за карьеру' in tr.td.text:
-                    l = []
-                    for td in tr:
-                        if td.text is not None and td.text.strip():
-                            l.append(td.text)
-                    if len(l)>1:
-                        player.set_club_caps(int(l[-2].strip()))
-                        player.set_club_goals(int(l[-1].strip().replace('−', '-')))
-                    break
+            l = self._player_page_get_club_inf(tr, tr.td)
+            if not l:
+                l = self._player_page_get_club_inf(tr, tr.th)
+            if len(l)>1:
+                print(l)
+                player.set_club_caps(int(l[-2].strip()))
+                player.set_club_goals(int(l[-1].strip().replace('−', '-')))
+                break
         table_elems = root.select_one("table.ts-Спортивная_карьера-table.threecolumns.stripped")
         club_section = False
         national_section = False
         goals_sum = games_sum = 0
         club = ''
+        national_info = []
         for tr in table_elems.tbody:
             if isinstance(tr, Tag) and tr.th is not None and 'Клубная карьера' in tr.th:
                 club_section = True
@@ -115,17 +125,16 @@ class CssSelectorParser:
             if national_section:
                 for td in tr:
                     if isinstance(td, Tag):
-                        if td.a is not None:
-                            for a in td:
-                                if isinstance(a, Tag) and a.has_attr('title'):
-                                    l.append(a['title'])
-                        else:
-                            l.append(td.text.strip())
-                if len(l)>1 and not('до' in l[-2]):
-                    games, goals = l[-1].split(' ')
-                    player.set_national_team(' '.join(l[-2].split(' ')[:4]))
-                    player.set_national_goals(int(goals[1:-1].replace('−', '-')))
-                    player.set_national_caps(int(games))
+                        l.append(td.text.strip())
+                if l:
+                    national_info = l
+
+        if len(national_info)>1 and not('(' in national_info[-2]):
+            games, goals = national_info[-1].split(' ')
+            player.set_national_team(' '.join(national_info[-2].split(' ')[:4]))
+            player.set_national_goals(int(goals[1:-1].replace('−', '-')))
+            player.set_national_caps(int(games))
+
         player.set_club_goals(goals_sum)
         player.set_club_caps(games_sum)
         player.set_club(club.replace('→  ', ''))
