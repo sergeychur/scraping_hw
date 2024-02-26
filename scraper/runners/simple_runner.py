@@ -54,7 +54,7 @@ class SimpleRunner:
                 item.end = time.time()
                 duration = item.end - item.start
                 if item.tries >= self._max_tries:
-                    self._logger.error(f'fail: {item.url} {e}. tries={item.tries}. duration={duration}')
+                    self._logger.error(f'fail: {item.url} {e}. tries={item.tries}. duration={duration}, error={e}')
                     self._write(item, err=str(e))
                     continue
 

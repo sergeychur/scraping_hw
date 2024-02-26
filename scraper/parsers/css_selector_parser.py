@@ -1,5 +1,6 @@
 from urllib.parse import urljoin
 from datetime import datetime
+from logging import Logger
 from bs4 import BeautifulSoup
 import re
 
@@ -9,28 +10,60 @@ class NothingFinded(Exception):
 
 
 class CssSelectorParser:
-    def __init__(self) -> None:
+    def __init__(self, logger: Logger) -> None:
+        self.logger = logger.getChild('CssSelectorParser')
         self.url2info_from_teampage: dict[str, dict] = {}
 
     def parse(self, content: str, cur_page_url: str) -> tuple[dict | None, list[str]]:
         soup = BeautifulSoup(content, 'html.parser')
-        parsers = [self._parse_teams, self._parse_players, self._parse_player]
+        parsers = [self._parse_mainpage, self._parse_teampage, self._parse_player]
+        err_mes = ''
         for parser in parsers:
             try:
                 return parser(soup, cur_page_url)
-            except (AttributeError, IndexError):
-                pass
-        raise NothingFinded
+            except (AttributeError, IndexError) as e:
+                err_mes += str(e) + ';'
+        raise NothingFinded("bad page, nothing founded;" + err_mes)
 
+    def _parse_mainpage(self, soup, cur_page_url: str) -> tuple[None, list[str]]:
+        table = soup.find(id="Квалифицировались_в_финальный_турнир").parent.find_next_sibling('table')
+
+        urls: list[str] = []
+        for t in table.select('td:first-child>a'):
+            urls.append(urljoin(cur_page_url, t['href']))
+        return None, urls
+
+    def _parse_teampage(self, soup, cur_page_url: str) -> tuple[None, list[str]]:
+        tag = self._find_tag_by_id(soup, ['Текущий_состав', 'Состав', 'Игроки', 'Состав_сборной'])
+        table = tag.parent.find_next_sibling('table')
+        team_name = soup.select_one('.mw-page-title-main').text
+
+        urls: list[str] = []
+        for row in table.find_all('tr')[1:]:
+            link = row.select_one('td:nth-child(3)>a')
+            if link is None:
+                continue
+            url = urljoin(cur_page_url, link['href'])
+            team_goals = abs(self._int_from_str(row.select_one('td:nth-child(6)').text))
+            team_caps = int(row.select_one('td:nth-child(5)').text.strip())
+
+            self.url2info_from_teampage[url] = {
+                'team_name': team_name,
+                'team_goals': team_goals,
+                'team_caps': team_caps
+            }
+            urls.append(url)
+        return None, urls
+    
     def _parse_player(self, soup, cur_page_url: str) -> tuple[dict[str], list[str]]:
-        info_from_teampage = self.url2info_from_teampage[cur_page_url]
+        info_from_teampage = self.url2info_from_teampage.get(cur_page_url, {})
 
-        name, surname = soup.select_one('.ts_Спортсмен_имя').text.split()
-        height = int(soup.find(attrs={"data-wikidata-property-id":"P2048"}).contents[0].text.split()[0])
+        name, surname = self._get_player_name_surname(soup)
+        height = self._get_player_height(soup)
         position = soup.find(attrs={"data-wikidata-property-id":"P413"}).text.lower().strip()
         club = soup.find(attrs={"data-wikidata-property-id":"P54"}).text.strip()
-        stat = self._player_stat(soup, position, info_from_teampage)
-        national_team = info_from_teampage['team_name']
+        stat = self._player_stat(soup, position, info_from_teampage, cur_page_url)
+        national_team = info_from_teampage.get('team_name', '')
         birth = int(datetime.strptime(soup.select_one(".bday").text, "%Y-%m-%d").timestamp())
 
         return {
@@ -49,11 +82,40 @@ class CssSelectorParser:
             'birth': birth
         }, []
     
-    def _player_stat(self, soup, position: str, info_from_teampage: dict) -> dict:
+    def _get_player_name_surname(self, soup) -> tuple[str, str]:
+        names = soup.select_one('.ts_Спортсмен_имя').text.split()
+        if len(names) >= 2:
+            return names[0], names[1]
+        return names[0], ""
+    
+    def _int_from_str(self, s: str, regstr: str = r'\d+') -> int:
+        """
+        return int from s if it exists in else 0
+        """
+        s = re.search(regstr, s)
+        if s is None:
+            return 0
+        return int(s.group())
+
+    def _find_tag_by_id(self, soup, ids: list[str]):
+        for id in ids:
+            result = soup.find(id=id)
+            if result is not None:
+                return result
+        return None
+    
+    def _get_player_height(self, soup) -> int:
+        height_tag = soup.find(attrs={"data-wikidata-property-id":"P2048"})
+        if height_tag is None:
+            return 0
+        height = height_tag.contents[0].text.split()[0]
+        return max(map(int, self._int_from_str(height)))
+    
+    def _player_stat(self, soup, position: str, info_from_teampage: dict, url: str) -> dict:
         result = {}
         player_stat = self._player_stat_from_player(soup)
 
-        club_caps, club_goals = self._player_clubstat_from_table(soup)
+        club_caps, club_goals = self._player_clubstat_from_stattable(soup, url)
         result['club_caps'] = max(club_caps, player_stat.get('club_caps', 0))
         club_goals = max(abs(club_goals), player_stat.get('club_goals', 0))
         if position == 'вратарь':
@@ -63,15 +125,12 @@ class CssSelectorParser:
             result['club_conceded'] = 0
             result['club_scored'] = club_goals
 
-        national_caps, national_goals = self._national_games_goals_from_player(soup)
         result['national_caps'] = max(
-            national_caps, 
-            info_from_teampage['team_caps'], 
+            info_from_teampage.get('team_caps', 0), 
             player_stat.get('national_caps', 0)
         )
         national_goals = max(
-            national_goals,
-            info_from_teampage['team_goals'],
+            info_from_teampage.get('team_goals', 0),
             player_stat.get('national_goals', 0)
         )
         if position == 'вратарь':
@@ -90,8 +149,13 @@ class CssSelectorParser:
             games, goals = 0, 0
             tag = tag.find_next_sibling('tr')
             while tag is not None and tag.get('class'):
-                gms, gls  = map(int, re.findall(r'\d+', tag.select_one('td:last-child').text))
-                games += gms
+                values_str = tag.select_one('td:last-child').text.strip()
+                gls_str = re.search(r'\(.*\)', values_str)
+                if gls_str is None:
+                    gls = 0
+                else:
+                    gls = self._int_from_str(gls_str.group())
+                games += self._int_from_str(values_str, r'^\d+')
                 goals += gls
                 tag = tag.find_next_sibling('tr')
             return games, goals     
@@ -109,78 +173,29 @@ class CssSelectorParser:
         result['national_caps'] = national_games
         result['national_goals'] = national_goals
         return result
-            
-    def _player_clubstat_from_table(self, soup) -> tuple[int, int]:
-        ids = ['Статистика_выступлений', 'Статистика']
-        # TODO: add log not found
-        for id in ids:
-            result = soup.find(id=id)
-            if result is not None:
-                break
+    
+    def _player_clubstat_from_stattable(self, soup, url: str) -> tuple[int, int]:
+        result = self._find_tag_by_id(soup, ['Статистика_выступлений', 'Статистика'])
         if result is None:
+            self.logger.warning(f'stattable not found: url={url}')
             return 0, 0
         table = result.parent.find_next_sibling('table')
-        return self._club_games_goals_from_player_table(table)
+        return self._club_games_goals_from_player_stattable(table)
     
-    def _club_games_goals_from_player_table(self, table) -> tuple[int, int]:
+    def _club_games_goals_from_player_stattable(self, table) -> tuple[int, int]:
         last_row = table.select_one('tr:last-child')
         tags = last_row.find_all('td')
-        if not tags:
-            tags = last_row.find_all('th')
+        if not tags or len(tags) < 2:
+            tags = last_row.find_all('th')[:-1]
         club_caps, goals = tags[-2].text.strip(), tags[-1].text.strip()
-
-        if club_caps.isdigit():
-            club_caps = int(club_caps)
-        else:
-            club_caps = 0
-        return club_caps, int(goals)
-    
-    def _national_games_goals_from_player(self, soup) -> tuple[int, int]:
-        stat = soup.select_one("#Матчи_за_сборную")
-        if stat is None:
-            return 0, 0
-        stat = stat.parent.find_next_sibling("p").text
-        numbers = re.findall(r'\d+', stat)
-        return int(numbers[0]), int(numbers[1])
-    
-    def _parse_teams(self, soup, cur_page_url: str) -> tuple[None, list[str]]:
-        table = soup.find(id="Квалифицировались_в_финальный_турнир").parent.find_next_sibling('table')
-
-        urls: list[str] = []
-        for t in table.select('td:first-child>a'):
-            urls.append(urljoin(cur_page_url, t['href']))
-        return None, urls
-    
-    def _parse_players(self, soup, cur_page_url: str) -> tuple[None, list[str]]:
-        table = soup.find(id="Текущий_состав").parent.find_next_sibling('table')
-        team_name = soup.select_one('.mw-page-title-main').text
-
-        urls: list[str] = []
-        for row in table.find_all('tr')[1:]:
-            link = row.select_one('td:nth-child(3)>a')
-            if link is None:
-                continue
-            url = urljoin(cur_page_url, link['href'])
-            team_goals = abs(int(re.search(r'\d+', row.select_one('td:nth-child(6)').text).group()))
-            team_caps = int(row.select_one('td:nth-child(5)').text.strip())
-
-            self.url2info_from_teampage[url] = {
-                'team_name': team_name,
-                'team_goals': team_goals,
-                'team_caps': team_caps
-            }
-            urls.append(url)
-        return None, urls
+        return self._int_from_str(club_caps), self._int_from_str(goals)
     
 
 
-"""
-import requests
-url = ''
-content = requests.get(url).content
-soup = BeautifulSoup(content)
-parser = CssSelectorParser()
-
-def get_soup(url):
-    return BeautifulSoup(requests.get(url).content)
-"""
+def for_test(url):
+    import requests
+    import logging
+    content = requests.get(url).content
+    soup = BeautifulSoup(content)
+    parser = CssSelectorParser(logging.getLogger('Parser'))
+    return parser._parse_player(soup, url)
