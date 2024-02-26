@@ -109,7 +109,7 @@ class CssSelectorParser:
         if height_tag is None:
             return 0
         height = height_tag.contents[0].text.split()[0]
-        return max(map(int, self._int_from_str(height)))
+        return max(map(int, re.findall(r'\d+', height)))
     
     def _player_stat(self, soup, position: str, info_from_teampage: dict, url: str) -> dict:
         result = {}
