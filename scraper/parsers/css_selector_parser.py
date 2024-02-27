@@ -9,6 +9,8 @@ class NothingFinded(Exception):
 
 
 class CssSelectorParser:
+    _correct_teamtable_fileds = ['№', 'Позиция', 'Игрок', 'Дата рождения / возраст', 'Матчи', 'Голы', 'Клуб']
+
     def __init__(self, logger) -> None:
         self.logger = logger.getChild('CssSelectorParser')
         self.url2info_from_teampage = {}
@@ -20,10 +22,11 @@ class CssSelectorParser:
         for parser in parsers:
             try:
                 return parser(soup, cur_page_url)
-            except (AttributeError, IndexError) as e:
+            except (AttributeError, IndexError, NothingFinded) as e:
                 err_mes += str(e) + ';'
                 err = e
         raise NothingFinded("bad page, nothing founded;" + err_mes) from err
+    
 
     def _parse_mainpage(self, soup, cur_page_url):
         table = soup.find(id="Квалифицировались_в_финальный_турнир").parent.find_next_sibling('table')
@@ -32,31 +35,43 @@ class CssSelectorParser:
         for t in table.select('td:first-child>a'):
             urls.append(urljoin(cur_page_url, t['href']))
         return None, urls
-
-    def _parse_teampage(self, soup, cur_page_url):
-        tag = self._find_tag_by_id(soup, ['Текущий_состав', 'Состав', 'Игроки', 'Состав_сборной'])
-        table = tag.parent.find_next_sibling('table')
-
+    
+    def _get_teamname(self, soup):
         team_name = soup.select_one('.mw-page-title-main')
         if team_name is None:
             team_name = soup.select_one('[class="mw-selflink selflink"]')
-        team_name = team_name.text
-
+        return team_name.text
+    
+    def _is_correct_team_table(self, table):
+        fields = [th.text.strip() for th in table.tr.find_all('th')]
+        need = self._correct_teamtable_fileds
+        return fields[:len(need)] == need 
+    
+    def _urls_from_team_table(self, tables, team_name, cur_page_url):
         urls = []
-        for row in table.find_all('tr')[1:]:
-            link = row.select_one('td:nth-child(3)>a')
-            if link is None:
+        for table in tables:
+            if not self._is_correct_team_table(table):
                 continue
-            url = urljoin(cur_page_url, link['href'])
-            team_goals = abs(self._int_from_str(row.select_one('td:nth-child(6)').text))
-            team_caps = int(row.select_one('td:nth-child(5)').text.strip())
+            for row in table.find_all('tr')[1:]:
+                link = row.select_one('td:nth-child(3)>a')
+                if link is None:
+                    continue
+                url = urljoin(cur_page_url, link['href'])
+                team_goals = abs(self._int_from_str(row.select_one('td:nth-child(6)').text))
+                team_caps = int(row.select_one('td:nth-child(5)').text.strip())
 
-            self.url2info_from_teampage[url] = {
-                'team_name': team_name,
-                'team_goals': team_goals,
-                'team_caps': team_caps
-            }
-            urls.append(url)
+                self.url2info_from_teampage[url] = {
+                    'team_name': team_name,
+                    'team_goals': team_goals,
+                    'team_caps': team_caps
+                }
+                urls.append(url)
+        return urls
+
+    def _parse_teampage(self, soup, cur_page_url):
+        team_name = self._get_teamname(soup)
+        tables = soup.select(f'[class="wikitable mw-datatable"]')
+        urls = self._urls_from_team_table(tables, team_name, cur_page_url)
         return None, urls
     
     def _parse_player(self, soup, cur_page_url):
