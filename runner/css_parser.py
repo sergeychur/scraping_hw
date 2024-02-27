@@ -66,7 +66,6 @@ class CssSelectorParser:
                         player = Player(*player_params[:7])
                         if player.is_url_exists():
                             links.append(player.get_url())
-
         return [], links
 
     def _player_page_get_club_inf(self, tr, tag):
@@ -82,7 +81,7 @@ class CssSelectorParser:
     def _parse_player_page(self, root, url):
         player = Player.pop_player(url)
         height = root.find('span', {'data-wikidata-property-id': 'P2048'}).text[:3]
-        player.set_height(int(height))
+        player.set_height(height)
         position = root.find('span', {'data-wikidata-property-id': 'P413'}).text
         club = root.find('span', {'data-wikidata-property-id': 'P54'})
         tmp = [a for a in club]

@@ -61,7 +61,7 @@ class Player:
         return not('redlink=1' in self.url)
     
     def set_height(self, height):
-        self.height = int(height)
+        self.height = int(height.split(' ')[0])
 
     def set_club_caps(self, club_caps):
         self.club_caps = max(int(club_caps), self.club_caps)
