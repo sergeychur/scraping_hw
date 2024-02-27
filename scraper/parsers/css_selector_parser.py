@@ -89,10 +89,14 @@ class CssSelectorParser:
         return urls
 
     def _get_player_name_surname(self, soup):
-        names = soup.select_one('.ts_Спортсмен_имя').text.split()
+        names = soup.select_one('.mw-page-title-main').text
+        if ',' in names:
+            names = names.split(',')[::-1]
+        else:
+            names = names.split()
         if len(names) >= 2:
-            return names[0], names[1]
-        return names[0], ""
+            return names[0].strip(), names[1].strip()
+        return names[0].strip(), ""
     
     def _int_from_str(self, s, regstr = r'\d+'):
         """
