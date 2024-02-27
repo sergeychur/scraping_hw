@@ -71,7 +71,7 @@ class CssSelectorParser:
     def _player_page_get_club_inf(self, tr, tag):
         l = []
         if tag is not None:
-            if 'Всего за карьеру' in tag.text:
+            if 'Всего' in tag.text:
                 l = []
                 for td in tr:
                     if td.text is not None and td.text.strip():
