@@ -40,7 +40,7 @@ class CssSelectorParser:
         return None, urls
 
     def _parse_player(self, soup, cur_page_url):
-        name, surname = self._get_player_name_surname(soup)
+        info_from_teampage = self.url2info_from_teampage[cur_page_url]
         height = self._get_player_height(soup)
         position = soup.find(attrs={"data-wikidata-property-id":"P413"}).text.lower().strip()
         club = soup.find(attrs={"data-wikidata-property-id":"P54"}).text.strip()
@@ -48,7 +48,7 @@ class CssSelectorParser:
         birth = int(datetime.strptime(soup.select_one(".bday").text, "%Y-%m-%d").timestamp())
         return {
             'url': cur_page_url,
-            'name': [surname, name],
+            'name': [info_from_teampage['surname'], info_from_teampage['name']],
             'height': height,
             'position': position,
             'current_club': club,
@@ -77,23 +77,29 @@ class CssSelectorParser:
                 link = row.select_one('td:nth-child(3)>a')
                 if link is None:
                     continue
+                player_name, player_surname = self._get_player_name_surname(link['title'])
                 url = urljoin(cur_page_url, link['href'])
                 team_goals = abs(self._int_from_str(row.select_one('td:nth-child(6)').text))
                 team_caps = int(row.select_one('td:nth-child(5)').text.strip())
 
                 self.url2info_from_teampage[url] = {
+                    'name': player_name,
+                    'surname': player_surname,
                     'team_goals': team_goals,
                     'team_caps': team_caps
                 }
                 urls.append(url)
         return urls
 
-    def _get_player_name_surname(self, soup):
-        names = soup.select_one('.mw-page-title-main').text
-        if ',' in names:
-            names = names.split(',')[::-1]
+    def _get_player_name_surname(self, text):
+        idx = text.find('(')
+        if idx != -1:
+            text = text[:idx]
+
+        if ',' in text:
+            names = text.split(',')[::-1]
         else:
-            names = names.split()
+            names = text.split()
         if len(names) >= 2:
             return names[0].strip(), names[1].strip()
         return names[0].strip(), ""
