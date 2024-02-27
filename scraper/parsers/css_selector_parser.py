@@ -168,7 +168,6 @@ class CssSelectorParser:
                         gls = 0
                     else:
                         gls = self._int_from_str(gls_str.group())
-                    print(tag.select_one('td:nth-child(2)').text.strip(), self._int_from_str(values_str, r'^\d+'), gls)
                     games += self._int_from_str(values_str, r'^\d+')
                     goals += gls
                 tag = tag.find_next_sibling('tr')
