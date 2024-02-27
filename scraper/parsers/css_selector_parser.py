@@ -38,7 +38,7 @@ class CssSelectorParser:
 
     def _parse_teampage(self, soup, cur_page_url):
         team_name = self._get_teamname(soup)
-        tables = soup.select(f'[class="wikitable"]')
+        tables = soup.select('.wikitable')
         urls = self._urls_from_team_table(tables, team_name, cur_page_url)
         return None, urls
     
