@@ -95,7 +95,7 @@ class CssSelectorParser:
                 l = self._player_page_get_club_inf(tr, tr.th)
             if len(l)>1:
                 player.set_club_caps(int(l[-2].strip()))
-                player.set_club_goals(int(l[-1].strip().replace('−', '-')))
+                player.set_club_goals(int(l[-1].strip().replace('−', '-').replace('–','-')))
                 break
         table_elems = root.select_one("table.ts-Спортивная_карьера-table.threecolumns.stripped")
         club_section = False
