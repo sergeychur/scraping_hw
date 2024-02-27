@@ -161,3 +161,4 @@ cython_debug/
 
 *.jsonl
 stat_result.txt
+for_test.py

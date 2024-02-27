@@ -36,7 +36,11 @@ class CssSelectorParser:
     def _parse_teampage(self, soup, cur_page_url):
         tag = self._find_tag_by_id(soup, ['Текущий_состав', 'Состав', 'Игроки', 'Состав_сборной'])
         table = tag.parent.find_next_sibling('table')
-        team_name = soup.select_one('.mw-page-title-main').text
+
+        team_name = soup.select_one('.mw-page-title-main')
+        if team_name is None:
+            team_name = soup.select_one('[class="mw-selflink selflink"]')
+        team_name = team_name.text
 
         urls = []
         for row in table.find_all('tr')[1:]:
@@ -189,13 +193,3 @@ class CssSelectorParser:
             tags = last_row.find_all('th')[:-1]
         club_caps, goals = tags[-2].text.strip(), tags[-1].text.strip()
         return self._int_from_str(club_caps), self._int_from_str(goals)
-    
-
-
-def for_test(url):
-    import requests
-    import logging
-    content = requests.get(url).content
-    soup = BeautifulSoup(content)
-    parser = CssSelectorParser(logging.getLogger('Parser'))
-    return parser._parse_player(soup, url)
