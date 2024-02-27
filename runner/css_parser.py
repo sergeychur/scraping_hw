@@ -68,7 +68,7 @@ class CssSelectorParser:
                         if player.is_url_exists():
                             links.append(player.get_url())
                         else:
-                            logger.info(f'Player page with {player.get_url()} does not exist. Skipping...')
+                            logger.warning(f'Player page with {player.get_url()} does not exist. Skipping...')
         return [], links
 
     def _player_page_get_club_inf(self, tr, tag):

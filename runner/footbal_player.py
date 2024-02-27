@@ -32,9 +32,8 @@ class Player:
             self.national_conceded = 0
             self.national_scored = int(goals)
         self.national_team = None
-
-        self.birth = int(datetime.strptime(birth, "%Y-%m-%d"))
-
+        self.birth = int(datetime.strptime(birth, "%Y-%m-%d").timestamp())
+        print(self.birth)
         if self.is_url_exists():
             self.players[self.url] = self
 
