@@ -29,27 +29,22 @@ class CssSelectorParser:
 
     def _parse_mainpage(self, soup, cur_page_url):
         table = soup.find(id="Квалифицировались_в_финальный_турнир").parent.find_next_sibling('table')
-
         urls = []
         for t in table.select('td:first-child>a'):
             urls.append(urljoin(cur_page_url, t['href']))
         return None, urls
 
     def _parse_teampage(self, soup, cur_page_url):
-        team_name = self._get_teamname(soup)
         tables = soup.select('.wikitable')
-        urls = self._urls_from_team_table(tables, team_name, cur_page_url)
+        urls = self._urls_from_team_table(tables, cur_page_url)
         return None, urls
-    
-    def _parse_player(self, soup, cur_page_url):
-        info_from_teampage = self.url2info_from_teampage.get(cur_page_url, {})
 
+    def _parse_player(self, soup, cur_page_url):
         name, surname = self._get_player_name_surname(soup)
         height = self._get_player_height(soup)
         position = soup.find(attrs={"data-wikidata-property-id":"P413"}).text.lower().strip()
         club = soup.find(attrs={"data-wikidata-property-id":"P54"}).text.strip()
-        stat = self._player_stat(soup, position, cur_page_url)
-        national_team = info_from_teampage.get('team_name', '')
+        player_info = self._player_info(soup, position, cur_page_url)
         birth = int(datetime.strptime(soup.select_one(".bday").text, "%Y-%m-%d").timestamp())
         return {
             'url': cur_page_url,
@@ -57,28 +52,22 @@ class CssSelectorParser:
             'height': height,
             'position': position,
             'current_club': club,
-            'club_caps': stat['club_caps'],
-            'club_conceded': stat['club_conceded'],
-            'club_scored': stat['club_scored'],
-            'national_caps': stat['national_caps'],
-            'national_conceded': stat['national_conceded'],
-            'national_scored': stat['national_scored'],
-            'national_team': national_team,
+            'club_caps': player_info['club_caps'],
+            'club_conceded': player_info['club_conceded'],
+            'club_scored': player_info['club_scored'],
+            'national_caps': player_info['national_caps'],
+            'national_conceded': player_info['national_conceded'],
+            'national_scored': player_info['national_scored'],
+            'national_team': player_info['national_team'],
             'birth': birth
         }, []
-    
-    def _get_teamname(self, soup):
-        team_name = soup.select_one('.mw-page-title-main')
-        if team_name is None:
-            team_name = soup.select_one('[class="mw-selflink selflink"]')
-        return team_name.text
     
     def _is_correct_team_table(self, table):
         fields = [th.text.strip() for th in table.tr.find_all('th')]
         need = self._correct_teamtable_fileds
         return fields[:len(need)] == need
 
-    def _urls_from_team_table(self, tables, team_name, cur_page_url):
+    def _urls_from_team_table(self, tables, cur_page_url):
         urls = []
         tables = [table for table in tables if self._is_correct_team_table(table)]
         if not tables:
@@ -93,7 +82,6 @@ class CssSelectorParser:
                 team_caps = int(row.select_one('td:nth-child(5)').text.strip())
 
                 self.url2info_from_teampage[url] = {
-                    'team_name': team_name,
                     'team_goals': team_goals,
                     'team_caps': team_caps
                 }
@@ -129,13 +117,13 @@ class CssSelectorParser:
         height = height_tag.contents[0].text.split()[0]
         return max(map(int, re.findall(r'\d+', height)))
     
-    def _player_stat(self, soup, position, url) -> dict:
+    def _player_info(self, soup, position, url) -> dict:
         result = {}
-        player_stat = self._player_stat_from_player(soup)
+        player_info = self._info_from_player_card(soup)
 
         club_caps, club_goals = self._player_clubstat_from_stattable(soup, url)
-        result['club_caps'] = max(club_caps, player_stat.get('club_caps', 0))
-        club_goals = max(abs(club_goals), player_stat.get('club_goals', 0))
+        result['club_caps'] = max(club_caps, player_info.get('club_caps', 0))
+        club_goals = max(abs(club_goals), player_info.get('club_goals', 0))
         if position == 'вратарь':
             result['club_conceded'] = club_goals
             result['club_scored'] = 0
@@ -143,48 +131,59 @@ class CssSelectorParser:
             result['club_conceded'] = 0
             result['club_scored'] = club_goals
 
-        result['national_caps'] = player_stat.get('national_caps', 0)
-        national_goals = player_stat.get('national_goals', 0)
+        result['national_caps'] = player_info.get('national_caps', 0)
+        national_goals = player_info.get('national_goals', 0)
         if position == 'вратарь':
             result['national_conceded'] = national_goals
             result['national_scored'] = 0
         else:
             result['national_conceded'] = 0     
             result['national_scored'] = national_goals
+        result['national_team'] = player_info['national_team']
         return result
     
-    def _player_stat_from_player(self, soup):
-        def aggregate_stats(table, text, national=False):
+    def _info_from_player_card(self, soup):
+        def get_games_goals(tag):
+            values_str = tag.select_one('td:last-child').text.strip()
+            gls_str = re.search(r'\(.*\)', values_str)
+            if gls_str is None:
+                gls = 0
+            else:
+                gls = self._int_from_str(gls_str.group())
+            return self._int_from_str(values_str, r'^\d+'), gls
+
+        def aggregate_info(table, text, national=False):
             tag = table.find(lambda tag: tag.name == "tr" and text in tag.text)
             if tag is None:
-                return 0, 0
+                return 0, 0, ''
+            national_team, team_finded = '', False
             games, goals = 0, 0
             tag = tag.find_next_sibling('tr')
             while tag is not None and tag.get('class'):
-                if not (national and '(' in tag.select_one('td:nth-child(2)').text):
-                    values_str = tag.select_one('td:last-child').text.strip()
-                    gls_str = re.search(r'\(.*\)', values_str)
-                    if gls_str is None:
-                        gls = 0
-                    else:
-                        gls = self._int_from_str(gls_str.group())
-                    games += self._int_from_str(values_str, r'^\d+')
+                teamname_td = tag.select_one('td:nth-child(2)')
+                if not (national and '(' in teamname_td.text):
+                    if national and not team_finded:
+                        national_team = teamname_td.find_all('a')[-1]['title']
+                        team_finded = True
+                    gms, gls = get_games_goals(tag)
+                    games += gms
                     goals += gls
                 tag = tag.find_next_sibling('tr')
-            return games, goals     
+            return games, goals, national_team     
 
         result = {}
         table = soup.select_one(".ts-Спортивная_карьера-table")
         if table is None:
             return result
         
-        club_games, club_goals = aggregate_stats(table, 'Клубная карьера')
+        club_games, club_goals, _ = aggregate_info(table, 'Клубная карьера')
         result['club_caps'] = club_games
         result['club_goals'] = club_goals
 
-        national_games, national_goals = aggregate_stats(table, 'Национальная сборная', national=True)
+        national_games, national_goals, national_team = aggregate_info(table, 'Национальная сборная', national=True)
         result['national_caps'] = national_games
         result['national_goals'] = national_goals
+        result['national_team'] = national_team
         return result
     
     def _player_clubstat_from_stattable(self, soup, url):
