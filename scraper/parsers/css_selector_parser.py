@@ -42,7 +42,7 @@ class CssSelectorParser:
     def _parse_player(self, soup, cur_page_url):
         info_from_teampage = self.url2info_from_teampage[cur_page_url]
         height = self._get_player_height(soup)
-        position = soup.find(attrs={"data-wikidata-property-id":"P413"}).text.lower().strip()
+        position = info_from_teampage['position']
         club = soup.find(attrs={"data-wikidata-property-id":"P54"}).text.strip()
         player_info = self._player_info(soup, position, cur_page_url)
         birth = int(datetime.strptime(soup.select_one(".bday").text, "%Y-%m-%d").timestamp())
@@ -74,6 +74,7 @@ class CssSelectorParser:
             raise NothingFinded("correct team tables not found")
         for table in tables:
             for row in table.find_all('tr')[1:]:
+                position = row.select_one('td:nth-child(3)>a')['title'].split()[0].strip().lower()
                 link = row.select_one('td:nth-child(3)>a')
                 if link is None:
                     continue
@@ -85,6 +86,7 @@ class CssSelectorParser:
                 self.url2info_from_teampage[url] = {
                     'name': player_name,
                     'surname': player_surname,
+                    'position': position,
                     'team_goals': team_goals,
                     'team_caps': team_caps
                 }
