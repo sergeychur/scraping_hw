@@ -2,21 +2,12 @@ import time
 import requests
 
 from collections import deque
-from logging import Logger
-
 from runners.item import Item
-from parsers.css_selector_parser import CssSelectorParser
-from utils.file_sink import FileSink
 from utils.simple_rate_limiter import SimpleRateLimiter
 
 
 class SimpleRunner:
-    def __init__(
-            self, parser: CssSelectorParser, 
-            sink: FileSink, logger: Logger, 
-            seed_urls: list[str], rate: int = 100, 
-            max_tries: int = 5
-        ) -> None:
+    def __init__(self, parser, sink, logger, seed_urls, rate = 100, max_tries: int = 5):
         self._parser = parser
         self._sink = sink
         self._logger = logger.getChild('SyncRunner')
@@ -24,16 +15,16 @@ class SimpleRunner:
         self._rate_limiter = SimpleRateLimiter(rate)
         self._max_tries = max_tries
 
-        self._seen: set[str] = set()
-        self._to_process: deque[Item] = deque()
+        self._seen= set()
+        self._to_process= deque()
         for url in seed_urls:
             self._submit(Item(url))
 
-    def _submit(self, item: Item) -> None:
+    def _submit(self, item) -> None:
         self._to_process.append(item)
         self._seen.add(item.url)
 
-    def _download(self, item: Item) -> tuple[str, list[str] | None]:
+    def _download(self, item):
         time.sleep(self._rate_limiter.get_delay())
         resp = requests.get(item.url, timeout=60)
         resp.raise_for_status()
@@ -50,7 +41,7 @@ class SimpleRunner:
                 item.tries += 1
                 result, next_urls = self._download(item)
                 item.end = time.time()
-            except Exception as e:  # TODO: change exception?, from request, from parser
+            except Exception as e:
                 item.end = time.time()
                 duration = item.end - item.start
                 if item.tries >= self._max_tries:
@@ -68,7 +59,7 @@ class SimpleRunner:
                     if url not in self._seen:
                         self._to_process.append(Item(url))
     
-    def _write(self, item: Item, result: str | None = None, err: str | None = None) -> None:
+    def _write(self, item: Item, result = None, err = None) -> None:
         if result is None and err is None:
             raise RuntimeError('Invalid result. Both result and error are None')
         to_write = {'url': item.url,'tries': item.tries, 'result': result, 'error': err}
