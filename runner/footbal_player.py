@@ -14,11 +14,11 @@ class Player:
     def __init__(self, position, page_url, full_name, birth, games_number, goals, club):
         self.url = urljoin(self.DOMAIN, page_url)
         if '(' in full_name:
-            full_name = full_name[full_name.find('(')]
+            full_name = full_name[:full_name.find('(')]
         splited_fullname = full_name.replace(',', '').split(' ')
         self.name = ['', '']
-        self.name[0] = splited_fullname[0]
-        self.name[1] = ' '.join(splited_fullname[1:])
+        self.name[0] = splited_fullname[0].strip()
+        self.name[1] = ' '.join(splited_fullname[1:]).strip()
         self.height = None
         self.position = position.split(' ')[0].lower()
         self.current_club = club
