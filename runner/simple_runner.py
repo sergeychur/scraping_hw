@@ -30,7 +30,7 @@ class SimpleRunner:
         resp = requests.get(item.url, timeout=60)
         resp.raise_for_status()
         content = resp.content
-        return self._parser.parse(content, item.url)
+        return self._parser.parse(content, item.url, self._logger)
 
     def _submit(self, item):
         self._to_process.append(item)

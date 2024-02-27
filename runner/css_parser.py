@@ -5,6 +5,7 @@ from urllib.parse import urljoin, urlparse
 from runner.footbal_player import Player
 
 
+
 class CssSelectorParser:
     _players_table_columns = ['№', 'Позиция', 'Игрок', 'Дата рождения / возраст', 'Матчи', 'Голы', 'Клуб']
 
@@ -16,7 +17,7 @@ class CssSelectorParser:
                 links.append(urljoin(domain, e['href']))
         return [], links
 
-    def _parse_team_page(self, root, domain):
+    def _parse_team_page(self, root, domain, logger):
         links = []
         tables = root.select('table.wikitable')
         Player.set_domain(domain)
@@ -66,6 +67,8 @@ class CssSelectorParser:
                         player = Player(*player_params[:7])
                         if player.is_url_exists():
                             links.append(player.get_url())
+                        else:
+                            logger.info(f'Player page with {player.get_url()} does not exist. Skipping...')
         return [], links
 
     def _player_page_get_club_inf(self, tr, tag):
@@ -146,7 +149,7 @@ class CssSelectorParser:
         player.set_club_caps(games_sum)
         return player, []
 
-    def parse(self, content, url):
+    def parse(self, content, url, logger):
         soup = BeautifulSoup(content, 'html.parser')
         netloc = urlparse(url).netloc
         scheme = urlparse(url).scheme
@@ -157,7 +160,7 @@ class CssSelectorParser:
             return result, links
 
         if page_title is not None and 'Сборная' in page_title:
-            result, links = self._parse_team_page(soup, domain)
+            result, links = self._parse_team_page(soup, domain, logger)
             return result, links
 
         # else

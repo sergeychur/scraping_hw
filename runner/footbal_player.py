@@ -1,10 +1,6 @@
 import json
-try:
-    from backports.zoneinfo import ZoneInfo
-except ImportError as e:
-    from zoneinfo import ZoneInfo
 from datetime import datetime
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 
 
 class Player:
@@ -37,9 +33,7 @@ class Player:
             self.national_scored = int(goals)
         self.national_team = None
 
-        self.birth = int(datetime.strptime(birth, "%Y-%m-%d")
-                         .replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=ZoneInfo(key='Europe/Moscow'))
-                         .timestamp())
+        self.birth = int(datetime.strptime(birth, "%Y-%m-%d"))
 
         if self.is_url_exists():
             self.players[self.url] = self
@@ -53,8 +47,6 @@ class Player:
         del cls.players[url]
         if player.name[1] == 'Жота':
             player.name[0], player.name[1] = player.name[1], player.name[0]
-        parse = urlparse(player.url)
-        player.url = 'https://ru.wikipedia.org' + parse.path
         return player
 
     @classmethod
