@@ -46,6 +46,8 @@ class Player:
     def pop_player(cls, url):
         player = cls.players[url]
         del cls.players[url]
+        if player.name[1] == 'Жота':
+            player.name[0], player.name[1] = player.name[1], player.name[0]
         parse = urlparse(player.url)
         player.url = 'https://ru.wikipedia.org' + parse.path
         return player
