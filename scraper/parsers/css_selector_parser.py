@@ -190,16 +190,12 @@ class CssSelectorParser:
     
     def _club_games_goals_from_player_stattable(self, table):
         last_row = table.select_one('tr:last-child')
+
         tags = last_row.find_all('td')
         if not tags or len(tags) < 2:
-            tags = last_row.find_all('th')[:-1]
+            last = table.select_one('tr:nth-child(2)').select_one('th:last-child').text.strip()
+            tags = last_row.find_all('th')
+            if last != 'Голы':
+                tags = tags[:-1]
         club_caps, goals = tags[-2].text.strip(), tags[-1].text.strip()
         return self._int_from_str(club_caps), self._int_from_str(goals)
-
-
-def for_filetest(filepath):
-    import logging
-    with open(filepath) as file:
-        soup = BeautifulSoup(file.read())
-    parser = CssSelectorParser(logging.getLogger('Parser'))
-    return parser._player_stat_from_player(soup)
