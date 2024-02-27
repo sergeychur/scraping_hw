@@ -213,12 +213,3 @@ class CssSelectorParser:
                 tags = tags[:-1]
         club_caps, goals = tags[-2].text.strip(), tags[-1].text.strip()
         return self._int_from_str(club_caps), self._int_from_str(goals)
-
-
-def for_test(url):
-    import requests
-    import logging
-    content = requests.get(url).content
-    soup = BeautifulSoup(content)
-    parser = CssSelectorParser(logging.getLogger('Parser'))
-    return parser._player_stat_from_player(soup)
