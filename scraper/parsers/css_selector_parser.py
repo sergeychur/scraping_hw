@@ -161,15 +161,14 @@ class CssSelectorParser:
         return result
     
     def _player_stat_from_player(self, soup):
-        def aggregate_stats(table, text):
+        def aggregate_stats(table, text, national=False):
             tag = table.find(lambda tag: tag.name == "tr" and text in tag.text)
             if tag is None:
                 return 0, 0
             games, goals = 0, 0
             tag = tag.find_next_sibling('tr')
             while tag is not None and tag.get('class'):
-                result = re.search('до', tag.select_one('td:nth-child(2)').text)
-                if result is None:
+                if not (national and '(' in tag.select_one('td:nth-child(2)').text):
                     values_str = tag.select_one('td:last-child').text.strip()
                     gls_str = re.search(r'\(.*\)', values_str)
                     if gls_str is None:
@@ -190,7 +189,7 @@ class CssSelectorParser:
         result['club_caps'] = club_games
         result['club_goals'] = club_goals
 
-        national_games, national_goals = aggregate_stats(table, 'Национальная сборная')
+        national_games, national_goals = aggregate_stats(table, 'Национальная сборная', national=True)
         result['national_caps'] = national_games
         result['national_goals'] = national_goals
         return result
@@ -214,3 +213,12 @@ class CssSelectorParser:
                 tags = tags[:-1]
         club_caps, goals = tags[-2].text.strip(), tags[-1].text.strip()
         return self._int_from_str(club_caps), self._int_from_str(goals)
+
+
+def for_test(url):
+    import requests
+    import logging
+    content = requests.get(url).content
+    soup = BeautifulSoup(content)
+    parser = CssSelectorParser(logging.getLogger('Parser'))
+    return parser._player_stat_from_player(soup)
