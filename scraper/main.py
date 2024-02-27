@@ -28,7 +28,7 @@ def main():
     
     parser = CssSelectorParser(logging.getLogger('Parser'))
     sink = FileSink(result_filepath, './parse_logs.jsonl')
-    runner = SimpleRunner(parser, sink, logger, seed_urls, max_tries=10, rate=10)
+    runner = SimpleRunner(parser, sink, logger, seed_urls, max_tries=10, rate=1)
 
     start = time.time()
     runner.run()
