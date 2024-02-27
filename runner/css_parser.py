@@ -116,7 +116,7 @@ class CssSelectorParser:
                 if l:
                     try:
                         games, goals = l[-1].split(' ')
-                        goals_sum += int(goals[1:-1].replace('−', '-'))
+                        goals_sum += int(goals[1:-1].replace('−', '-').replace('–','-'))
                         games_sum += int(games)
                     except Exception as e:
                         pass
@@ -139,7 +139,7 @@ class CssSelectorParser:
         if len(national_info)>1 and not('(' in national_info[-2]):
             games, goals = national_info[-1].split(' ')
             player.set_national_team(national_info[-2])
-            player.set_national_goals(int(goals[1:-1].replace('−', '-')))
+            player.set_national_goals(int(goals[1:-1].replace('−', '-').replace('–','-')))
             player.set_national_caps(int(games))
 
         player.set_club_goals(goals_sum)
