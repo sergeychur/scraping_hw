@@ -26,7 +26,6 @@ class CssSelectorParser:
                 err_mes += str(e) + ';'
                 err = e
         raise NothingFinded("bad page, nothing founded;" + err_mes) from err
-    
 
     def _parse_mainpage(self, soup, cur_page_url):
         table = soup.find(id="Квалифицировались_в_финальный_турнир").parent.find_next_sibling('table')
@@ -49,7 +48,7 @@ class CssSelectorParser:
         height = self._get_player_height(soup)
         position = soup.find(attrs={"data-wikidata-property-id":"P413"}).text.lower().strip()
         club = soup.find(attrs={"data-wikidata-property-id":"P54"}).text.strip()
-        stat = self._player_stat(soup, position, info_from_teampage, cur_page_url)
+        stat = self._player_stat(soup, position, cur_page_url)
         national_team = info_from_teampage.get('team_name', '')
         birth = int(datetime.strptime(soup.select_one(".bday").text, "%Y-%m-%d").timestamp())
         return {
@@ -130,7 +129,7 @@ class CssSelectorParser:
         height = height_tag.contents[0].text.split()[0]
         return max(map(int, re.findall(r'\d+', height)))
     
-    def _player_stat(self, soup, position, info_from_teampage, url) -> dict:
+    def _player_stat(self, soup, position, url) -> dict:
         result = {}
         player_stat = self._player_stat_from_player(soup)
 
@@ -144,14 +143,8 @@ class CssSelectorParser:
             result['club_conceded'] = 0
             result['club_scored'] = club_goals
 
-        result['national_caps'] = max(
-            info_from_teampage.get('team_caps', 0), 
-            player_stat.get('national_caps', 0)
-        )
-        national_goals = max(
-            info_from_teampage.get('team_goals', 0),
-            player_stat.get('national_goals', 0)
-        )
+        result['national_caps'] = player_stat.get('national_caps', 0)
+        national_goals = player_stat.get('national_goals', 0)
         if position == 'вратарь':
             result['national_conceded'] = national_goals
             result['national_scored'] = 0
@@ -175,6 +168,7 @@ class CssSelectorParser:
                         gls = 0
                     else:
                         gls = self._int_from_str(gls_str.group())
+                    print(tag.select_one('td:nth-child(2)').text.strip(), self._int_from_str(values_str, r'^\d+'), gls)
                     games += self._int_from_str(values_str, r'^\d+')
                     goals += gls
                 tag = tag.find_next_sibling('tr')
