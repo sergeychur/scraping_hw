@@ -153,14 +153,16 @@ class CssSelectorParser:
             games, goals = 0, 0
             tag = tag.find_next_sibling('tr')
             while tag is not None and tag.get('class'):
-                values_str = tag.select_one('td:last-child').text.strip()
-                gls_str = re.search(r'\(.*\)', values_str)
-                if gls_str is None:
-                    gls = 0
-                else:
-                    gls = self._int_from_str(gls_str.group())
-                games += self._int_from_str(values_str, r'^\d+')
-                goals += gls
+                result = re.search('до', tag.select_one('td:nth-child(2)').text)
+                if result is None:
+                    values_str = tag.select_one('td:last-child').text.strip()
+                    gls_str = re.search(r'\(.*\)', values_str)
+                    if gls_str is None:
+                        gls = 0
+                    else:
+                        gls = self._int_from_str(gls_str.group())
+                    games += self._int_from_str(values_str, r'^\d+')
+                    goals += gls
                 tag = tag.find_next_sibling('tr')
             return games, goals     
 
@@ -193,3 +195,11 @@ class CssSelectorParser:
             tags = last_row.find_all('th')[:-1]
         club_caps, goals = tags[-2].text.strip(), tags[-1].text.strip()
         return self._int_from_str(club_caps), self._int_from_str(goals)
+
+
+def for_filetest(filepath):
+    import logging
+    with open(filepath) as file:
+        soup = BeautifulSoup(file.read())
+    parser = CssSelectorParser(logging.getLogger('Parser'))
+    return parser._player_stat_from_player(soup)
