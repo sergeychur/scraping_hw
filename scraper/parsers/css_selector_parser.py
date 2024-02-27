@@ -74,10 +74,10 @@ class CssSelectorParser:
             raise NothingFinded("correct team tables not found")
         for table in tables:
             for row in table.find_all('tr')[1:]:
-                position = row.select_one('td:nth-child(3)>a')['title'].split()[0].strip().lower()
                 link = row.select_one('td:nth-child(3)>a')
                 if link is None:
                     continue
+                position = row.select_one('td:nth-child(3)>a')['title'].split()[0].strip().lower()
                 player_name, player_surname = self._get_player_name_surname(link['title'])
                 url = urljoin(cur_page_url, link['href'])
                 team_goals = abs(self._int_from_str(row.select_one('td:nth-child(6)').text))
