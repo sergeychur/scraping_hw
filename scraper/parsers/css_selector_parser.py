@@ -77,7 +77,7 @@ class CssSelectorParser:
                 link = row.select_one('td:nth-child(3)>a')
                 if link is None:
                     continue
-                position = row.select_one('td:nth-child(3)>a')['title'].split()[0].strip().lower()
+                position = row.select_one('td:nth-child(2)>a')['title'].split()[0].strip().lower()
                 player_name, player_surname = self._get_player_name_surname(link['title'])
                 url = urljoin(cur_page_url, link['href'])
                 team_goals = abs(self._int_from_str(row.select_one('td:nth-child(6)').text))
