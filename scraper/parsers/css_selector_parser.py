@@ -38,11 +38,16 @@ class CssSelectorParser:
         tables = soup.select('.wikitable')
         urls = self._urls_from_team_table(tables, cur_page_url)
         return None, urls
+    
+    def _get_position(self, soup):
+        tags = soup.find(attrs={"data-wikidata-property-id":"P413"}).find_all('a')
+        positions = [tag.text.lower().strip() for tag in tags]
+        return ' '.join(positions)
 
     def _parse_player(self, soup, cur_page_url):
         info_from_teampage = self.url2info_from_teampage[cur_page_url]
         height = self._get_player_height(soup)
-        position = info_from_teampage['position']
+        position = self._get_position(soup)
         club = soup.find(attrs={"data-wikidata-property-id":"P54"}).text.strip()
         player_info = self._player_info(soup, position, cur_page_url)
         birth = int(datetime.strptime(soup.select_one(".bday").text, "%Y-%m-%d").timestamp())
@@ -77,7 +82,6 @@ class CssSelectorParser:
                 link = row.select_one('td:nth-child(3)>a')
                 if link is None:
                     continue
-                position = row.select_one('td:nth-child(2)>a')['title'].split()[0].strip().lower()
                 player_name, player_surname = self._get_player_name_surname(link['title'])
                 url = urljoin(cur_page_url, link['href'])
                 team_goals = abs(self._int_from_str(row.select_one('td:nth-child(6)').text))
@@ -86,7 +90,6 @@ class CssSelectorParser:
                 self.url2info_from_teampage[url] = {
                     'name': player_name,
                     'surname': player_surname,
-                    'position': position,
                     'team_goals': team_goals,
                     'team_caps': team_caps
                 }
