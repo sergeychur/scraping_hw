@@ -40,8 +40,11 @@ class CssSelectorParser:
         return None, urls
     
     def _get_position(self, soup):
-        tags = soup.find(attrs={"data-wikidata-property-id":"P413"}).find_all('a')
-        positions = [tag.text.lower().strip() for tag in tags]
+        tag = soup.find(attrs={"data-wikidata-property-id":"P413"})
+        a_tags = tag.find_all('a')
+        if len(a_tags) <= 1:
+            return tag.text.lower().strip()
+        positions = [tag.text.lower().strip() for tag in a_tags]
         return ' '.join(positions)
 
     def _parse_player(self, soup, cur_page_url):
