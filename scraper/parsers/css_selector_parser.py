@@ -9,7 +9,16 @@ class NothingFinded(Exception):
 
 
 class CssSelectorParser:
-    _correct_teamtable_fileds = ['№', 'Позиция', 'Игрок', 'Дата рождения / возраст', 'Матчи', 'Голы', 'Клуб']
+    _correct_teamtable_fileds = [
+        {'№'}, 
+        {'Позиция'}, 
+        {'Игрок'}, 
+        {'Дата рождения / возраст'}, 
+        {'Матчи', 'Игры'}, 
+        {'Голы'}, 
+        {'Клуб'}
+    ]
+    
 
     def __init__(self, logger) -> None:
         self.logger = logger.getChild('CssSelectorParser')
@@ -35,7 +44,7 @@ class CssSelectorParser:
         return None, urls
 
     def _parse_teampage(self, soup, cur_page_url):
-        tables = self._find_tag_by_id(['Текущий_состав', 'Игроки']).parent.find_next_siblings(
+        tables = self._find_tag_by_id(soup, ['Текущий_состав', 'Игроки']).parent.find_next_siblings(
             'table',
             attrs={'class': 'wikitable'}
         )
@@ -70,7 +79,12 @@ class CssSelectorParser:
     def _is_correct_team_table(self, table):
         fields = [th.text.strip() for th in table.tr.find_all('th')]
         need = self._correct_teamtable_fileds
-        return fields[:len(need)] == need
+        if len(fields) != len(need):
+            return False
+        for i in range(len(fields)):
+            if fields[i] not in need[i]:
+                return False
+        return True
 
     def _urls_from_team_table(self, table, cur_page_url):
         urls = []
@@ -226,3 +240,12 @@ class CssSelectorParser:
                 tags = tags[:-1]
         club_caps, goals = tags[-2].text.strip(), tags[-1].text.strip()
         return self._int_from_str(club_caps), self._int_from_str(goals)
+
+
+def for_test(url):
+    import requests
+    import logging
+    content = requests.get(url).content
+    soup = BeautifulSoup(content)
+    parser = CssSelectorParser(logging.getLogger('Parser'))
+    return parser, parser._parse_teampage(soup, url)
