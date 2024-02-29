@@ -162,3 +162,5 @@ cython_debug/
 *.jsonl
 stat_result.txt
 for_test.py
+ru.wikipedia.org/
+real_results/

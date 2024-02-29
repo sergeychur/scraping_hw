@@ -1,8 +1,10 @@
 from urllib.parse import urljoin, urlparse, unquote
 from datetime import datetime
 from logging import Logger
+from players.player_storage import PlayerStorage
 from bs4 import BeautifulSoup
 import re
+
 
 class NothingFinded(Exception):
     pass
@@ -18,11 +20,10 @@ class CssSelectorParser:
         {'Голы'}, 
         {'Клуб'}
     ]
-    
 
-    def __init__(self, logger) -> None:
+    def __init__(self, logger, player_storage) -> None:
         self.logger = logger.getChild('CssSelectorParser')
-        self.url2info_from_teampage = {}
+        self.player_storage = player_storage
 
     def parse(self, content, cur_page_url):
         soup = BeautifulSoup(content, 'html.parser')
@@ -44,47 +45,33 @@ class CssSelectorParser:
         return None, urls
 
     def _parse_teampage(self, soup, cur_page_url):
-        tables = self._find_tag_by_id(soup, ['Текущий_состав', 'Игроки']).parent.find_next_siblings(
-            'table',
-            attrs={'class': 'wikitable'}
-        )
-        urls = []
-        tables = [table for table in tables if self._is_correct_team_table(table)]
-        if not tables:
-            raise NothingFinded("correct team tables not found")
-        
+        table_names = ['Текущий_состав', 'Игроки', 'Состав', 'Состав_сборной']
+        table = self._find_tag_by_id(soup, table_names).parent.find_next_sibling('table')
+        next_table = table.find_next_sibling('table')
+        if self._is_correct_team_table(next_table):
+            tables = [table, next_table]
+        else:
+            tables = [table]
         teamname = unquote(urlparse(cur_page_url).path).split('/')[-1].replace('_', ' ')
+        urls = []
         for table in tables:
             urls += self._urls_from_team_table(table, cur_page_url, teamname)
         return None, urls
 
     def _parse_player(self, soup, cur_page_url):
-        info_from_teampage = self.url2info_from_teampage[cur_page_url]
         player_info = self._player_info(soup, cur_page_url)
         birth = int(datetime.strptime(soup.select_one(".bday").text, "%Y-%m-%d").timestamp())
-        # TODO: use dict add
-        return {
-            'url': cur_page_url,
-            'name': [info_from_teampage['surname'], info_from_teampage['name']],
-            'height': player_info['height'],
-            'position': player_info['position'],
-            'current_club': player_info['club'],
-            'club_caps': player_info['club_caps'],
-            'club_conceded': player_info['club_conceded'],
-            'club_scored': player_info['club_scored'],
-            'national_caps': player_info['national_caps'],
-            'national_conceded': player_info['national_conceded'],
-            'national_scored': player_info['national_scored'],
-            'national_team': info_from_teampage['teamname'],
-            'birth': birth
-        }, []
+        player_info['birth'] = birth
+        return self.player_storage.extend_player(cur_page_url, player_info), []
     
     def _is_correct_team_table(self, table):
+        if table is None:
+            return False
         fields = [th.text.strip() for th in table.tr.find_all('th')]
         need = self._correct_teamtable_fileds
-        if len(fields) != len(need):
+        if len(fields) < len(need):
             return False
-        for i in range(len(fields)):
+        for i in range(len(need)):
             if fields[i] not in need[i]:
                 return False
         return True
@@ -97,15 +84,14 @@ class CssSelectorParser:
                 continue
             player_name, player_surname = self._get_player_name_surname(link['title'])
             url = urljoin(cur_page_url, link['href'])
-            team_goals = abs(self._int_from_str(row.select_one('td:nth-child(6)').text))
-            team_caps = int(row.select_one('td:nth-child(5)').text.strip())
-            self.url2info_from_teampage[url] = {  # TODO: change
-                'name': player_name,
-                'surname': player_surname,
-                'team_goals': team_goals,
-                'team_caps': team_caps,
-                'teamname': teamname,
-            }
+            self.player_storage.add_player(
+                url, 
+                {
+                    'name': player_name,
+                    'surname': player_surname,
+                    'national_team': teamname
+                }
+            )
             urls.append(url)
         return urls
 
@@ -139,22 +125,21 @@ class CssSelectorParser:
         return None
     
     def _player_info(self, soup, url) -> dict:
-        result = {}
-        card_info = self._info_from_player_card(soup)
+        result = self._info_from_player_card(soup)
 
         club_caps, club_goals = self._player_clubstat_from_stattable(soup, url)
-        result['club_caps'] = max(club_caps, card_info.get('club_caps', 0))
-        club_goals = max(abs(club_goals), card_info.get('club_goals', 0))
-        if card_info['position'] == 'вратарь':
+        result['club_caps'] = max(club_caps, result.get('club_caps', 0))
+
+        club_goals = max(abs(club_goals), result.get('club_goals', 0))
+        if result['position'] == 'вратарь':
             result['club_conceded'] = club_goals
             result['club_scored'] = 0
         else:
             result['club_conceded'] = 0
             result['club_scored'] = club_goals
 
-        result['national_caps'] = card_info.get('national_caps', 0)
-        national_goals = card_info.get('national_goals', 0)
-        if card_info['position'] == 'вратарь':
+        national_goals = result.get('national_goals', 0)
+        if result['position'] == 'вратарь':
             result['national_conceded'] = national_goals
             result['national_scored'] = 0
         else:
@@ -202,14 +187,15 @@ class CssSelectorParser:
                 tag = tag.find_next_sibling('tr')
             return games, goals     
 
+        player_card = soup.select_one('[data-name="Футболист"]')
+        if player_card is None:
+            raise NothingFinded('player card not founded')
         result = {}
-        table = soup.select_one(".ts-Спортивная_карьера-table")
-        if table is None:
-            raise NothingFinded('player card table not founded')
-        result['height'] = self._get_player_height(table)
-        result['position'] = self._get_position(table)
-        result['club'] = soup.find(attrs={"data-wikidata-property-id":"P54"}).text.strip()
-        
+        result['height'] = self._get_player_height(player_card)
+        result['position'] = self._get_position(player_card)
+        result['current_club'] = player_card.find(attrs={"data-wikidata-property-id":"P54"}).text.strip()
+
+        table = player_card.select_one(".ts-Спортивная_карьера-table")        
         club_games, club_goals = aggregate_info(table, 'Клубная карьера')
         result['club_caps'] = club_games
         result['club_goals'] = club_goals
@@ -229,7 +215,6 @@ class CssSelectorParser:
     
     def _club_games_goals_from_player_stattable(self, table):
         last_row = table.select_one('tr:last-child')
-
         tags = last_row.find_all('td')
         if not tags or len(tags) < 2:
             last = table.select_one('tr:nth-child(2)').select_one('th:last-child').text.strip()
@@ -245,5 +230,5 @@ def for_test(url):
     import logging
     content = requests.get(url).content
     soup = BeautifulSoup(content)
-    parser = CssSelectorParser(logging.getLogger('Parser'))
-    return parser, parser._parse_teampage(soup, url)
+    parser = CssSelectorParser(logging.getLogger('Parser'), PlayerStorage())
+    return parser, parser._parse_player(soup, url)

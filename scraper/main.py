@@ -5,6 +5,7 @@ import argparse
 from parsers.css_selector_parser import CssSelectorParser
 from utils.file_sink import FileSink
 from runners.simple_runner import SimpleRunner
+from players.player_storage import PlayerStorage
 
 
 def get_args():
@@ -26,9 +27,10 @@ def main():
 
     seed_urls = [url]
     
-    parser = CssSelectorParser(logging.getLogger('Parser'))
+    storage = PlayerStorage()
+    parser = CssSelectorParser(logging.getLogger('Parser'), storage)
     sink = FileSink(result_filepath, './parse_logs.jsonl')
-    runner = SimpleRunner(parser, sink, logger, seed_urls, max_tries=5, rate=1)
+    runner = SimpleRunner(parser, sink, logger, seed_urls, max_tries=1, rate=100)
 
     start = time.time()
     runner.run()
