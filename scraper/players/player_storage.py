@@ -11,7 +11,7 @@ class PlayerStorage:
 
     def extend_player(self, url, info):
         player = self.players[url]
-        player['hegiht'] = info['height']
+        player['height'] = info['height']
         player['position'] = info['position']
         player['current_club'] = info['current_club']
         player['club_conceded'] = info['club_conceded']
