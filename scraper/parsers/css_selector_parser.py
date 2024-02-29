@@ -1,4 +1,4 @@
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse, unquote
 from datetime import datetime
 from logging import Logger
 from bs4 import BeautifulSoup
@@ -52,14 +52,17 @@ class CssSelectorParser:
         tables = [table for table in tables if self._is_correct_team_table(table)]
         if not tables:
             raise NothingFinded("correct team tables not found")
+        
+        teamname = unquote(urlparse(cur_page_url).path).split('/')[-1].replace('_', ' ')
         for table in tables:
-            urls += self._urls_from_team_table(table, cur_page_url)
+            urls += self._urls_from_team_table(table, cur_page_url, teamname)
         return None, urls
 
     def _parse_player(self, soup, cur_page_url):
         info_from_teampage = self.url2info_from_teampage[cur_page_url]
         player_info = self._player_info(soup, cur_page_url)
         birth = int(datetime.strptime(soup.select_one(".bday").text, "%Y-%m-%d").timestamp())
+        # TODO: use dict add
         return {
             'url': cur_page_url,
             'name': [info_from_teampage['surname'], info_from_teampage['name']],
@@ -72,7 +75,7 @@ class CssSelectorParser:
             'national_caps': player_info['national_caps'],
             'national_conceded': player_info['national_conceded'],
             'national_scored': player_info['national_scored'],
-            'national_team': player_info['national_team'],
+            'national_team': info_from_teampage['teamname'],
             'birth': birth
         }, []
     
@@ -86,7 +89,7 @@ class CssSelectorParser:
                 return False
         return True
 
-    def _urls_from_team_table(self, table, cur_page_url):
+    def _urls_from_team_table(self, table, cur_page_url, teamname):
         urls = []
         for row in table.find_all('tr')[1:]:
             link = row.select_one('td:nth-child(3)>a')
@@ -100,7 +103,8 @@ class CssSelectorParser:
                 'name': player_name,
                 'surname': player_surname,
                 'team_goals': team_goals,
-                'team_caps': team_caps
+                'team_caps': team_caps,
+                'teamname': teamname,
             }
             urls.append(url)
         return urls
@@ -156,7 +160,6 @@ class CssSelectorParser:
         else:
             result['national_conceded'] = 0     
             result['national_scored'] = national_goals
-        result['national_team'] = card_info['national_team']
         return result
     
     def _get_player_height(self, player_card):
@@ -187,21 +190,17 @@ class CssSelectorParser:
         def aggregate_info(table, text, national=False):
             tag = table.find(lambda tag: tag.name == "tr" and text in tag.text)
             if tag is None:
-                return 0, 0, ''
-            national_team, team_finded = '', False
+                return 0, 0
             games, goals = 0, 0
             tag = tag.find_next_sibling('tr')
             while tag is not None and tag.get('class'):
                 teamname_td = tag.select_one('td:nth-child(2)')
                 if not (national and '(' in teamname_td.text):
-                    if national and not team_finded:
-                        national_team = teamname_td.find_all('a')[-1]['title']
-                        team_finded = True
                     gms, gls = get_games_goals(tag)
                     games += gms
                     goals += gls
                 tag = tag.find_next_sibling('tr')
-            return games, goals, national_team     
+            return games, goals     
 
         result = {}
         table = soup.select_one(".ts-Спортивная_карьера-table")
@@ -211,14 +210,13 @@ class CssSelectorParser:
         result['position'] = self._get_position(table)
         result['club'] = soup.find(attrs={"data-wikidata-property-id":"P54"}).text.strip()
         
-        club_games, club_goals, _ = aggregate_info(table, 'Клубная карьера')
+        club_games, club_goals = aggregate_info(table, 'Клубная карьера')
         result['club_caps'] = club_games
         result['club_goals'] = club_goals
 
-        national_games, national_goals, national_team = aggregate_info(table, 'Национальная сборная', national=True)
+        national_games, national_goals = aggregate_info(table, 'Национальная сборная', national=True)
         result['national_caps'] = national_games
         result['national_goals'] = national_goals
-        result['national_team'] = national_team
         return result
     
     def _player_clubstat_from_stattable(self, soup, url):
