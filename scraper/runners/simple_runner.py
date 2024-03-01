@@ -45,11 +45,11 @@ class SimpleRunner:
                 item.end = time.time()
                 duration = item.end - item.start
                 if item.tries >= self._max_tries:
-                    self._logger.error(f'fail: {item.url} {e}. tries={item.tries}. duration={duration}, error={e}')
+                    self._logger.error(f'fail: {item.url}. tries={item.tries}. duration={duration}. error={e}')
                     self._write(item, err=str(e))
                     continue
 
-                self._logger.warning(f'postpone: {item.url} {e}. tries={item.tries}. duration={duration}')
+                self._logger.warning(f'postpone: {item.url}. tries={item.tries}. duration={duration}. error={e}')
                 self._to_process.append(item)
             else:
                 self._logger.info(f'success: {item.url}. tries={item.tries}. duration={item.end - item.start}')
