@@ -40,8 +40,8 @@ def main():
     parser = CssSelectorParser(logging.getLogger('Parser'), storage)
     sink = FileSink(result_filepath, './parse_logs.jsonl')
 
-    duration: 261.0369007587433
-    runner = SimpleRunner(parser, sink, logger, seed_urls, max_tries=2, rate=100)
+    # rate=100, duration: 261.0369007587433
+    runner = SimpleRunner(parser, sink, logger, seed_urls, max_tries=1, rate=1)
     start = time.time()
     runner.run()
     logger.info(f'Total duration is {time.time() - start}')
