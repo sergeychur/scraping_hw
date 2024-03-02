@@ -1,7 +1,6 @@
 from urllib.parse import urljoin, urlparse, unquote
 from datetime import datetime
 from logging import Logger
-from players.player_storage import PlayerStorage
 from bs4 import BeautifulSoup
 import re
 
@@ -21,11 +20,19 @@ class CssSelectorParser:
         {'Клуб'}
     ]
 
-    def __init__(self, logger, player_storage) -> None:
+    def __init__(self, logger) -> None:
         self.logger = logger.getChild('CssSelectorParser')
-        self.player_storage = player_storage
 
     def parse(self, content, cur_page_url):
+        """
+        result: None | dict: {
+            "next_urls": [str],
+            "from_team_page": [dict{"url":, "name":, "surname":, "national_team":}],
+            "from_player_page: dict"
+        }
+        "next_urls" and one of the three:
+            Or "info_from_team_page" Or "info_from_player_page" or nothing
+        """
         soup = BeautifulSoup(content, 'html.parser')
         parsers = [self._parse_mainpage, self._parse_teampage, self._parse_player]
         err_mes = ''
@@ -42,7 +49,7 @@ class CssSelectorParser:
         urls = []
         for t in table.select('td:first-child>a'):
             urls.append(urljoin(cur_page_url, t['href']))
-        return None, urls
+        return {"next_urls": urls}
 
     def _parse_teampage(self, soup, cur_page_url):
         table_names = ['Текущий_состав', 'Игроки', 'Состав', 'Состав_сборной']
@@ -53,16 +60,35 @@ class CssSelectorParser:
         else:
             tables = [table]
         teamname = unquote(urlparse(cur_page_url).path).split('/')[-1].replace('_', ' ')
-        urls = []
+        urls, players = [], []
         for table in tables:
-            urls += self._urls_from_team_table(table, cur_page_url, teamname)
-        return None, urls
+            u, p = self._urls_players_from_team_table(table, cur_page_url, teamname)
+            urls += u
+            players += p
+        return {
+            "next_urls": urls,
+            "from_team_page": players,
+        }
 
     def _parse_player(self, soup, cur_page_url):
         player_info = self._player_info(soup, cur_page_url)
         birth = int(datetime.strptime(soup.select_one(".bday").text, "%Y-%m-%d").timestamp())
-        player_info['birth'] = birth
-        return self.player_storage.extend_player(cur_page_url, player_info), []
+        return {
+            "next_urls": [],
+            "from_player_page": {
+                "url": cur_page_url,
+                "birth": birth,
+                "height": player_info["height"],
+                "position": player_info["position"],
+                "current_club": player_info["current_club"],
+                "club_caps": player_info["club_caps"],
+                "club_conceded": player_info["club_conceded"],
+                "club_scored": player_info["club_scored"],
+                "national_caps": player_info["national_caps"],
+                "national_conceded": player_info["national_conceded"],
+                "national_scored": player_info["national_scored"],
+            }
+        }
     
     def _is_correct_team_table(self, table):
         if table is None:
@@ -76,24 +102,25 @@ class CssSelectorParser:
                 return False
         return True
 
-    def _urls_from_team_table(self, table, cur_page_url, teamname):
+    def _urls_players_from_team_table(self, table, cur_page_url, teamname):
         urls = []
+        players = []
         for row in table.find_all('tr')[1:]:
             link = row.select_one('td:nth-child(3)>a')
             if link is None:
                 continue
             player_name, player_surname = self._get_player_name_surname(link['title'])
             url = urljoin(cur_page_url, link['href'])
-            self.player_storage.add_player(
-                url, 
+            players.append(
                 {
+                    'url': url,
                     'name': player_name,
                     'surname': player_surname,
                     'national_team': teamname
                 }
             )
             urls.append(url)
-        return urls
+        return urls, players
 
     def _get_player_name_surname(self, text):
         idx = text.find('(')
@@ -223,12 +250,3 @@ class CssSelectorParser:
                 tags = tags[:-1]
         club_caps, goals = tags[-2].text.strip(), tags[-1].text.strip()
         return self._int_from_str(club_caps), self._int_from_str(goals)
-
-
-def for_test(url):
-    import requests
-    import logging
-    content = requests.get(url).content
-    soup = BeautifulSoup(content)
-    parser = CssSelectorParser(logging.getLogger('Parser'), PlayerStorage())
-    return parser, parser._parse_player(soup, url)

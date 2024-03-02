@@ -4,13 +4,15 @@ import requests
 from collections import deque
 from runners.item import Item
 from utils.simple_rate_limiter import SimpleRateLimiter
+from players.player_storage import PlayerStorage
 
 
 class SimpleRunner:
-    def __init__(self, parser, sink, logger, seed_urls, rate = 100, max_tries: int = 5):
+    def __init__(self, parser, sink, logger, pl_storage, seed_urls, rate = 100, max_tries: int = 5):
         self._parser = parser
         self._sink = sink
         self._logger = logger.getChild('SyncRunner')
+        self._pl_storage = pl_storage
 
         self._rate_limiter = SimpleRateLimiter(rate)
         self._max_tries = max_tries
@@ -39,7 +41,7 @@ class SimpleRunner:
 
             try:
                 item.tries += 1
-                result, next_urls = self._download(item)
+                result = self._download(item)
                 item.end = time.time()
             except Exception as e:
                 item.end = time.time()
@@ -53,11 +55,21 @@ class SimpleRunner:
                 self._to_process.append(item)
             else:
                 self._logger.info(f'success: {item.url}. tries={item.tries}. duration={item.end - item.start}')
-                if result is not None:
-                    self._write(item, result)
+                next_urls = self._handle_result(item, result)
                 for url in next_urls:
                     if url not in self._seen:
                         self._to_process.append(Item(url))
+    
+    def _handle_result(self, item, result):
+        if "from_team_page" in result:
+            for player in result["from_team_page"]:
+                self._pl_storage.add_player(player["url"], player)
+        elif "from_player_page" in result:
+            player_info = result["from_player_page"]
+            player = self._pl_storage.extend_player(player_info["url"], player_info)
+            self._write(item, player)
+        return result["next_urls"]
+        
     
     def _write(self, item: Item, result = None, err = None) -> None:
         if result is None and err is None:

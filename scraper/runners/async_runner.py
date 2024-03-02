@@ -7,10 +7,11 @@ from runners.item import Item
 
 
 class AsyncRunner:
-    def __init__(self, parser, sink, logger, seed_urls, rate=100, max_parallel=5, max_tries=5) -> None:
+    def __init__(self, parser, sink, logger, seed_urls, pl_storage, rate=100, max_parallel=5, max_tries=5) -> None:
         self._logger = logger.getChild('AsyncRunner')
         self._parser = parser
         self._sink = sink
+        self._pl_storage = pl_storage
 
         self._semaphore = asyncio.Semaphore(max_parallel)
         self._in_air = set()
@@ -47,7 +48,7 @@ class AsyncRunner:
             for future in done:
                 item = self._future_to_item.pop(future)
                 try:
-                    result, next = future.result()
+                    result = future.result()
                 except Exception as e:
                     duration = time.time() - item.start
                     if item.tries >= self._max_tries:
@@ -57,12 +58,21 @@ class AsyncRunner:
                         self._submit(item)
                         self._logger.warning(f'postpone: {item.url}. tries={item.tries}. duration={duration}. error={e}')
                 else:
-                    if result is not None:
-                        self._write(item, result=result)
-                    for url in next:
+                    next_urls = self._handle_result(item, result)
+                    for url in next_urls:
                         if url not in self._seen:
                             self._submit(Item(url))
                     self._logger.info(f'success: {item.url}. tries={item.tries}. duration={time.time() - item.start}')
+
+    def _handle_result(self, item, result):
+        if "from_team_page" in result:
+            for player in result["from_team_page"]:
+                self._pl_storage.add_player(player["url"], player)
+        elif "from_player_page" in result:
+            player_info = result["from_player_page"]
+            player = self._pl_storage.extend_player(player_info["url"], player_info)
+            self._write(item, player)
+        return result["next_urls"]    
     
     def _write(self, item: Item, result = None, error = None) -> None:
         if result is None and error is None:
