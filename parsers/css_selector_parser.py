@@ -89,6 +89,8 @@ class CssSelectorParser:
                 if not flags:
                     continue
                 last_row = rows[-1].select('td')
+                if len(last_row) == 0:
+                    last_row = rows[-1].select('th')
                 matches_advanced = int(last_row[-2].text)
                 goals_advanced = int(last_row[-1].text)
                 if goals_advanced < 0:
@@ -96,6 +98,7 @@ class CssSelectorParser:
                 else:
                     base_data["club_scored"] = max(abs(goals_advanced), base_data["club_scored"])
                 base_data['club_caps'] = max(matches_advanced, base_data['club_caps'])
+                return base_data
         return base_data
 
 
