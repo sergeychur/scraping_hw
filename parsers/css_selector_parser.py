@@ -85,7 +85,11 @@ class CssSelectorParser:
                 continue
             else:
                 header = [obj.text for obj in header]
-                flags = any([('Лиг' in obj or 'Кубок лиги' in obj) and 'УЕФА' not in obj for obj in header])
+                flags = any([('Лига' == obj or
+                              'Кубок лиги' == obj or
+                              'Чемпионат' == obj or
+                              'Кубки' == obj or
+                              'Кубок' == obj) and 'УЕФА' not in obj for obj in header])
                 if not flags:
                     continue
                 last_row = rows[-1].select('td')
