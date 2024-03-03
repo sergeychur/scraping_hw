@@ -23,7 +23,7 @@ class CssSelectorParser:
         elif 'Футболист' in main_table:
             result = self._parse_player(soup, cur_page_url)
             return result, []
-        return None, None
+        return None, []
 
     def _parse_main_page(self, page_data, cur_page_url):
 
@@ -53,11 +53,11 @@ class CssSelectorParser:
                 continue
             for row in rows[1:]:
                 elements = row.select('td')
-                if len(elements) != 7:
+                if len(elements) != 7 and len(elements) != 8:
                     continue
                 player_link = elements[2].select_one('a')['href']
                 players.append(urljoin(cur_page_url, player_link))
-            return players
+        return players
 
 
     def _parse_player(self, page_data, cur_page_url):
@@ -81,18 +81,18 @@ class CssSelectorParser:
         for table in tables:
             rows = table.select('tr')
             header = rows[0].select('th')
-            if header is None:
+            if len(header) == 0:
                 continue
             else:
                 header = [obj.text for obj in header]
-                flags = any(['Лига' in obj for obj in header])
+                flags = any(['Лига' in obj and 'УЕФА' not in obj for obj in header])
                 if not flags:
                     continue
                 last_row = rows[-1].select('td')
-                if len(last_row) == 0:
+                if len(last_row) <= 2:
                     last_row = rows[-1].select('th')
-                matches_advanced = int(last_row[-2].text)
-                goals_advanced = int(last_row[-1].text)
+                matches_advanced = int(last_row[-2].text.replace('−', '-').replace('\n', '').replace('−', '-'))
+                goals_advanced = int(last_row[-1].text.replace('\n', '').replace('−', '-'))
                 if goals_advanced < 0:
                     base_data['club_conceded'] = max(abs(goals_advanced), base_data['club_conceded'])
                 else:
