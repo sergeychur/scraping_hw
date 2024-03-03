@@ -77,7 +77,7 @@ class CssSelectorParser:
         #     if buf_result is None:
         #         continue
 
-        club_signature = ['Выступление', 'Лига', 'Кубок', 'Кубок лиги', 'Еврокубки', 'Прочее', 'Итого']
+        #club_signature = ['Выступление', 'Лига', 'Кубок', 'Кубок лиги', 'Еврокубки', 'Прочее', 'Итого']
         for table in tables:
             rows = table.select('tr')
             header = rows[0].select('th')
@@ -85,7 +85,7 @@ class CssSelectorParser:
                 continue
             else:
                 header = [obj.text for obj in header]
-                flags = all([left in right for left, right in zip(club_signature, header)])
+                flags = any(['Лига' in obj for obj in header])
                 if not flags:
                     continue
                 last_row = rows[-1].select('td')
@@ -211,27 +211,3 @@ class CssSelectorParser:
         result["national_scored"] = scored_national_goal_counter
 
         return result
-
-
-
-
-
-
-
-
-
-# Для каждого участника-игрока надо сохранить следующее.
-#
-# URL страницы в википедии ("url").
-# Имя ("name") - массив вида ["Фамилия", "Имя"].
-# Рост ("height").
-# Позиция на поле ("position").
-# Текущий клуб ("current_club").
-# Число игр за клубную карьеру ("club_caps").
-# Число пропущенных голов за клубную карьеру ("club_conceded"). Заполняем только для вратарей, для полевых игроков - всегда 0.
-# Число забитых голов за клубную карьеру ("club_scored"). Заполняем только для полевых игроков, для вратарей - всегда 0.
-# Число игр за национальную сборную ("national_caps"). Рассматриваем только игры (с голами также) за взрослую команду (без учета всяких "сборная до 21" и т.п.).
-# Число пропущенных голов за клубную карьеру ("national_conceded"). Заполняем только для вратарей, для полевых игроков - всегда 0.
-# Число забитых голов за клубную карьеру ("national_scored").
-# Национальная команда ("national_team").
-# Таймстемп даты рождения в секундах ("birth"). Время надо парсить, считая, что оно в таймзоне UTC.
