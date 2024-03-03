@@ -61,5 +61,5 @@ class SimpleRunner:
     def _write(self, item, result=None, error=None):
         if result is None and error is None:
             raise RuntimeError('Invalid result. Both result and error are None')
-        to_write = {'tries': item.tries, 'result': result, 'error': error}
+        to_write = {'tries': item.tries, 'result': result, 'error': error, 'url': item.url}
         self._sink.write(to_write)
