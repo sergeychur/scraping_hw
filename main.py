@@ -13,7 +13,6 @@ def main():
         level='INFO',
     )
     logger = logging.getLogger('Runner')
-    # главная - https://books.toscrape.com/index.html
     seed_urls = ['https://books.toscrape.com/catalogue/category/books/fantasy_19/index.html']
     parser = Parser()
     sink = FileSink('./result.jsonl')
