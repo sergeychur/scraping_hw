@@ -23,35 +23,33 @@ class CssSelectorParser:
     def __init__(self, logger) -> None:
         self.logger = logger.getChild('CssSelectorParser')
 
-    def parse(self, content, cur_page_url):
+    def parse(self, content, cur_page_url, extra_info):
         """
-        result: None | dict: {
-            "next_urls": [str],
-            "from_team_page": [dict{"url":, "name":, "surname":, "national_team":}],
-            "from_player_page: dict"
-        }
-        "next_urls" and one of the three:
-            Or "info_from_team_page" Or "info_from_player_page" or nothing
+        return: result, next_urls
+        next_urls: list[dict{"url": str, "extra_info": dict}]
         """
         soup = BeautifulSoup(content, 'html.parser')
         parsers = [self._parse_mainpage, self._parse_teampage, self._parse_player]
         err_mes = ''
         for parser in parsers:
             try:
-                return parser(soup, cur_page_url)
+                return parser(soup, cur_page_url, extra_info)
             except (AttributeError, IndexError, NothingFinded) as e:
                 err_mes += str(e) + ';'
                 err = e
         raise NothingFinded("bad page, nothing founded;" + err_mes) from err
 
-    def _parse_mainpage(self, soup, cur_page_url):
+    def _parse_mainpage(self, soup, cur_page_url, extra_info):
         table = soup.find(id="Квалифицировались_в_финальный_турнир").parent.find_next_sibling('table')
         urls = []
         for t in table.select('td:first-child>a'):
-            urls.append(urljoin(cur_page_url, t['href']))
-        return {"next_urls": urls}
+            urls.append({
+                'url': urljoin(cur_page_url, t['href']),
+                'extra_info': None,
+            })
+        return None, urls
 
-    def _parse_teampage(self, soup, cur_page_url):
+    def _parse_teampage(self, soup, cur_page_url, extra_info):
         table_names = ['Текущий_состав', 'Игроки', 'Состав', 'Состав_сборной']
         table = self._find_tag_by_id(soup, table_names).parent.find_next_sibling('table')
         next_table = table.find_next_sibling('table')
@@ -60,35 +58,29 @@ class CssSelectorParser:
         else:
             tables = [table]
         teamname = unquote(urlparse(cur_page_url).path).split('/')[-1].replace('_', ' ')
-        urls, players = [], []
+        next_urls = []
         for table in tables:
-            u, p = self._urls_players_from_team_table(table, cur_page_url, teamname)
-            urls += u
-            players += p
-        return {
-            "next_urls": urls,
-            "from_team_page": players,
-        }
+            next_urls += self._parse_team_table(table, cur_page_url, teamname)
+        return None, next_urls
 
-    def _parse_player(self, soup, cur_page_url):
+    def _parse_player(self, soup, cur_page_url, extra_info):
         player_info = self._player_info(soup, cur_page_url)
         birth = int(datetime.strptime(soup.select_one(".bday").text, "%Y-%m-%d").timestamp())
         return {
-            "next_urls": [],
-            "from_player_page": {
-                "url": cur_page_url,
-                "birth": birth,
-                "height": player_info["height"],
-                "position": player_info["position"],
-                "current_club": player_info["current_club"],
-                "club_caps": player_info["club_caps"],
-                "club_conceded": player_info["club_conceded"],
-                "club_scored": player_info["club_scored"],
-                "national_caps": player_info["national_caps"],
-                "national_conceded": player_info["national_conceded"],
-                "national_scored": player_info["national_scored"],
-            }
-        }
+            'url': cur_page_url,
+            'name': [extra_info['surname'], extra_info['name']],
+            'height': player_info['height'],
+            'position': player_info['position'],
+            'current_club': player_info['current_club'],
+            'club_caps': player_info['club_caps'],
+            'club_conceded': player_info['club_conceded'],
+            'club_scored': player_info['club_scored'],
+            'national_caps': player_info['national_caps'],
+            'national_conceded': player_info['national_conceded'],
+            'national_scored': player_info['national_scored'],
+            'national_team': extra_info['national_team'],
+            'birth': birth,
+        }, []
     
     def _is_correct_team_table(self, table):
         if table is None:
@@ -102,25 +94,25 @@ class CssSelectorParser:
                 return False
         return True
 
-    def _urls_players_from_team_table(self, table, cur_page_url, teamname):
-        urls = []
-        players = []
+    def _parse_team_table(self, table, cur_page_url, teamname):
+        next_urls = []
         for row in table.find_all('tr')[1:]:
             link = row.select_one('td:nth-child(3)>a')
             if link is None:
                 continue
             player_name, player_surname = self._get_player_name_surname(link['title'])
             url = urljoin(cur_page_url, link['href'])
-            players.append(
+            next_urls.append(
                 {
                     'url': url,
-                    'name': player_name,
-                    'surname': player_surname,
-                    'national_team': teamname
+                    'extra_info': {
+                        'name': player_name,
+                        'surname': player_surname,
+                        'national_team': teamname
+                    }
                 }
             )
-            urls.append(url)
-        return urls, players
+        return next_urls
 
     def _get_player_name_surname(self, text):
         idx = text.find('(')
