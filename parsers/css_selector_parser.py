@@ -191,7 +191,7 @@ class CssSelectorParser:
                 else:
                     scored_club_goal_counter += gouls_count
             elif national_flag:
-                nation_team = probe[1].select('a')[-1].text
+                nation_team = probe[1].select('a')[-1]['title']
                 if '(до' in nation_team:
                     continue
                 national_match_counter += mathes_count
