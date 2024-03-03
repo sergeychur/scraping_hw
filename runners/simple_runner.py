@@ -65,6 +65,5 @@ class SimpleRunner:
             to_write = {'tries': item.tries, 'error': error, 'url': item.url}
         else:
             result['tries'] = item.tries
-            result['url'] = item.url
             to_write = result
         self._sink.write(to_write)

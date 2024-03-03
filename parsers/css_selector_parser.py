@@ -157,7 +157,7 @@ class CssSelectorParser:
             raise self._logger.error(f'Не найден клуб для {url}')
         row = probe_el.find_parent('tr')
         club = row.select('a')[-1].text
-        result['club'] = club
+        result['current_club'] = club
 
         match_table = table.select_one('table.ts-Спортивная_карьера-table')
         matches = match_table.select('tr')
@@ -202,6 +202,7 @@ class CssSelectorParser:
             else:
                 self._logger.error(f' В основной таблице для {url} пропущена строка по какой-то причине')
 
+        result['national_team'] = nation_team
         result["club_caps"] = club_match_counter
         result["club_conceded"] = missed_club_goal_counter
         result["club_scored"] = scored_club_goal_counter
