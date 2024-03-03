@@ -69,7 +69,7 @@ class CssSelectorParser:
 
 
         #работа с таблицей матчев за сборную, здесь надо будет дальше уточнить все значения
-        tables = page_data.select('table.wikitable')
+        tables = page_data.select('tbody')
 
         # pattern_nationaltable = r'Матчи (.*?) за сборную Англии'
         # for table in tables:
