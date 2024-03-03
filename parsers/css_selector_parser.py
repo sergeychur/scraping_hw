@@ -111,6 +111,9 @@ class CssSelectorParser:
         result = {}
         name = table.select_one('div div.label').text
         result['name'] = name.split()[::-1]
+        if len(result['name']) > 2:
+            result['name'][1] = ' '.join(result['name'][1:][::-1])
+            result['name'] = result['name'][:2]
         result['url'] = url
         probe_el = table.find(text=re.compile(r'Родился\s?'))
         if probe_el is None:
