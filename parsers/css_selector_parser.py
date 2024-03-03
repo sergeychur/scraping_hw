@@ -149,10 +149,7 @@ class CssSelectorParser:
         if probe_el is None:
             raise self._logger.error(f'Не найдена позиция для {url}')
         row = probe_el.find_parent('tr')
-        position = row.select_one('a')
-        if position is None:
-            position = row.select_one('span')
-        position = position.text
+        position = row.select('td')[-1].text.strip('\n')
         result['position'] = position
 
         probe_el = table.find(text=re.compile(r'Клуб\s?'))
