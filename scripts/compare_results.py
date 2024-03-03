@@ -1,6 +1,7 @@
 import json
 import sys
 
+
 def load_result(path_to_file):
     with open(path_to_file) as f:
         result = {}
