@@ -19,7 +19,7 @@ def main():
 
     logger = logging.getLogger('Runner')
     seed_urls = [args.url]
-    #seed_urls = ['https://ru.wikipedia.org/wiki/%D0%92%D0%B8%D1%80%D1%86,_%D0%A4%D0%BB%D0%BE%D1%80%D0%B8%D0%B0%D0%BD']
+    #seed_urls = ['https://ru.wikipedia.org/wiki/%D0%94%D0%B8%D0%BE%D0%B3%D1%83_%D0%96%D0%BE%D1%82%D0%B0']
     parser = CssSelectorParser(logger)
     sink = FileSink(args.result_filepath)
     runner = SimpleRunner(parser, sink, logger, seed_urls)
