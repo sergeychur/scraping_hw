@@ -7,7 +7,7 @@ from runners.utils import Item
 
 
 class SimpleRunner:
-    def __init__(self, parser, sink, logger, seed_urls, rate=1, max_tries=5):
+    def __init__(self, parser, sink, logger, seed_urls, rate=1, max_tries=2):
         self._logger = logger.getChild('SyncRunner')
         self._parser = parser
         self._sink = sink
@@ -61,5 +61,10 @@ class SimpleRunner:
     def _write(self, item, result=None, error=None):
         if result is None and error is None:
             raise RuntimeError('Invalid result. Both result and error are None')
-        to_write = {'tries': item.tries, 'result': result, 'error': error, 'url': item.url}
+        if result is None:
+            to_write = {'tries': item.tries, 'error': error, 'url': item.url}
+        else:
+            result['tries'] = item.tries
+            result['url'] = item.url
+            to_write = result
         self._sink.write(to_write)
