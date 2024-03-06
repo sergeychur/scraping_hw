@@ -89,6 +89,8 @@ class CssSelectorParser:
         if header is None:
             header = root.find('span', {'id': 'Статистика_выступлений'})
         if header is None:
+            header = root.find('span', {'id': 'Статистика'})
+        if header is None:
             header = root.find('span', {'id': 'Клубная_карьера_2'})
 
         if header is not None:
