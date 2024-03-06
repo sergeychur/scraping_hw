@@ -1,5 +1,4 @@
-import re
-from bs4 import BeautifulSoup, Tag, NavigableString
+from bs4 import BeautifulSoup, Tag
 from urllib.parse import urljoin, urlparse
 
 from runner.footbal_player import Player
@@ -143,7 +142,7 @@ class CssSelectorParser:
                                 l.append(tmp[-1]['title'])
                         else:
                             l.append(td.text.strip())
-                if l and 'н.' in l[0]:
+                if l and not('(' in l[1]):
                     national_info = l
 
         if len(national_info)>1 and not('(' in national_info[-2]):
