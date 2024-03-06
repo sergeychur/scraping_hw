@@ -7,30 +7,28 @@ class Player:
     players = {}
     DOMAIN = 'https://ru.wikipedia.org'
 
-    def __init__(self, position, page_url, full_name, birth, games_number, goals, club):
+    def __init__(self, page_url, full_name, birth):
         self.url = urljoin(self.DOMAIN, page_url)
         if '(' in full_name:
             full_name = full_name[:full_name.find('(')]
-        splited_fullname = full_name.replace(',', '').split(' ')
+        swap = False
+        if full_name.replace(',', ''):
+            swap = True
+        splited_fullname = full_name.split(' ')
         self.name = ['', '']
         self.name[0] = splited_fullname[0].strip()
         self.name[1] = ' '.join(splited_fullname[1:]).strip()
+        if swap:
+            self.name[0], self.name[1] = self.name[1], self.name[0]
         self.height = None
-        self.position = position.split(' ')[0].lower()
-        self.current_club = club
+        self.position = None
+        self.current_club = None
         self.club_caps = 0
         self.club_conceded = 0
         self.club_scored = 0
         self.national_caps = 0
-        if self.position == 'вратарь':
-            if goals[0] == '−' or goals[0] == '-':
-                self.national_conceded = int(goals[1:])
-            else:
-                self.national_conceded = int(goals)
-            self.national_scored = 0
-        else:
-            self.national_conceded = 0
-            self.national_scored = int(goals)
+        self.national_conceded = 0
+        self.national_scored = 0
         self.national_team = None
         self.birth = int(datetime.strptime(birth, "%Y-%m-%d").timestamp())
         if self.is_url_exists():
@@ -43,8 +41,6 @@ class Player:
     def pop_player(cls, url):
         player = cls.players[url]
         del cls.players[url]
-        if player.name[1] == 'Жота':
-            player.name[0], player.name[1] = player.name[1], player.name[0]
         return player
 
     @classmethod

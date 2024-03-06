@@ -5,9 +5,7 @@ from urllib.parse import urljoin, urlparse
 from runner.footbal_player import Player
 
 
-
 class CssSelectorParser:
-    _players_table_columns = ['№', 'Позиция', 'Игрок', 'Дата рождения / возраст', 'Матчи', 'Голы', 'Клуб']
 
     def _parse_root_page(self, root, domain):
         links = []
@@ -17,89 +15,96 @@ class CssSelectorParser:
                 links.append(urljoin(domain, e['href']))
         return [], links
 
+    def _parse_team_table(self, table, logger):
+        rows = table.find_all(['th', 'tr'])
+        links = []
+        if rows is None:
+            return links
+
+        for row in rows:
+            if row is None:
+                continue
+
+            player_params = []
+            for value in row:
+                if isinstance(value, Tag) and value.a is not None:
+                    if value.find('span', {'class': 'bday'}):
+                        player_params.append(value.span['title'])
+                        continue
+                    if value.a.has_attr('href') and value.a.has_attr('title'):
+                        player_params.append(value.a['href'])
+                        player_params.append(value.a['title'])
+
+            player_params = player_params[2:5]
+            if player_params:
+                player = Player(*player_params)
+                if player.is_url_exists():
+                    links.append(player.get_url())
+                else:
+                    logger.warning(f'Player page with {player.get_url()} does not exist. Skipping...')
+
+        return links
+
+    def _find_table_under_heading(self, header):
+        next_node = header
+        while True:
+            next_node = next_node.next_sibling
+            if next_node is None:
+                return None
+            if isinstance(next_node, Tag):
+                if next_node.name == "table":
+                    return next_node
+
     def _parse_team_page(self, root, domain, logger):
         links = []
-        tables = root.select('table.wikitable')
         Player.set_domain(domain)
-        for table in tables:
-            is_player_table = True
-            index = 0
-            for th in table.tbody.tr:
-                stripped_text = th.text.strip()
-                if stripped_text:
-                    if stripped_text != self._players_table_columns[index]:
-                        is_player_table = False
-                    index += 1
-                    if index == len(self._players_table_columns):
-                        break
+        header = root.find('span', {'id': 'Текущий_состав'})
+        if header is None:
+            header = root.find('span', {'id': 'Текущий_состав_сборной'})
+        if header is not None:
+            table = self._find_table_under_heading(header.parent)
+            if table is not None:
+                links.extend(self._parse_team_table(table, logger))
 
-            if is_player_table:
-                for row_counter, tr in enumerate(table.tbody):
-                    player_params = []
-                    if row_counter == 0:
-                        continue
-                    column_counter = 0
-                    for td in tr:
-                        for tag in td:
-                            if isinstance(tag, Tag):
-                                if column_counter == 1 and tag.a is not None:
-                                    tag = tag.a
-                                if column_counter == 1 and tag.has_attr('title') and tag.has_attr('href'):
-                                    player_params.append(tag['href'].strip())
-                                    player_params.append(tag['title'].strip())
-                                    column_counter += 1
-                                    break
-                                else:
-                                    if tag.has_attr('title'):
-                                        if column_counter == 5:
-                                            player_params.append(tag.text.strip())
-                                        else:
-                                            player_params.append(tag['title'].strip())
-                                        column_counter += 1
-                                        break
-                            else:
-                                if tag.strip() and column_counter != 0:
-                                    player_params.append(tag.strip())
-                                    column_counter += 1
-                                    break
+        header = root.find('span', {'id': 'Недавние_вызовы'})
+        if header is not None:
+            table = self._find_table_under_heading(header.parent)
+            if table is not None:
+                links.extend(self._parse_team_table(table, logger))
 
-                    if player_params:
-                        player = Player(*player_params[:7])
-                        if player.is_url_exists():
-                            links.append(player.get_url())
-                        else:
-                            logger.warning(f'Player page with {player.get_url()} does not exist. Skipping...')
         return [], links
-
-    def _player_page_get_club_inf(self, tr, tag):
-        l = []
-        if tag is not None:
-            if 'Всего' in tag.text:
-                l = []
-                for td in tr:
-                    if td.text is not None and td.text.strip():
-                        l.append(td.text)
-        return l
 
     def _parse_player_page(self, root, url):
         player = Player.pop_player(url)
-        height = root.find('span', {'data-wikidata-property-id': 'P2048'}).text[:3]
+        footbal_player_table = root.find('table', {'data-name': 'Футболист'})
+        height = footbal_player_table.find('span', {'data-wikidata-property-id': 'P2048'}).text[:3]
         player.set_height(height)
-        position = root.find('span', {'data-wikidata-property-id': 'P413'}).text
-        club = root.find('span', {'data-wikidata-property-id': 'P54'})
+        position = footbal_player_table.find('span', {'data-wikidata-property-id': 'P413'}).text
+        player.set_position(position)
+
+        club = footbal_player_table.find('span', {'data-wikidata-property-id': 'P54'})
         tmp = [a for a in club]
         player.set_club(tmp[-1].text)
-        if position and position is not None:
-            player.set_position(position)
-        tr_tags = root.select('tr')
-        for tr in tr_tags:
-            l = self._player_page_get_club_inf(tr, tr.td)
-            if not l:
-                l = self._player_page_get_club_inf(tr, tr.th)
-            if len(l)>1:
-                player.set_club_caps(int(l[-2].strip()))
-                player.set_club_goals(int(l[-1].strip().replace('−', '-').replace('–','-')))
-                break
+
+        header = root.find('span', {'id': 'Клубная_карьера_2'})
+        if header is None:
+            header = root.find('span', {'id': 'Статистика_выступлений'})
+
+        if header is not None:
+            table = self._find_table_under_heading(header.parent)
+            if table is not None:
+                rows = table.find_all(['th', 'td'])
+                f = False
+                l = []
+                for row in rows:
+                    if 'Всего' in row.text or f:
+                        f = True
+                        if row.text.strip():
+                            l.append(row.text.strip())
+                if len(l) > 1:
+                    player.set_club_caps(int(l[-2].strip()))
+                    player.set_club_goals(int(l[-1].strip().replace('−', '-').replace('–', '-')))
+
         table_elems = root.select_one("table.ts-Спортивная_карьера-table.threecolumns.stripped")
         club_section = False
         national_section = False
@@ -119,7 +124,7 @@ class CssSelectorParser:
                 if l:
                     try:
                         games, goals = l[-1].split(' ')
-                        goals_sum += int(goals[1:-1].replace('−', '-').replace('–','-'))
+                        goals_sum += int(goals[1:-1].replace('−', '-').replace('–', '-'))
                         games_sum += int(games)
                     except Exception as e:
                         pass
@@ -136,7 +141,7 @@ class CssSelectorParser:
                                 l.append(tmp[-1]['title'])
                         else:
                             l.append(td.text.strip())
-                if l:
+                if l and 'н.' in l[0]:
                     national_info = l
 
         if len(national_info)>1 and not('(' in national_info[-2]):
