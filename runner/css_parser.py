@@ -86,9 +86,11 @@ class CssSelectorParser:
         tmp = [a for a in club]
         player.set_club(tmp[-1].text)
 
-        header = root.find('span', {'id': 'Клубная_карьера_2'})
+        header = root.find('span', {'id': 'Клубная'})
         if header is None:
             header = root.find('span', {'id': 'Статистика_выступлений'})
+        if header is None:
+            header = root.find('span', {'id': 'Клубная_карьера_2'})
 
         if header is not None:
             table = self._find_table_under_heading(header.parent)
