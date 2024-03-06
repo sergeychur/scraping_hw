@@ -11,15 +11,10 @@ class Player:
         self.url = urljoin(self.DOMAIN, page_url)
         if '(' in full_name:
             full_name = full_name[:full_name.find('(')]
-        swap = False
-        if full_name.replace(',', ''):
-            swap = True
-        splited_fullname = full_name.split(' ')
+        splited_fullname = full_name.replace(',', '').split(' ')
         self.name = ['', '']
         self.name[0] = splited_fullname[0].strip()
         self.name[1] = ' '.join(splited_fullname[1:]).strip()
-        if swap:
-            self.name[0], self.name[1] = self.name[1], self.name[0]
         self.height = None
         self.position = None
         self.current_club = None
@@ -41,6 +36,8 @@ class Player:
     def pop_player(cls, url):
         player = cls.players[url]
         del cls.players[url]
+        if player.name[1] == 'Жота':
+            player.name[0], player.name[1] = player.name[1], player.name[0]
         return player
 
     @classmethod
