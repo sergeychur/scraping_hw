@@ -7,3 +7,4 @@ lxml==5.1.0
 multidict==6.0.5
 beautifulsoup4==4.12.3
 aiohttp
+asyncio
