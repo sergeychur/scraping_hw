@@ -24,19 +24,11 @@ class CssSelectorParser:
             if row is None:
                 continue
 
-            player_params = []
-            for value in row:
-                if isinstance(value, Tag) and value.a is not None:
-                    if value.find('span', {'class': 'bday'}):
-                        player_params.append(value.span['title'])
-                        continue
-                    if value.a.has_attr('href') and value.a.has_attr('title'):
-                        player_params.append(value.a['href'])
-                        player_params.append(value.a['title'])
+            link = row.select_one('td:nth-child(3) > a')
+            date = row.select_one('td:nth-child(4) > span')
 
-            player_params = player_params[2:5]
-            if player_params:
-                player = Player(*player_params)
+            if link is not None and date is not None:
+                player = Player(link['href'], link['title'], date['title'])
                 if player.is_url_exists():
                     links.append(player.get_url())
                 else:
@@ -54,12 +46,18 @@ class CssSelectorParser:
                 if next_node.name == "table":
                     return next_node
 
+    def _find_first_header_from_list(self, root, attr_name, headers):
+        for header in headers:
+            tag = root.find('span', {attr_name: header})
+            if tag is not None:
+                return tag
+
     def _parse_team_page(self, root, domain, logger):
         links = []
         Player.set_domain(domain)
-        header = root.find('span', {'id': 'Текущий_состав'})
-        if header is None:
-            header = root.find('span', {'id': 'Текущий_состав_сборной'})
+        headers = ['Текущий_состав', 'Текущий_состав_сборной', 'Состав', 'Состав_сборной']
+        header = self._find_first_header_from_list(root, 'id', headers)
+
         if header is not None:
             table = self._find_table_under_heading(header.parent)
             if table is not None:
@@ -85,13 +83,8 @@ class CssSelectorParser:
         tmp = [a for a in club]
         player.set_club(tmp[-1].text)
 
-        header = root.find('span', {'id': 'Клубная'})
-        if header is None:
-            header = root.find('span', {'id': 'Статистика_выступлений'})
-        if header is None:
-            header = root.find('span', {'id': 'Статистика'})
-        if header is None:
-            header = root.find('span', {'id': 'Клубная_карьера_2'})
+        headers = ['Клубная', 'Статистика_выступлений', 'Статистика', 'Клубная_карьера_2']
+        header = self._find_first_header_from_list(root, 'id', headers)
 
         if header is not None:
             table = self._find_table_under_heading(header.parent)
@@ -144,10 +137,10 @@ class CssSelectorParser:
                                 l.append(tmp[-1]['title'])
                         else:
                             l.append(td.text.strip())
-                if l and not('(' in l[1]):
+                if len(l)>1 and not('(' in l[1]):
                     national_info = l
 
-        if len(national_info)>1 and not('(' in national_info[-2]):
+        if len(national_info) > 2 and not('(' in national_info[-2]):
             games, goals = national_info[-1].split(' ')
             player.set_national_team(national_info[-2])
             player.set_national_goals(int(goals[1:-1].replace('−', '-').replace('–','-')))
