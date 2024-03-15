@@ -1,5 +1,6 @@
 from Runner import SimpleRunner
 from css_selector_parser import CssSelectorParser
+from database import DataBase
 from FileSink import FileSink
 import logging
 import sys
@@ -13,13 +14,14 @@ def main():
         level='INFO',
     )
 
+    db = DataBase()
     logger = logging.getLogger('Runner')
     start_url = [sys.argv[1]]
     output_file_name = sys.argv[2]
 
     parser = CssSelectorParser()
     sink = FileSink(output_file_name)
-    runner = SimpleRunner(parser, sink, logger, start_url)
+    runner = SimpleRunner(parser, sink, logger, start_url, db)
 
     start = time.time()
     runner.run()

@@ -58,6 +58,10 @@ class CssSelectorParser:
         player_data["name"] = name.contents[0].split(",")
 
         #   Height
+        infobox = data.find("table", {"class": "infobox"})
+
+        tot = infobox.find_all("th", {"style": "text-align:left"})
+
         
 
         return player_data, []

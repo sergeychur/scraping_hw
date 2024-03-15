@@ -3,14 +3,16 @@ import requests
 import time
 
 from SimpleRateLimiter import SimpleRateLimiter
+from database import DataBase
 from Item import Item
 
 
 class SimpleRunner:
-    def __init__(self, parser, sink, logger, seed_urls, rate=100, max_tries=5):
+    def __init__(self, parser, sink, logger, seed_urls, database, rate=100, max_tries=5):
         self._logger = logger.getChild("SyncRunner")
         self._parser = parser
         self._sink = sink
+        self._database = database
 
         self._rate_limiter = SimpleRateLimiter(rate)
         self._seen = set()
@@ -24,7 +26,7 @@ class SimpleRunner:
         resp = requests.get(item.url, timeout=60)
         resp.raise_for_status()
         content = resp.content
-        
+
         return self._parser.parse(content, resp.url)
 
     def _submit(self, item):
