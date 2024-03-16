@@ -15,5 +15,8 @@ class DataBase:
         
         return False
     
+    def getDict(self):
+        return self._data
+    
     def saveInfo(self, key, info):
         self._data[key] = info

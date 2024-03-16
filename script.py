@@ -14,14 +14,13 @@ def main():
         level='INFO',
     )
 
-    db = DataBase()
     logger = logging.getLogger('Runner')
     start_url = [sys.argv[1]]
     output_file_name = sys.argv[2]
 
     parser = CssSelectorParser()
     sink = FileSink(output_file_name)
-    runner = SimpleRunner(parser, sink, logger, start_url, db)
+    runner = SimpleRunner(parser, sink, logger, start_url)
 
     start = time.time()
     runner.run()

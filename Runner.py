@@ -8,11 +8,10 @@ from Item import Item
 
 
 class SimpleRunner:
-    def __init__(self, parser, sink, logger, seed_urls, database, rate=100, max_tries=5):
+    def __init__(self, parser, sink, logger, seed_urls, rate=100, max_tries=5):
         self._logger = logger.getChild("SyncRunner")
         self._parser = parser
         self._sink = sink
-        self._database = database
 
         self._rate_limiter = SimpleRateLimiter(rate)
         self._seen = set()
@@ -27,7 +26,7 @@ class SimpleRunner:
         resp.raise_for_status()
         content = resp.content
 
-        return self._parser.parse(content, resp.url, self._database)
+        return self._parser.parse(content, resp.url)
 
     def _submit(self, item):
         self._to_process.append(item)
