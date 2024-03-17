@@ -104,7 +104,6 @@ class CssSelectorParser:
 
             line_type_text = self._standart_text_data(line_type.text.strip())
 
-            #   Timestamp and birth_str
             if line_type_text == 'Родился':
                 bday = row.find("span", {"class": "nowrap"}).find_all('a')
                 bday[0] = bday[0].text
@@ -137,5 +136,11 @@ class CssSelectorParser:
             elif line_type_text == 'Клуб':
                 club = row.find("span", {"class": "no-wikidata"}).text.strip(" ")
                 player_data['current_club'] = club
+            elif line_type_text == 'Клубная карьера':
+                ind = rows.index(row)
+                
+                # club_table = row.find_all('tr')
+                # print(club_table)
+                print(row)
 
         return player_data, []
