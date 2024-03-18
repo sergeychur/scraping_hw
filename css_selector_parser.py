@@ -20,11 +20,18 @@ class CssSelectorParser:
             result, urls = self._main_page_parse(soup)
         elif 'Сборная страны по футболу' in table:
             #   delete all unnecessary html code before needed table with current team
-            soup = BeautifulSoup(content.decode()[
-                    content.decode()
-                    .find(
-                        '<span class="mw-headline" id="Текущий_состав">Текущий состав</span>'
-                    ) :].encode(), 'html.parser')
+            s = ''
+
+            country = soup.find("table", {'class': "infobox"}).find("tr").find("th").text.strip(' \n\r')
+
+            if country == 'Англия':
+                s = '<span class="mw-headline" id="Текущий_состав_сборной">Текущий состав сборной</span>'
+            else:
+                s = '<span class="mw-headline" id="Текущий_состав">Текущий состав</span>'
+
+            print(s)
+
+            soup = BeautifulSoup(content.decode()[content.decode().find(s) :].encode(), 'html.parser')
             result, urls = self._team_parse(soup)
         elif 'Футболист' in table:
             result, urls = self._player_parse(soup, current_url)
@@ -57,18 +64,6 @@ class CssSelectorParser:
                 continue
 
             url = "https://ru.wikipedia.org" + cols[2].find("a").get("href")
-
-            #   Maybe for later use
-            """
-            pos = cols[1].find("a").text
-            name = cols[2].find('a').text.split(' ')[::-1]
-            bday = cols[3].find("span", {"class": "bday"})['title']
-            timestamp = int(time.mktime(time.strptime(bday, '%Y-%m-%d'))) - datetime.now(timezone.utc).toordinal()
-            matches = cols[4].text.strip()
-            goals = cols[5].text.strip()
-            current_club = cols[6].text[:-1].strip()
-            """
-
             actual_web_links.append(url)
 
         return None, actual_web_links
@@ -81,9 +76,24 @@ class CssSelectorParser:
 
     def _player_parse(self, data, current_url):
         player_data = {}
+        club_career_ind = 0
+        national_team_career_ind = 0
+        last_needed_row_ind = 0
 
-        #   URL
-        player_data['url'] = current_url
+        player_data = {
+            'url': current_url,
+            'name': '',
+            'height': 0,
+            'position': '',
+            'current_club': '',
+            'club_caps': 0,
+            'club_conceded': 0,
+            'club_scored': 0,
+            'national_caps': 0,
+            'national_conceded': 0,
+            'national_scored': 0,
+            'national_team': ''    
+        }
 
         infobox = data.find("table", {"class": "infobox"})
         rows = infobox.find_all('tr')
@@ -131,16 +141,100 @@ class CssSelectorParser:
 
                 player_data['height'] = int(height)
             elif line_type_text == 'Позиция':
-                pos = row.find("span", {"class": "no-wikidata"}).text
+                pos = row.find('a').text
                 player_data['position'] = pos
             elif line_type_text == 'Клуб':
                 club = row.find("span", {"class": "no-wikidata"}).text.strip(" ")
                 player_data['current_club'] = club
             elif line_type_text == 'Клубная карьера':
-                ind = rows.index(row)
-                
-                # club_table = row.find_all('tr')
-                # print(club_table)
-                print(row)
+                club_career_ind = rows.index(row)
+            elif line_type_text == 'Национальная сборная':
+                national_team_career_ind = rows.index(row)
+            elif line_type_text == 'Международные медали':
+                last_needed_row_ind = rows.index(row)
+
+        #   Procceed club career
+        for i in range(club_career_ind + 1, national_team_career_ind, 1):
+            right_td = rows[i].find_all('td')[-1]
+            text = right_td.text.strip()
+
+            matches, goals = text.split(' ')
+            goals = goals[1:-1]
+
+            player_data["club_caps"] += int(matches)
+
+            #   Для пропущенных голов для вратарей
+            if player_data["position"] == "вратарь":
+                if goals != '0' and goals != '?':
+                    player_data['club_conceded'] += int(goals[1:])
+            else:
+                player_data["club_scored"] += int(goals)
+
+        #   Procedd national career
+        for i in range(last_needed_row_ind - 1, national_team_career_ind, -1):
+            tds = rows[i].find_all("td")
+
+            if len(right_td) == 0:
+                continue
+
+            right_td = tds[-1]
+            team = tds[1].text.strip()
+
+            player_data['national_team'] = team
+            text = right_td.text.strip()
+
+            matches, goals = text.split(" ")
+            goals = goals[1:-1]
+
+            player_data["national_caps"] += int(matches)
+
+            #   Для пропущенных голов для вратарей
+            if player_data["position"] == "вратарь":
+                if goals != "0" and goals != "?":
+                    player_data["national_conceded"] += int(goals[1:])
+            else:
+                player_data["national_scored"] += int(goals)
+
+            break
+
+        #   Check info in detail table
+
+        if data.find(id="Клубная_статистика") is not None:
+            tables = data.find_all("table", {"class": "wikitable"})
+
+            for table in tables:
+                last_row = table.find_all('tr')[-1]
+                cols = last_row.find_all('td')
+
+                if len(cols) != 0 and cols[0].text.strip() == 'Всего за карьеру':
+                    if player_data["position"] == "вратарь":
+                        pass
+                    else:
+                        matches = int(cols[-2].text.strip())
+                        goals = int(cols[-1].text.strip())
+
+                        if player_data['club_caps'] < matches:
+                            player_data["club_caps"] = matches
+                        if player_data['club_scored'] < goals:
+                            player_data["club_scored"] = goals
+
+        if data.find(id='Статистика_в_сборной') is not None:
+            tables = data.find_all("table", {"class": "wikitable"})
+
+            for table in tables:
+                last_row = table.find_all("tr")[-1]
+                cols = last_row.find_all("th")
+
+                if len(cols) != 0 and cols[0].text.strip() == "Итого":
+                    if player_data["position"] == "вратарь":
+                        pass
+                    else:
+                        matches = int(cols[1].text.strip())
+                        goals = int(cols[2].text.strip())
+
+                        if player_data["national_caps"] < matches:
+                            player_data["national_caps"] = matches
+                        if player_data["national_scored"] < goals:
+                            player_data["national_scored"] = goals
 
         return player_data, []

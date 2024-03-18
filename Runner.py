@@ -37,23 +37,23 @@ class SimpleRunner:
             item = self._to_process.popleft()
             item.start = time.time()
             self._logger.info(f"Start: {item.url}")
-            try:
-                result, next = self._download(item)
-                item.end = time.time()
-            except Exception as e:
-                item.tries += 1
-                item.end = time.time()
-                duration = item.end - item.start
-                if item.tries >= self._max_tries:
-                    self._logger.error(
-                        f"Fail: {item.url} {e}. Tries = {item.tries}. Duration: {duration}"
-                    )
-                    self._write(item, error=str(e))
-                    continue
-                self._logger.warning(
-                    f"Postpone: {item.url} {e}. Tries = {item.tries}. Duration: {duration}"
-                )
-                continue
+            # try:
+            result, next = self._download(item)
+            item.end = time.time()
+            # except Exception as e:
+            #     item.tries += 1
+            #     item.end = time.time()
+            #     duration = item.end - item.start
+            #     if item.tries >= self._max_tries:
+            #         self._logger.error(
+            #             f"Fail: {item.url} {e}. Tries = {item.tries}. Duration: {duration}"
+            #         )
+            #         self._write(item, error=str(e))
+            #         continue
+            #     self._logger.warning(
+            #         f"Postpone: {item.url} {e}. Tries = {item.tries}. Duration: {duration}"
+            #     )
+            #     continue
             self._logger.info(
                 f"Success: {item.url}. Tries = {item.tries}. Duration: {item.end - item.start}"
             )
