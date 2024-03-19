@@ -3,7 +3,6 @@ import requests
 import time
 
 from SimpleRateLimiter import SimpleRateLimiter
-from database import DataBase
 from Item import Item
 
 

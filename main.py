@@ -1,6 +1,5 @@
 from Runner import AsyncRunner
 from css_selector_parser import CssSelectorParser
-from database import DataBase
 from FileSink import FileSink
 import logging
 import sys
