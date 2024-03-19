@@ -1,10 +1,23 @@
 from bs4 import BeautifulSoup
 import time
 from dateutil import parser
+from datetime import datetime
+from urllib.parse import urljoin, urlparse
 
 
 class CssSelectorParser:
+    def _get_domain(url):
+        netloc = urlparse(url).netloc
+        scheme = urlparse(url).scheme
+        domain = scheme + "://" + netloc
+
+        return domain
+
     def parse(self, content, current_url):
+        netloc = urlparse(current_url).netloc
+        scheme = urlparse(current_url).scheme
+        domain = scheme + "://" + netloc
+        self._domain = domain
         soup = BeautifulSoup(content, 'html.parser')
         table = soup.select_one('table.infobox')
 
@@ -51,7 +64,7 @@ class CssSelectorParser:
             url = col.select('a')[-1]
 
             if url is not None:
-                all_web_links.append("https://ru.wikipedia.org" + url.get('href'))
+                all_web_links.append(self._domain + url.get("href"))
 
         return None, all_web_links
 
@@ -65,7 +78,7 @@ class CssSelectorParser:
             if len(cols) == 0 or len(cols) == 1:
                 continue
 
-            url = "https://ru.wikipedia.org" + cols[2].find("a").get("href")
+            url = self._domain + cols[2].find("a").get("href")
             actual_web_links.append(url)
 
         return None, actual_web_links
@@ -126,7 +139,7 @@ class CssSelectorParser:
                 month_num = months.index(month) + 1
 
                 birth_str = f"{year}.{month_num}.{day}"
-                timestamp = parser.parse(birth_str).timestamp()
+                timestamp = int(datetime.strptime(birth_str, "%Y.%m.%d").timestamp())
 
                 player_data['birth'] = int(timestamp)
                 player_data['birt_str'] = birth_str
@@ -212,7 +225,7 @@ class CssSelectorParser:
 
                 right_td = tds[-1]
                 text = right_td.text.strip()
-                team = tds[1].text.strip()
+                team = tds[1].find_all('a')[-1]['title'].strip()
 
                 if team.find('(') != -1:
                     team = team[:team.index('(')].strip(' ')
@@ -258,24 +271,27 @@ class CssSelectorParser:
 
             #   Check info in detail table
 
-            if data.find(id="Клубная_статистика") is not None:
-                tables = data.find_all("table", {"class": "wikitable"})
+            tables = data.find_all("table", {"class": "wikitable"})
 
-                for table in tables:
-                    last_row = table.find_all('tr')[-1]
-                    cols = last_row.find_all('td')
+            for table in tables:
+                last_row = table.find_all('tr')[-1]
+                cols = last_row.find_all('td')
 
-                    if len(cols) != 0 and cols[0].text.strip() == 'Всего за карьеру':
-                        if player_data["position"] == "вратарь":
-                            pass
-                        else:
-                            matches = int(cols[-2].text.strip())
-                            goals = int(cols[-1].text.strip())
+                if len(cols) != 0 and cols[0].text.strip() == 'Всего за карьеру':
+                    matches = int(cols[-2].text.strip())
+                    if player_data["club_caps"] < matches:
+                        player_data["club_caps"] = matches
 
-                            if player_data['club_caps'] < matches:
-                                player_data["club_caps"] = matches
-                            if player_data['club_scored'] < goals:
-                                player_data["club_scored"] = goals
+                    if player_data["position"] == "вратарь":
+                        goals = int(cols[-1].text.strip()[1:])
+
+                        if player_data["club_conceded"] < goals:
+                            player_data["club_conceded"] = goals
+                    else:
+                        goals = int(cols[-1].text.strip())
+
+                        if player_data['club_scored'] < goals:
+                            player_data["club_scored"] = goals
 
         if data.find(id='Статистика_в_сборной') is not None:
             tables = data.find_all("table", {"class": "wikitable"})
