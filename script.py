@@ -1,30 +1,13 @@
-from Runner import SimpleRunner
-from css_selector_parser import CssSelectorParser
-from database import DataBase
-from FileSink import FileSink
-import logging
-import sys
-import time
+import json
 
 
 def main():
-    logging.basicConfig(
-        format='[%(asctime)s %(name)s %(levelname)s: %(message)s]',
-        datefmt='%d-%m-%y %H:%M:%S',
-        level='INFO',
-    )
+    data = []
 
-    logger = logging.getLogger('Runner')
-    start_url = [sys.argv[1]]
-    output_file_name = sys.argv[2]
+    with open("results.jsonl", encoding='utf-8') as f:
+        data = [json.loads(line) for line in f]
 
-    parser = CssSelectorParser()
-    sink = FileSink(output_file_name)
-    runner = SimpleRunner(parser, sink, logger, start_url)
-
-    start = time.time()
-    runner.run()
-    logger.info(f'total duration is {time.time() - start}')
+    print(data[0])
 
 
 if __name__ == '__main__':
