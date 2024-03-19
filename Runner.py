@@ -1,5 +1,4 @@
 from collections import deque
-import requests
 import time
 
 from SimpleRateLimiter import SimpleRateLimiter
