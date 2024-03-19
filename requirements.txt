@@ -1,10 +1,9 @@
-requests==2.31.0
-attrs==23.2.0
+requests
 python-dateutil
-soupsieve==2.5
-idna==3.6
-lxml==5.1.0
-multidict==6.0.5
-beautifulsoup4==4.12.3
+soupsieve
+idna
+lxml
+multidict
+beautifulsoup4
 aiohttp
 asyncio
