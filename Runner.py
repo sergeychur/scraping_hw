@@ -83,5 +83,13 @@ class AsyncRunner:
     def _write(self, item, result=None, error=None):
         if result is None and error is None:
             raise RuntimeError("Invalid result. Both result and error are None")
-        to_write = {"tries": item.tries, "result": result, "error": error}
+        
+        to_write = {}
+        result['tries'] = item.tries
+        
+        if error is None:
+            to_write = result
+        else:
+            to_write = {'error': error, "url": item.url, "tries": item.tries}
+
         self._sink.write(to_write)
