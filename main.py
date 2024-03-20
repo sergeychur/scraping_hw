@@ -1,4 +1,4 @@
-from Runner import SimpleRunner
+from Runner import AsyncRunner
 from css_selector_parser import CssSelectorParser
 from FileSink import FileSink
 import logging
@@ -9,23 +9,29 @@ import asyncio
 
 def main():
     logging.basicConfig(
-        format='[%(asctime)s %(name)s %(levelname)s: %(message)s]',
-        datefmt='%d-%m-%y %H:%M:%S',
-        level='INFO',
+        format="[%(asctime)s %(name)s %(levelname)s: %(message)s]",
+        datefmt="%d-%m-%y %H:%M:%S",
+        level="INFO",
     )
 
-    logger = logging.getLogger('Runner')
+    logger = logging.getLogger("Runner")
     start_url = [sys.argv[1]]
     output_file_name = sys.argv[2]
 
     parser = CssSelectorParser()
     sink = FileSink(output_file_name)
 
-    runner = SimpleRunner(parser, sink, logger, start_url, rate=1)
-    
-    start = time.time()
-    runner.run()
-    print("Time: ", time.time() - start)
+    async def start_func():
+        runner = AsyncRunner(
+            parser, sink, logger, start_url, rate=1, max_tries=2, max_parallel=5
+        )
 
-if __name__ == '__main__':
+        start = time.time()
+        await runner.run()
+        logger.info(f"Total duration is {time.time() - start}")
+
+    asyncio.run(start_func())
+
+
+if __name__ == "__main__":
     main()

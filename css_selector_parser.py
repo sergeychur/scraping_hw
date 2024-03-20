@@ -120,7 +120,7 @@ class CssSelectorParser:
         name = rows[0].find('div', {'class': 'label'}).text.strip().split(' ')
 
         if len(name) > 2:
-            name = name[:2]
+            name = [' '.join([name[0], name[1]]), name[2]]
 
         player_data['name'] = name[::-1]
 

@@ -1,17 +1,25 @@
 import json
 from dateutil import parser
+import sys
+import datetime as DT
+import calendar
 
 
 def main():
     data = []
 
-    with open("results.jsonl", encoding='utf-8') as f:
+    file = sys.argv[1]
+
+    with open(file, encoding="utf-8") as f:
         data = [json.loads(line) for line in f]
+
+    start = DT.datetime(1999, 1, 1, 0, 0, 0)
+    utc_tuple = start.utctimetuple()
+    years_25 = calendar.timegm(utc_tuple)
 
     matches = 0
     goals = 0
     height = 0
-    years_25 = int(parser.parse(f"1999.1.1").timestamp())
     first_player = None
     second_player = None
     third_player = None
@@ -21,60 +29,59 @@ def main():
     years = 10**11
 
     for player in data:
-        if player['error'] is not None:
+        if 'error' in player.keys():
             continue
 
-        if player['result']['birth'] > years_25 and matches < player['result']['club_caps']:
-            matches = player["result"]["club_caps"]
-            first_player = player["result"]
+        if player['birth'] > years_25 and matches < player['club_caps']:
+            matches = player["club_caps"]
+            first_player = player
 
     for player in data:
-        if player["error"] is not None:
+        if "error" in player.keys():
             continue
 
         if (
-            player["result"]["birth"] > years_25
-            and goals < player["result"]["club_scored"]
+            player["birth"] > years_25
+            and goals < player["club_scored"]
         ):
-            goals = player["result"]["club_scored"]
-            second_player = player["result"]
+            goals = player["club_scored"]
+            second_player = player
 
     for player in data:
-        if player['error'] is not None:
+        if "error" in player.keys():
             continue
 
-        if player['result']['club_scored'] + player['result']['national_scored'] > 10 and height < player['result']['height']:
-            height = player["result"]["height"]
-            third_player = player["result"]
+        if player['club_scored'] + player['national_scored'] > 10 and height < player['height']:
+            height = player["height"]
+            third_player = player
 
     for player in data:
-        if player['error'] is not None:
+        if "error" in player.keys():
             continue
 
-        if player['result']['position'] == 'вратарь' and years > player['result']['birth']:
-            years = player['result']["birth"]
-            fourth_player = player["result"]
+        if player['position'] == 'вратарь' and years > player['birth']:
+            years = player["birth"]
+            fourth_player = player
 
     matches = 0
 
     for player in data:
-        if player['error'] is not None:
+        if "error" in player.keys():
             continue
 
-        if matches < player["result"]["national_caps"]:
-            matches = player["result"]["national_caps"]
-            fifth_player = player["result"]
+        if matches < player["national_caps"]:
+            matches = player["national_caps"]
+            fifth_player = player
 
     goals = 0
 
     for player in data:
-        if player["error"] is not None:
+        if "error" in player.keys():
             continue
 
-        if goals < player["result"]["national_scored"]:
-            goals = player["result"]["national_scored"]
-            sixth_player = player["result"]
-
+        if goals < player["national_scored"]:
+            goals = player["national_scored"]
+            sixth_player = player
 
     print(first_player['name'])
     print(second_player['name'])
