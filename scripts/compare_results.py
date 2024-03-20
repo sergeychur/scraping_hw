@@ -34,8 +34,6 @@ fields_to_compare = [
     'birth',
 ]
 
-print(real.items())
-
 for url, expected_value in expected.items():
     real_value = real.get(url)
     
