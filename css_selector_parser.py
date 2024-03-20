@@ -138,12 +138,12 @@ class CssSelectorParser:
                 month_num = months.index(month) + 1
 
                 birth_str = f"{year}.{month_num}.{day}"
-                start = DT.datetime(year, month, day, 0, 0, 0)
+                start = DT.datetime(int(year), int(month_num), int(day), 0, 0, 0)
 
                 utc_tuple = start.utctimetuple()
                 utc_timestamp = calendar.timegm(utc_tuple)
 
-                player_data["birth"] = int(utc_timestamp)
+                player_data["birth"] = utc_timestamp
                 player_data['birt_str'] = birth_str
             elif line_type_text == 'Рост':
                 height = row.text.strip().split('\n')[2]
