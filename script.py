@@ -75,12 +75,14 @@ def main():
             goals = player["result"]["national_scored"]
             sixth_player = player["result"]
 
+
     print(first_player['name'])
     print(second_player['name'])
     print(third_player['name'])
     print(fourth_player['name'])
     print(fifth_player['name'])
     print(sixth_player['name'])
+
 
 if __name__ == '__main__':
     main()

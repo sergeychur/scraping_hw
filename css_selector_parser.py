@@ -254,7 +254,7 @@ class CssSelectorParser:
                     ind += 1
 
                 if matches.find('?') == -1:
-                    player_data["national_caps"] += int(matches)
+                    player_data["national_caps"] = int(matches)
 
                 #   Для пропущенных голов для вратарей
                 if player_data["position"] == "вратарь":
@@ -271,47 +271,56 @@ class CssSelectorParser:
                 # if td[0].find("abbr") is not None:
                 #     break
 
-            #   Check info in detail table
+        #   Check info in detail table
 
-            tables = data.find_all("table", {"class": "wikitable"})
+        tables = data.find_all("table")
 
-            for table in tables:
-                last_row = table.find_all('tr')[-1]
-                cols = last_row.find_all('td')
+        # print(tables[-1])
 
-                if len(cols) != 0 and cols[0].text.strip() == 'Всего за карьеру':
-                    matches = int(cols[-2].text.strip())
-                    if player_data["club_caps"] < matches:
-                        player_data["club_caps"] = matches
+        for table in tables:
+            last_row = table.find_all('tr')[-1]
+            cols_th = last_row.find_all('th')
+            cols_td = last_row.find_all("td")
+            cols = []
 
-                    if player_data["position"] == "вратарь":
-                        goals = int(cols[-1].text.strip()[1:])
+            if len(cols_td) > 0:
+                cols = cols_td
+            elif len(cols_th) > 0:
+                cols = cols_th
 
-                        if player_data["club_conceded"] < goals:
-                            player_data["club_conceded"] = goals
-                    else:
-                        goals = int(cols[-1].text.strip())
+            if len(cols) != 0 and cols[0].text.strip() == 'Всего за карьеру':
+                matches = int(cols[-2].text.strip())
+                if player_data["club_caps"] < matches:
+                    player_data["club_caps"] = matches
 
-                        if player_data['club_scored'] < goals:
-                            player_data["club_scored"] = goals
+                if player_data["position"] == "вратарь":
+                    goals = int(cols[-1].text.strip()[1:])
 
-        if data.find(id='Статистика_в_сборной') is not None:
-            tables = data.find_all("table", {"class": "wikitable"})
+                    if player_data["club_conceded"] < goals:
+                        player_data["club_conceded"] = goals
+                else:
+                    goals = int(cols[-1].text.strip())
 
-            for table in tables:
-                last_row = table.find_all("tr")[-1]
-                cols = last_row.find_all("th")
+                    if player_data['club_scored'] < goals:
+                        player_data["club_scored"] = goals
 
-                if len(cols) != 0 and cols[0].text.strip() == "Итого":
-                    if player_data["position"] == "вратарь":
-                        pass
-                    else:
-                        matches = int(cols[1].text.strip())
-                        goals = int(cols[2].text.strip())
+        # if data.find(id='Статистика_в_сборной') is not None:
+        #     tables = data.find_all("table", {"class": "wikitable"})
 
-                        if player_data["national_caps"] < matches:
-                            player_data["national_caps"] = matches
-                        if player_data["national_scored"] < goals:
-                            player_data["national_scored"] = goals
+        #     for table in tables:
+        #         last_row = table.find_all("tr")[-1]
+        #         cols = last_row.find_all("th")
+
+        #         if len(cols) != 0 and cols[0].text.strip() == "Итого":
+        #             if player_data["position"] == "вратарь":
+        #                 pass
+        #             else:
+        #                 matches = int(cols[1].text.strip())
+        #                 goals = int(cols[2].text.strip())
+
+        #                 if player_data["national_caps"] < matches:
+        #                     player_data["national_caps"] = matches
+        #                 if player_data["national_scored"] < goals:
+        #                     player_data["national_scored"] = goals
 
         return player_data, []
