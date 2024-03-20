@@ -14,23 +14,23 @@ def main():
         level='INFO',
     )
 
-    logger = logging.getLogger('Runner')
-    start_url = [sys.argv[1]]
-    output_file_name = sys.argv[2]
+    # logger = logging.getLogger('Runner')
+    # start_url = [sys.argv[1]]
+    # output_file_name = sys.argv[2]
 
-    parser = CssSelectorParser()
-    sink = FileSink(output_file_name)
+    # parser = CssSelectorParser()
+    # sink = FileSink(output_file_name)
 
-    async def start_func():
-        runner = AsyncRunner(
-            parser, sink, logger, start_url, rate=1, max_tries=2, max_parallel=5
-        )
+    # async def start_func():
+    #     runner = AsyncRunner(
+    #         parser, sink, logger, start_url, rate=1, max_tries=2, max_parallel=5
+    #     )
 
-        start = time.time()
-        await runner.run()
-        logger.info(f"Total duration is {time.time() - start}")
+    #     start = time.time()
+    #     await runner.run()
+    #     logger.info(f"Total duration is {time.time() - start}")
 
-    asyncio.run(start_func())
+    # asyncio.run(start_func())
 
 if __name__ == '__main__':
     main()

@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
-import time
-from dateutil import parser
-from datetime import datetime
+import calendar
+import datetime as DT
 from urllib.parse import urljoin, urlparse
 
 
@@ -139,9 +138,12 @@ class CssSelectorParser:
                 month_num = months.index(month) + 1
 
                 birth_str = f"{year}.{month_num}.{day}"
-                timestamp = int(datetime.strptime(birth_str, "%Y.%m.%d").timestamp())
+                start = DT.datetime(year, month, day, 0, 0, 0)
 
-                player_data['birth'] = int(timestamp)
+                utc_tuple = start.utctimetuple()
+                utc_timestamp = calendar.timegm(utc_tuple)
+
+                player_data["birth"] = int(utc_timestamp)
                 player_data['birt_str'] = birth_str
             elif line_type_text == 'Рост':
                 height = row.text.strip().split('\n')[2]
