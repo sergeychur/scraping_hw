@@ -1,4 +1,4 @@
-from Runner import AsyncRunner
+from Runner import SimpleRunner
 from css_selector_parser import CssSelectorParser
 from FileSink import FileSink
 import logging
@@ -21,16 +21,11 @@ def main():
     parser = CssSelectorParser()
     sink = FileSink(output_file_name)
 
-    async def start_func():
-        runner = AsyncRunner(
-            parser, sink, logger, start_url, rate=1, max_tries=3, max_parallel=3
-        )
-
-        start = time.time()
-        await runner.run()
-        logger.info(f"Total duration is {time.time() - start}")
-
-    asyncio.run(start_func())
+    runner = SimpleRunner(parser, sink, logger, start_url, rate=1)
+    
+    start = time.time()
+    runner.run()
+    print("Time: ", time.time() - start)
 
 if __name__ == '__main__':
     main()

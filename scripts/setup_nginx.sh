@@ -13,4 +13,3 @@ ln -s /etc/nginx/sites-available/wiki_nginx.conf /etc/nginx/sites-enabled/
 systemctl restart nginx
 systemctl status -l nginx
 curl --head http://localhost/wiki/Чемпионат_Европы_по_футболу_2024.html
-
