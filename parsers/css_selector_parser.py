@@ -7,6 +7,7 @@ from dateutil import parser
 class CssSelectorParser:
     def __init__(self, logger):
         self._logger = logger
+        self.comand_dict = dict()
 
     def parse(self, content, cur_page_url=None):
         soup = BeautifulSoup(content, 'html.parser')
@@ -26,37 +27,36 @@ class CssSelectorParser:
         return None, []
 
     def _parse_main_page(self, page_data, cur_page_url):
-
-        def get_url(elem):
-            url = elem.attrs.get('href')
-            if url:
-                return urljoin(cur_page_url, url)
-
         next = [urljoin(cur_page_url, elem['href'])
                 for elem in page_data.select('td[style] a[href][title]')
-                if 'Сборная' in elem['title']]
+                if 'Сборная' in elem['title']][:21]
         return next
+
+    def _find_table_use_sibling(self, page, label_text):
+        target_element = page.find(attrs={'id': re.compile(label_text)})
+        if target_element is None:
+            return None
+        target_element = target_element.find_parent(re.compile(r'h\d'))
+        table = target_element.find_next_sibling('table')
+        return table
 
     def _parse_team(self, page_data, cur_page_url):
         players = []
-
-        tables = page_data.select('table.wikitable')
-        team_signature = ['№', 'Позиция', 'Игрок', 'Дата рождения / возраст', 'Матчи', 'Голы', 'Клуб']
-        team_signature_eng = ['№', 'Позиция', 'Игрок', 'Дата рождения / возраст', 'Игры', 'Голы', 'Клуб']
+        team_name = page_data.select_one('title').text.split('—')[0].strip()
+        tables = [self._find_table_use_sibling(page_data, text) for text in (r'[С,с]остав', r'Недавние_вызовы')]
         for table in tables:
+            if table is None:
+                continue
             rows = table.select('tr')
             header = rows[0]
             features = header.select('th')
-            is_team = all([left in right.text for left, right in zip(team_signature, features)])
-            is_team_eng = all([left in right.text for left, right in zip(team_signature_eng, features)])
-            if not is_team and not is_team_eng:
-                continue
             for row in rows[1:]:
                 elements = row.select('td')
                 if len(elements) != 7 and len(elements) != 8:
                     continue
                 player_link = elements[2].select_one('a')['href']
                 players.append(urljoin(cur_page_url, player_link))
+                self.comand_dict[players[-1]] = team_name
         return players
 
 
@@ -199,9 +199,9 @@ class CssSelectorParser:
                 else:
                     scored_club_goal_counter += gouls_count
             elif national_flag:
-                nation_team = probe[1].select('a')[-1]['title']
-                if '(до' in nation_team or '(до' in probe[1].text or 'Флаг' in nation_team or 'Молодёжная' in nation_team or 'Олимпийская сборная' in nation_team:
-                    continue
+                # nation_team = probe[1].select('a')[-1]['title']
+                # if '(до' in nation_team or '(до' in probe[1].text or 'Флаг' in nation_team or 'Молодёжная' in nation_team or 'Олимпийская сборная' in nation_team:
+                #     continue
                 national_match_counter += mathes_count
                 if 'вратарь' in position:
                     missed_national_goal_counter += abs(gouls_count)
@@ -210,7 +210,7 @@ class CssSelectorParser:
             else:
                 self._logger.error(f' В основной таблице для {url} пропущена строка по какой-то причине')
 
-        result['national_team'] = nation_team
+        result['national_team'] = self.comand_dict[url]
         result["club_caps"] = club_match_counter
         result["club_conceded"] = missed_club_goal_counter
         result["club_scored"] = scored_club_goal_counter
