@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import re
 from urllib.parse import urljoin
-from dateutil import parser
+from datetime import datetime
 
 
 class CssSelectorParser:
@@ -119,26 +119,26 @@ class CssSelectorParser:
         if probe_el is None:
             raise self._logger.error(f'Не найден возраст для {url}')
         months_translation = {
-            "января": "January",
-            "февраля": "February",
-            "марта": "March",
-            "апреля": "April",
-            "мая": "May",
-            "июня": "June",
-            "июля": "July",
-            "августа": "August",
-            "сентября": "September",
-            "октября": "October",
-            "ноября": "November",
-            "декабря": "December"
+            "января": 1,
+            "февраля": 2,
+            "марта": 3,
+            "апреля": 4,
+            "мая": 5,
+            "июня": 6,
+            "июля": 7,
+            "августа": 8,
+            "сентября": 9,
+            "октября": 10,
+            "ноября": 11,
+            "декабря": 12
         }
         row = probe_el.find_parent('tr')
         age = row.select('span.nowrap a')
         date = ' '.join([obj.text for obj in age[:2]])
-        for ru_month, en_month in months_translation.items():
-            date = date.replace(ru_month, en_month)
-        date_object = parser.parse(date)
-        utc_seconds = date_object.timestamp()
+        date_list = date.split()
+        date_list[1] = months_translation[date_list[1]]
+        day, month, year = date_list
+        utc_seconds = datetime(int(year), month, int(day)).timestamp()
         result['birth'] = int(utc_seconds)
 
         probe_el = table.find(text=re.compile(r'Рост\s?'))
@@ -155,14 +155,14 @@ class CssSelectorParser:
 
         probe_el = table.find(text=re.compile(r'Позиция\s?'))
         if probe_el is None:
-            raise self._logger.error(f'Не найдена позиция для {url}')
+            self._logger.error(f'Не найдена позиция для {url}')
         row = probe_el.find_parent('tr')
         position = row.select('td')[-1].text.strip('\n')
         result['position'] = position
 
         probe_el = table.find(text=re.compile(r'Клуб\s?'))
         if probe_el is None:
-            raise self._logger.error(f'Не найден клуб для {url}')
+            self._logger.error(f'Не найден клуб для {url}')
         row = probe_el.find_parent('tr')
         club = row.select('a')[-1].text
         result['current_club'] = club

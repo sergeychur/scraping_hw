@@ -4,7 +4,6 @@ import argparse
 import asyncio
 
 from runners.async_runner import AsyncRunner
-from runners.simple_runner import SimpleRunner
 from parsers.css_selector_parser import CssSelectorParser
 from utils.file_sink import FileSink
 
