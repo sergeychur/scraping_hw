@@ -201,9 +201,9 @@ class CssSelectorParser:
                 else:
                     scored_club_goal_counter += gouls_count
             elif national_flag:
-                # nation_team = probe[1].select('a')[-1]['title']
-                # if '(до' in nation_team or '(до' in probe[1].text or 'Флаг' in nation_team or 'Молодёжная' in nation_team or 'Олимпийская сборная' in nation_team:
-                #     continue
+                nation_team = probe[1].select('a')[-1]['title']
+                if '(до' in nation_team or '(до' in probe[1].text or 'Флаг' in nation_team or 'Молодёжная' in nation_team or 'Олимпийская сборная' in nation_team:
+                    continue
                 national_match_counter += mathes_count
                 if 'вратарь' in position:
                     missed_national_goal_counter += abs(gouls_count)
