@@ -11,7 +11,8 @@ seed_url=$1
 path_to_result=$2
 
 # TODO: actual implementation should go here
-timeout 10 wget --recursive -w 0.1 -D localhost $seed_url || true
+#timeout 10 wget --recursive -w 0.1 -D localhost $seed_url || true
+venv/bin/python main.py $seed_url $path_to_result
 
-cp test_data/result.jsonl $path_to_result
+
 echo "Finished running"
