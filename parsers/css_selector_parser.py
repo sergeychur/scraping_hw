@@ -50,8 +50,6 @@ class CssSelectorParser:
             if table is None:
                 continue
             rows = table.select('tr')
-            header = rows[0]
-            features = header.select('th')
             for row in rows[1:]:
                 elements = row.select('td')
                 if len(elements) != 7 and len(elements) != 8:
