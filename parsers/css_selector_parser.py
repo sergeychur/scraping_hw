@@ -117,7 +117,7 @@ class CssSelectorParser:
         result['url'] = url
         probe_el = table.find(text=re.compile(r'Родился\s?'))
         if probe_el is None:
-            raise self._logger.error(f'Не найден возраст для {url}')
+            self._logger.error(f'Не найден возраст для {url}')
         months_translation = {
             "января": 1,
             "февраля": 2,
