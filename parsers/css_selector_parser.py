@@ -8,6 +8,7 @@ class CssSelectorParser:
     def __init__(self, logger):
         self._logger = logger
         self.comand_dict = dict()
+        self.national_dict = dict()
 
     def parse(self, content, cur_page_url=None):
         soup = BeautifulSoup(content, 'html.parser')
@@ -27,10 +28,11 @@ class CssSelectorParser:
         return None, []
 
     def _parse_main_page(self, page_data, cur_page_url):
-        next = [urljoin(cur_page_url, elem['href'])
+        next = [(urljoin(cur_page_url, elem['href']), elem['title'])
                 for elem in page_data.select('td[style] a[href][title]')
                 if 'Сборная' in elem['title']][:21]
-        return next
+        self.national_dict.update(dict(next))
+        return [obj[0] for obj in next]
 
     def _find_table_use_sibling(self, page, label_text):
         target_element = page.find(attrs={'id': re.compile(label_text)})
@@ -42,7 +44,7 @@ class CssSelectorParser:
 
     def _parse_team(self, page_data, cur_page_url):
         players = []
-        team_name = page_data.select_one('title').text.split('—')[0].strip()
+        team_name = self.national_dict[cur_page_url]
         tables = [self._find_table_use_sibling(page_data, text) for text in (r'[С,с]остав', r'Недавние_вызовы')]
         for table in tables:
             if table is None:
