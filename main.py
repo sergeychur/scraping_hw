@@ -23,9 +23,8 @@ def main():
 
     async def start_func():
         runner = AsyncRunner(
-            parser, sink, logger, start_url, rate=1, max_tries=2, max_parallel=5
+            parser, sink, logger, start_url, max_tries=2, max_parallel=10, rate=100
         )
-
         start = time.time()
         await runner.run()
         logger.info(f"Total duration is {time.time() - start}")
