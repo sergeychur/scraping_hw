@@ -1,1 +1,9 @@
-requests==2.31.0
+requests
+python-dateutil
+soupsieve
+idna
+lxml
+multidict
+beautifulsoup4
+aiohttp
+asyncio

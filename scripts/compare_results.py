@@ -36,6 +36,7 @@ fields_to_compare = [
 
 for url, expected_value in expected.items():
     real_value = real.get(url)
+    
     if real_value is None:
         raise RuntimeError(f'Real result doesn\'t contain element for url {url}')
     for field in fields_to_compare:
