@@ -391,7 +391,6 @@ class CssSelectorParser:
         if (
             data.find(id="Статистика_в_сборной") is not None
             or data.find(id="Матчи_за_сборную") is not None
-            or data.find(id="Статистика_за_сборную") is not None
         ):
 
             for table in tables:
