@@ -20,7 +20,7 @@ def main():
 
     logger = logging.getLogger('Runner')
     seed_urls = [args.url]
-    #seed_urls = ['https://ru.wikipedia.org/wiki/%D0%A1%D0%B1%D0%BE%D1%80%D0%BD%D0%B0%D1%8F_%D0%91%D0%B5%D0%BB%D1%8C%D0%B3%D0%B8%D0%B8_%D0%BF%D0%BE_%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB%D1%83']
+    #seed_urls = ['https://ru.wikipedia.org/wiki/%D0%92%D0%B8%D1%80%D1%86,_%D0%A4%D0%BB%D0%BE%D1%80%D0%B8%D0%B0%D0%BD']
     parser = CssSelectorParser(logger)
     sink = FileSink(args.result_filepath)
     # runner = SimpleRunner(parser, sink, logger, seed_urls)
@@ -29,7 +29,7 @@ def main():
     # logger.info(f'Total duration is {time.time() - start}')
 
     async def run_async_crawl():
-        runner = AsyncRunner(parser, sink, logger, seed_urls, rate=10, max_tries=5, max_parallel=5)
+        runner = AsyncRunner(parser, sink, logger, seed_urls, rate=10, max_tries=5, max_parallel=50)
         start = time.time()
         await runner.run()
         logger.info(f'Total duration is {time.time() - start}')

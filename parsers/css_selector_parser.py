@@ -71,7 +71,7 @@ class CssSelectorParser:
 
 
 
-        table = self._find_table_use_sibling(page_data, 'Клубная')
+        table = self._find_table_use_sibling(page_data, re.compile(r'Клубная'))
         if table is None: #нашлась ли вообще таблица
             return base_data
         rows = table.select('tr')
