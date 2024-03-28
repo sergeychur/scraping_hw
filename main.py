@@ -29,7 +29,7 @@ def main():
     # logger.info(f'Total duration is {time.time() - start}')
 
     async def run_async_crawl():
-        runner = AsyncRunner(parser, sink, logger, seed_urls, rate=2, max_tries=5, max_parallel=5)
+        runner = AsyncRunner(parser, sink, logger, seed_urls, rate=10, max_tries=5, max_parallel=5)
         start = time.time()
         await runner.run()
         logger.info(f'Total duration is {time.time() - start}')

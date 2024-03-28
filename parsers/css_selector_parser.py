@@ -35,7 +35,7 @@ class CssSelectorParser:
         return [obj[0] for obj in next]
 
     def _find_table_use_sibling(self, page, label_text):
-        target_element = page.find(attrs={'id': re.compile(label_text)})
+        target_element = page.find(attrs={'id': label_text})
         if target_element is None:
             return None
         target_element = target_element.find_parent(re.compile(r'h\d'))
@@ -45,7 +45,7 @@ class CssSelectorParser:
     def _parse_team(self, page_data, cur_page_url):
         players = []
         team_name = self.national_dict[cur_page_url]
-        tables = [self._find_table_use_sibling(page_data, text) for text in (r'[С,с]остав', r'Недавние_вызовы')]
+        tables = [self._find_table_use_sibling(page_data, re.compile(text)) for text in (r'[С,с]остав', r'Недавние_вызовы')]
         for table in tables:
             if table is None:
                 continue
@@ -68,42 +68,33 @@ class CssSelectorParser:
 
 
 
-        #работа с таблицей матчев за сборную, здесь надо будет дальше уточнить все значения
-        tables = page_data.select('tbody')
 
-        # pattern_nationaltable = r'Матчи (.*?) за сборную Англии'
-        # for table in tables:
-        #     buf_result = table.find(text=re.compile(pattern_nationaltable))
-        #     if buf_result is None:
-        #         continue
 
-        #club_signature = ['Выступление', 'Лига', 'Кубок', 'Кубок лиги', 'Еврокубки', 'Прочее', 'Итого']
-        for table in tables:
-            rows = table.select('tr')
-            header = rows[0].select('th')
-            if len(header) == 0:
-                continue
-            else:
-                header = [obj.text.strip('\n').strip() for obj in header]
-                flags = any([('Лига' == obj or
-                              'Кубок лиги' == obj or
-                              'Чемпионат' == obj or
-                              'Кубки' == obj or
-                              'Кубок' == obj or
-                              'Клуб' == obj) and 'УЕФА' not in obj for obj in header])
-                if not flags:
-                    continue
-                last_row = rows[-1].select('td')
-                if len(last_row) <= 2:
-                    last_row = rows[-1].select('th')
-                matches_advanced = int(last_row[-2].text.replace('−', '-').replace('\n', '').replace('−', '-'))
-                goals_advanced = int(last_row[-1].text.replace('\n', '').replace('−', '-'))
-                if goals_advanced < 0:
-                    base_data['club_conceded'] = max(abs(goals_advanced), base_data['club_conceded'])
-                else:
-                    base_data["club_scored"] = max(abs(goals_advanced), base_data["club_scored"])
-                base_data['club_caps'] = max(matches_advanced, base_data['club_caps'])
-                return base_data
+
+        table = self._find_table_use_sibling(page_data, 'Клубная')
+        if table is None: #нашлась ли вообще таблица
+            return base_data
+        rows = table.select('tr')
+        header = rows[0].select('th')
+        header = [obj.text.strip('\n').strip() for obj in header]
+        flags = any([('Лига' == obj or
+                      'Кубок лиги' == obj or
+                      'Чемпионат' == obj or
+                      'Кубки' == obj or
+                      'Кубок' == obj or
+                      'Клуб' == obj) and 'УЕФА' not in obj for obj in header])
+        if not flags: #нужная ли это таблица
+            return base_data
+        last_row = rows[-1].select('td')
+        if len(last_row) <= 2:
+            last_row = rows[-1].select('th')
+        matches_advanced = int(last_row[-2].text.replace('−', '-').replace('\n', '').replace('−', '-'))
+        goals_advanced = int(last_row[-1].text.replace('\n', '').replace('−', '-'))
+        if goals_advanced < 0:
+            base_data['club_conceded'] = max(abs(goals_advanced), base_data['club_conceded'])
+        else:
+            base_data["club_scored"] = max(abs(goals_advanced), base_data["club_scored"])
+        base_data['club_caps'] = max(matches_advanced, base_data['club_caps'])
         return base_data
 
 
