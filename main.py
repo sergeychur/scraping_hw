@@ -23,7 +23,7 @@ def main():
 
     async def start_func():
         runner = AsyncRunner(
-            parser, sink, logger, start_url, rate=1, max_tries=2, max_parallel=5
+            parser, sink, logger, start_url, rate=10, max_tries=2, max_parallel=5
         )
 
         start = time.time()

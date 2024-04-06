@@ -42,6 +42,8 @@ class CssSelectorParser:
                 s = '<span class="mw-headline" id="Состав">Состав</span>'
             elif country == 'Сербия':
                 s = '<span class="mw-headline" id="Состав_сборной">Состав сборной</span>'
+            elif country == 'Украина':
+                s = '<span class="mw-headline" id="Состав">Состав</span>'
             else:
                 s = '<span class="mw-headline" id="Текущий_состав">Текущий состав</span>'
 
@@ -350,21 +352,34 @@ class CssSelectorParser:
             cols_td = last_row.find_all("td")
             cols = []
 
-            if len(cols_td) > 0:
+            if len(cols_td) > len(cols_th):
                 cols = cols_td
-            elif len(cols_th) > 0:
+            else:
                 cols = cols_th
 
-            if len(cols) != 0 and cols[0].text.strip() in ["Всего за карьеру", "Всего"]:
-                matches = int(cols[-2].text.strip())
+            if (len(cols_th) != 0 and cols_th[0].text.strip() in ["Всего за карьеру", "Всего"]) or (len(cols_td) != 0 and cols_td[0].text.strip() in ["Всего за карьеру", "Всего"]):
+                matches = cols[-2].text.strip()
+                goals = 0
+                is_diff_location = False
+
+                if not matches[0].isnumeric():
+                    goals = int(matches[1:])
+                    matches = int(cols[-3].text.strip())
+                    is_diff_location = True
+                else:
+                    matches = int(cols[-2].text.strip())
+
                 if player_data["club_caps"] < matches:
                     player_data["club_caps"] = matches
 
                 if player_data["position"] == "вратарь":
-                    goals = cols[-1].text.strip()
-                    if not goals[0].isnumeric():
-                        goals = goals[1:]
-                    goals = int(goals)
+                    if not is_diff_location:
+                        goals = cols[-1].text.strip()
+                        if not goals[0].isnumeric() and goals != '?':
+                            goals = goals[1:]
+                        elif goals == '?':
+                            goals = '0'
+                        goals = int(goals)
 
                     if player_data["club_conceded"] < goals:
                         player_data["club_conceded"] = goals
@@ -373,6 +388,8 @@ class CssSelectorParser:
 
                     if player_data['club_scored'] < goals:
                         player_data["club_scored"] = goals
+
+                break
 
         #   National team stats
         if (
