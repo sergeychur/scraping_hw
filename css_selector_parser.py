@@ -99,6 +99,7 @@ class CssSelectorParser:
         player_data = {}
         club_career_ind = 0
         national_team_career_ind = 0
+        club_table_ind = -1
 
         player_data = {
             'url': current_url,
@@ -385,6 +386,10 @@ class CssSelectorParser:
                         player_data["club_conceded"] = goals
                 else:
                     goals = int(cols[-1].text.strip())
+                    matches = int(cols[-2].text.strip())
+
+                    if player_data["club_caps"] < matches:
+                        player_data["club_caps"] = matches
 
                     if player_data['club_scored'] < goals:
                         player_data["club_scored"] = goals
@@ -396,13 +401,19 @@ class CssSelectorParser:
             data.find(id="Статистика_в_сборной") is not None
             or data.find(id="Матчи_за_сборную") is not None
         ):
-            tables = data.find_all("table", {"class": "wikitable"})
 
             for table in tables:
                 last_row = table.find_all("tr")[-1]
-                cols = last_row.find_all("th")
+                cols_th = last_row.find_all("th")
+                cols_td = last_row.find_all("td")
+                cols = []
 
-                if len(cols) != 0 and cols[0].text.strip() in ["Итого"]:
+                if len(cols_td) > len(cols_th):
+                    cols = cols_td
+                else:
+                    cols = cols_th
+
+                if len(cols) != 0 and cols[0].text.strip() in ["Итого", 'Всего за карьеру'] and tables.index(table) != club_table_ind:
                     if player_data["position"] == "вратарь":
                         matches = int(cols[1].text.strip())
 
