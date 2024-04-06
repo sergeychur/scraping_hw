@@ -2,10 +2,10 @@ import json
 
 class FileSink:
     def __init__(self, path):
-        self._file = open(path, 'w', encoding='utf-8')
+        self._file = open(path, "w", encoding="utf-8")
 
     def write(self, item):
-        self._file.write(json.dumps(item, ensure_ascii=False) + '\n')
+        self._file.write(json.dumps(item, ensure_ascii=False) + "\n")
 
     def __del__(self):
         self._file.close()

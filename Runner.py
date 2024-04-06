@@ -1,15 +1,18 @@
-import aiohttp
-import asyncio
+from collections import deque
 import time
 
 from SimpleRateLimiter import SimpleRateLimiter
 from Item import Item
 
+import aiohttp
+import asyncio
+import time
+
 
 class AsyncRunner:
     def __init__(
         self, parser, sink, logger, seed_urls, rate=100, max_parallel=5, max_tries=5
-    ) -> None:
+    ):
         self._logger = logger.getChild("AsyncRunner")
         self._parser = parser
         self._sink = sink
@@ -24,11 +27,10 @@ class AsyncRunner:
 
     def _submit(self, item):
         item.start = time.time()
-        item.tries += 1
         future = asyncio.ensure_future(self._download(item))
         self._in_air.add(future)
         self._future_to_item[future] = item
-        self._logger.info(f"start: {item.url}")
+        self._logger.info(f"Start: {item.url}")
         self._seen.add(item.url)
 
     async def _download(self, item):
@@ -40,14 +42,12 @@ class AsyncRunner:
                 async with session.get(item.url) as resp:
                     resp.raise_for_status()
                     content = await resp.text()
-                    return self._parser.parse(
-                        content.encode(), str(resp.url)
-                    )
+                    return self._parser.parse(content.encode(), str(resp.url))
 
     async def run(self):
-        for url in self._seed_urls:
-            self._submit(Item(url))
-        while self._in_air:
+        for elem in self._seed_urls:
+            self._submit(Item(elem))
+        while len(self._in_air) > 0:
             done, in_air = await asyncio.wait(
                 self._in_air, return_when=asyncio.FIRST_COMPLETED
             )
@@ -55,38 +55,41 @@ class AsyncRunner:
             for future in done:
                 item = self._future_to_item.pop(future)
                 try:
-                    result, next_urls = future.result()
+                    result, next = future.result()
                 except Exception as e:
                     duration = time.time() - item.start
-                    if item.tries >= self._max_tries:
+                    item.tries += 1
+                    if item.tries > self._max_tries:
                         self._write(item, error=str(e))
                         self._logger.exception(
-                            f"fail: {item.url}. tries={item.tries}. duration={duration}. error={e}"
+                            f"Fail: {item.url} {e}. Tries = {item.tries}. Duration: {duration}s"
                         )
-                    else:
-                        self._submit(item)
-                        self._logger.warning(
-                            f"postpone: {item.url}. tries={item.tries}. duration={duration}. error={e}"
-                        )
-                else:
-                    if result is not None:
-                        self._write(item, result)
-                    for next_item in next_urls:
-                        if next_item["url"] not in self._seen:
-                            self._submit(
-                                Item(next_item["url"], next_item["extra_info"])
-                            )
-                    self._logger.info(
-                        f"success: {item.url}. tries={item.tries}. duration={time.time() - item.start}"
+                        continue
+                    self._submit(item)
+                    self._logger.warning(
+                        f"Postpone: {item.url} {e}. Tries = {item.tries}. Duration: {duration}s"
                     )
+                    continue
+                if result is not None:
+                    self._write(item, result=result)
+                for elem in next:
+                    if elem in self._seen:
+                        continue
+                    self._submit(Item(elem))
+                self._logger.info(
+                    f"Success: {item.url}. Tries = {item.tries}. Duration: {time.time() - item.start}s"
+                )
 
-    def _write(self, item: Item, result=None, error=None) -> None:
+    def _write(self, item, result=None, error=None):
         if result is None and error is None:
             raise RuntimeError("Invalid result. Both result and error are None")
-        to_write = {
-            "url": item.url,
-            "tries": item.tries,
-            "result": result,
-            "error": error,
-        }
+
+        to_write = {}
+
+        if error is None:
+            result["tries"] = item.tries
+            to_write = result
+        else:
+            to_write = {"error": error, "url": item.url, "tries": item.tries}
+
         self._sink.write(to_write)
