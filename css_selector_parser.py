@@ -5,13 +5,6 @@ from urllib.parse import urljoin, urlparse
 
 
 class CssSelectorParser:
-    def _get_domain(url):
-        netloc = urlparse(url).netloc
-        scheme = urlparse(url).scheme
-        domain = scheme + "://" + netloc
-
-        return domain
-
     def parse(self, content, current_url):
         netloc = urlparse(current_url).netloc
         scheme = urlparse(current_url).scheme
