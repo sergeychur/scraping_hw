@@ -50,6 +50,7 @@ class CssParser:
         self._find_name(root, info)
         self._read_infobox(root, info)
         self._transform_height(info)
+        self._find_club_caps(root, info)
 
         return info
 
@@ -93,3 +94,29 @@ class CssParser:
         info["height"] = info["height"].replace(",", "")
         info["height"] = info["height"].split("—")[-1]
         info["height"] = int(info["height"])
+
+
+    def _find_club_caps(self, root, info) -> None:
+        pointer = root.select_one(".infobox table tbody tr")
+        while "Клубная карьера" not in pointer.text:
+            pointer = pointer.next_sibling
+            if not pointer.name:
+                pointer = pointer.next_sibling
+
+        pointer = pointer.next_sibling
+        if not pointer.name:
+            pointer = pointer.next_sibling
+            
+        from_table = 0
+        cell = pointer.select_one("td:nth-child(3)")
+        while cell:
+            ln = cell.text.split("(")[0]
+            if ln.strip().isdigit():
+                from_table += int(ln)
+            pointer = pointer.next_sibling
+            if not pointer.name:
+                pointer = pointer.next_sibling
+            if not pointer:
+                break
+            cell = pointer.select_one("td:nth-child(3)")
+        info["club_caps"] = from_table
