@@ -16,12 +16,13 @@ class SimpleRunner:
 
         self._seen = set()
         self._items_to_load = deque()
-        self._add(Item(seed_urls, status='championship'))
+        for seed_url in seed_urls:
+            self._add(Item(seed_url, status='championship'))
 
         self._start_time = None
 
     def run(self):
-        self._logger.info('START')
+        self._logger.info('Start')
         self._start_time = time.time()
         while self._items_to_load:
             current_item = self._items_to_load.pop()
@@ -31,6 +32,13 @@ class SimpleRunner:
                 continue
             try:
                 extracted = self._parser.parse(current_item)
+                if not extracted:
+                    self._logger.info(f'Not scraped from url {current_item.url}')
+                    continue
+                self._logger.info(f'Scraped from url {current_item.url} items: {len(extracted)}')
+                for item in extracted:
+                    self._add(item)
+                self._seen.add(current_item.url)
             except Exception as exep:
                 self._logger.error(f'Failed to scrape {current_item.url}, exception: {exep}')
 
@@ -38,8 +46,8 @@ class SimpleRunner:
         time.sleep(self._rate_limiter.get_delay())
         item.start = time.time()
 
-        response = requests.get(item.url, timeout=60)
         try:
+            response = requests.get(item.url, timeout=60)
             response.raise_for_status()
         except Exception:
             item.tries += 1
@@ -50,8 +58,8 @@ class SimpleRunner:
                 self._logger.info(f'One more try {item.url} DURATION {time.time() - item.start}')
                 return self._load_page(item)
         self._logger.info(f'Loaded page: {item.url}')
-        return response.content
+        return response.text
 
-    def _add(self, item: Item):
+    def _add(self, item: Item) -> None:
         self._items_to_load.appendleft(item)
         self._seen.add(item)
