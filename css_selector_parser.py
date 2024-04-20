@@ -110,6 +110,20 @@ class CssSelectorParser:
 
         return utc_timestamp, birth_str
 
+    def calc_height(self, text_height : str) -> int:
+        res_height = ""
+        height_ind = 0
+
+        while text_height[height_ind].isnumeric():
+            res_height += text_height[height_ind]
+            height_ind += 1
+
+        if res_height[-1] == "]":
+            ind = res_height.index("[")
+            res_height = res_height[:ind]
+
+        return int(res_height)
+
     def _player_parse(self, data, current_url):
         player_data = {}
         club_career_ind = 0
@@ -164,19 +178,8 @@ class CssSelectorParser:
                 player_data["birth"] = utc_timestamp
                 player_data["birt_str"] = birth_str
             elif line_type_text == "Рост":
-                height = row.text.strip().split("\n")[2]
-                res_height = ""
-                height_ind = 0
-
-                while height[height_ind].isnumeric():
-                    res_height += height[height_ind]
-                    height_ind += 1
-
-                if res_height[-1] == "]":
-                    ind = res_height.index("[")
-                    res_height = res_height[:ind]
-
-                player_data["height"] = int(res_height)
+                height = self.calc_height(row.text.strip().split("\n")[2])
+                player_data["height"] = height
             elif line_type_text == "Позиция":
                 pos = row.find("td").text.strip()
                 player_data["position"] = pos
