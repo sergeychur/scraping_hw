@@ -2,9 +2,19 @@ from bs4 import BeautifulSoup
 import calendar
 import datetime as DT
 from urllib.parse import urljoin, urlparse
+import re
 
 
 class CssSelectorParser:
+
+    def _find_table_use_sibling(self, page, label_text):
+        target_element = page.find(attrs={"id": label_text})
+        if target_element is None:
+            return None
+        target_element = target_element.find_parent(re.compile(r"h\d"))
+        table = target_element.find_next_sibling("table")
+        return table
+
     def parse(self, content, current_url):
         netloc = urlparse(current_url).netloc
         scheme = urlparse(current_url).scheme
@@ -24,30 +34,6 @@ class CssSelectorParser:
         if "Соревнование футбольных сборных" in table:
             result, urls = self._main_page_parse(soup)
         elif "Сборная страны по футболу" in table:
-            #   delete all unnecessary html code before needed table with current team
-            s = ""
-
-            country = (
-                soup.find("table", {"class": "infobox"})
-                .find("tr")
-                .find("th")
-                .text.strip(" \n\r")
-            )
-
-            if country in ["Англия", "Чехия"]:
-                s = '<span class="mw-headline" id="Текущий_состав_сборной">Текущий состав сборной</span>'
-            elif country in ["Дания", "Швейцария", "Хорватия"]:
-                s = '<span class="mw-headline" id="Состав">Состав</span>'
-            elif country == "Сербия":
-                s = '<span class="mw-headline" id="Состав_сборной">Состав сборной</span>'
-            elif country == "Украина":
-                s = '<span class="mw-headline" id="Состав">Состав</span>'
-            else:
-                s = '<span class="mw-headline" id="Текущий_состав">Текущий состав</span>'
-
-            soup = BeautifulSoup(
-                content.decode()[content.decode().find(s) :].encode(), "html.parser"
-            )
             result, urls = self._team_parse(soup)
         elif "Футболист" in table:
             result, urls = self._player_parse(soup, current_url)
@@ -70,15 +56,16 @@ class CssSelectorParser:
         return None, all_web_links
 
     def _team_parse(self, data):
-        tables = data.find_all("table", {"class": "wikitable"})
+        tables = [
+            self._find_table_use_sibling(data, re.compile(text))
+            for text in (r"[С,с]остав", r"Недавние_вызовы")
+        ]
         actual_web_links = []
-        size = 1
-
-        if data.find(id="Недавние_вызовы") != None:
-            size = 2
-
-        for i in range(size):
-            for row in tables[i].find_all("tr")[1:]:
+        
+        for table in tables:
+            if table is None:
+                continue
+            for row in table.find_all("tr")[1:]:
                 cols = row.find_all("td")
 
                 if len(cols) == 0 or len(cols) == 1:
