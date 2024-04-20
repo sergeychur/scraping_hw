@@ -1,5 +1,5 @@
-import time
 import threading
+import time
 
 
 class SimpleRateLimiter:
@@ -15,4 +15,3 @@ class SimpleRateLimiter:
                 timestamp = time.time()
             self._last_called_ts = timestamp
             return max(expected_next_call_ts - timestamp, 0)
-

@@ -7,11 +7,9 @@ class Item:
         self.start = None
         self.tries = tries
         self.content = None
-        self.status = status  # championship/team/player
 
     def __str__(self):
         return json.dumps({
             'url': self.url,
             'status': self.status
         })
-

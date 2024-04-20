@@ -1,7 +1,10 @@
-from runner import Item
-from collections import deque
-import requests
 import time
+from collections import deque
+
+import requests
+from bs4 import BeautifulSoup
+
+from runner import Item
 from runner.simple_rate_limiter import SimpleRateLimiter
 
 
@@ -17,7 +20,7 @@ class SimpleRunner:
         self._seen = set()
         self._items_to_load = deque()
         for seed_url in seed_urls:
-            self._add(Item(seed_url, status='championship'))
+            self._add(Item(seed_url))
 
         self._start_time = None
 
@@ -27,11 +30,13 @@ class SimpleRunner:
         while self._items_to_load:
             current_item = self._items_to_load.pop()
             if content := self._load_page(current_item):
-                current_item.content = content
+                current_item.content = BeautifulSoup(content, 'html.parser')
             else:
                 continue
             try:
                 extracted = self._parser.parse(current_item)
+                if extracted == 1:
+                    continue
                 if not extracted:
                     self._logger.info(f'Not scraped from url {current_item.url}')
                     continue

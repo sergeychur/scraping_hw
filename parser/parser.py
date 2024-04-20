@@ -1,46 +1,70 @@
-from bs4 import BeautifulSoup
-from runner import Item
+import logging
 from urllib.parse import urljoin
-import re
+
+from runner import Item
 
 
 class Parser:
-    # all selectors are css selectors
+    # Все селекторы - css
     TEAM_SELECTOR = 'table.standard tr td:nth-child(1) > a'
     PLAYER_SELECTOR = 'table.wikitable.mw-datatable > tbody > tr > td:nth-child(3) > a[href]'
     DOMAIN = 'https://ru.wikipedia.org/'
 
-    def _parse_championship_page(self, soup):
-        selected_teams = soup.select(self.TEAM_SELECTOR)
-        urls = map(lambda x: x.get('href'), selected_teams)
-        urls_join_domain = list(map(lambda x: urljoin(self.DOMAIN, x), urls))
-        team_items = list(map(lambda x: Item(url=x, status='team'), urls_join_domain))
-        cleaned_answer = list(set(team_items))
-        return cleaned_answer
-
-    def _parse_team_page(self, soup):
-        pointer = soup.find('span', id=re.compile('^Текущий_состав'))
-        if not pointer:
-            pointer = soup.find('span', id=re.compile('^Состав'))
-        pointer = pointer.parent
-        while not (pointer.name and pointer.name == 'table'):
-            pointer = pointer.next_sibling
-
-        selected_players = pointer.select('tbody tr tr:nth-child(3) > a')
-
-        selected_players = list(set(soup.select(self.PLAYER_SELECTOR)))
-        urls = map(lambda x: x.get('href'), selected_players)
-        urls_join_domain = list(map(lambda x: urljoin(self.DOMAIN, x), urls))
-        player_items = list(map(lambda x: Item(url=x, status='team'), urls_join_domain))
-        cleaned_answer = list(set(player_items))
-        return cleaned_answer
+    def __init__(self):
+        self.logger = logging.getLogger('parser')
 
     def parse(self, item):
-        soup = BeautifulSoup(item.content, 'html.parser')
-        match item.status:
+        match self.__make_choice(item.content):
             case 'championship':
-                return self._parse_championship_page(soup)
+                return self._parse_championship_page(item.content)
             case 'team':
-                return self._parse_team_page(soup)
+                self.logger.info(f'team: {item.url}')
+                return self._parse_team_page(item.content)
+            case 'player':
+                # TODO try block (except - this is not player)
+                return []
+        return 1   # TODO clean
 
+    def _parse_championship_page(self, soup):
+        selected = soup.select(self.TEAM_SELECTOR)
+        answer = self.__get_items(selected)
+        return answer
 
+    def _parse_team_page(self, soup):
+        table = self.__get_table_pointer(soup)
+        selected = table.select('tr > td:nth-child(3) > a[href]')
+
+        answer = self.__get_items(selected)
+
+        print(list(item.url for item in answer))
+        return answer
+
+    def _parse_player_page(self, soup):
+        pass
+
+    @staticmethod
+    def __make_choice(soup):
+        title = soup.select_one('span[class="mw-page-title-main"]').text.lower()
+        if 'чемпионат' in title:
+            return 'championship'
+        elif 'сборная' in title:
+            return 'team'
+        else:
+            return 'player'
+
+    @staticmethod
+    def __get_table_pointer(soup):
+        table_names = ['Текущий_состав', 'Игроки', 'Состав', 'Состав_сборной']
+        for id in table_names:
+            pointer = soup.find('span', id=id)
+            if pointer:
+                break
+        table = pointer.parent.find_next_sibling('table')
+        return table
+
+    def __get_items(self, selected):
+        urls = map(lambda x: x.get('href'), selected)
+        urls_join_domain = list(set(map(lambda x: urljoin(self.DOMAIN, x), urls)))
+        items = list(map(lambda x: Item(url=x), urls_join_domain))
+
+        return items
