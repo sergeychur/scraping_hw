@@ -3,7 +3,7 @@ import calendar
 import datetime as DT
 from urllib.parse import urljoin, urlparse
 import re
-
+import time
 
 class CssSelectorParser:
 
@@ -109,7 +109,9 @@ class CssSelectorParser:
         rows = infobox.find_all("tr")
 
         #   Name
-        name = rows[0].find("div", {"class": "label"}).text.strip().split(" ")
+        name = (
+            rows[0].find("div", {"class": "ts_Спортсмен_имя"}).text.strip().split()
+        )
 
         if len(name) > 2:
             name = [" ".join([name[0], name[1]]), name[2]]
