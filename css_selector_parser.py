@@ -85,6 +85,31 @@ class CssSelectorParser:
 
         return text
 
+    def get_bday(self, day : str, month : str, year : str) -> list:
+        months = [
+            "января",
+            "февраля",
+            "марта",
+            "апреля",
+            "мая",
+            "июня",
+            "июля",
+            "августа",
+            "сентября",
+            "октября",
+            "ноября",
+            "декабря",
+        ]
+
+        month_num = months.index(month) + 1
+        birth_str = f"{year}.{month_num}.{day}"
+        start = DT.datetime(int(year), int(month_num), int(day), 0, 0, 0)
+
+        utc_tuple = start.utctimetuple()
+        utc_timestamp = calendar.timegm(utc_tuple)
+
+        return utc_timestamp, birth_str
+
     def _player_parse(self, data, current_url):
         player_data = {}
         club_career_ind = 0
@@ -131,29 +156,10 @@ class CssSelectorParser:
                 bday[0] = bday[0].text
                 bday[1] = bday[1].text
 
-                months = [
-                    "января",
-                    "февраля",
-                    "марта",
-                    "апреля",
-                    "мая",
-                    "июня",
-                    "июля",
-                    "августа",
-                    "сентября",
-                    "октября",
-                    "ноября",
-                    "декабря",
-                ]
-                day, month = bday[0].split(" ")
+                day, month = bday[0].split()
                 year = bday[1]
-                month_num = months.index(month) + 1
 
-                birth_str = f"{year}.{month_num}.{day}"
-                start = DT.datetime(int(year), int(month_num), int(day), 0, 0, 0)
-
-                utc_tuple = start.utctimetuple()
-                utc_timestamp = calendar.timegm(utc_tuple)
+                utc_timestamp, birth_str = self.get_bday(day, month, year)
 
                 player_data["birth"] = utc_timestamp
                 player_data["birt_str"] = birth_str
