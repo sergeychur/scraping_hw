@@ -59,7 +59,7 @@ class CssParser:
         name = name[: name.rfind("—") - 1]
         bracket = name.rfind("(")
         if bracket > 0:
-            name = name[:bracket]
+            name = name[: bracket]
         info["name"] = list(map(str.strip, name.split(",")))
         if len(info["name"]) < 2:
             info["name"] = list(map(str.strip, info["name"][0].split()))
@@ -108,15 +108,71 @@ class CssParser:
             pointer = pointer.next_sibling
             
         from_table = 0
+        sc_from_table = 0
         cell = pointer.select_one("td:nth-child(3)")
         while cell:
-            ln = cell.text.split("(")[0]
+            ln, sc = cell.text.strip().split("(")
+            sc = sc[:-1].replace("−", "-").replace("–", "-")
+            slash = sc.find("/")
+            if slash > 0:
+                sc = sc[:slash]
+            if "?" in sc:
+                sc = "0"
             if ln.strip().isdigit():
                 from_table += int(ln)
+                sc_from_table += int(sc)
             pointer = pointer.next_sibling
             if not pointer.name:
                 pointer = pointer.next_sibling
             if not pointer:
                 break
             cell = pointer.select_one("td:nth-child(3)")
-        info["club_caps"] = from_table
+
+        tables = root.select("table tbody tr")
+        from_cell = 0
+        sc_from_cell = 0
+        for t in tables:
+            if "infobox" in t.parent.parent.__dict__["attrs"].get("class", [""]):
+                continue
+            if not t.th:
+                continue
+            if t.th.text.strip() != "Клуб":
+                t = t.next_sibling
+                if not t:
+                    continue
+                if not t.name:
+                    t = t.next_sibling
+                if not t.th or t.th.text != "Клуб":
+                    continue
+
+            t_temp = t.parent.select_one("tr:last-child").select_one("th:last-child")
+            if not t_temp:
+                t_temp = t.parent.select_one("tr:last-child").select_one("td:last-child")
+            t = t_temp
+            
+            t = t.previous_sibling
+            if not t.name:
+                t = t.previous_sibling
+            if "−" in t.text or "-" in t.text:
+                t = t.previous_sibling
+                if not t.name:
+                    t = t.previous_sibling
+            from_cell = int("0" if "?" in t.text else t.text.strip())
+            t = t.next_sibling
+            if not t.name:
+                t = t.next_sibling
+            if "?" in t.text:
+                sc_from_cell = 0
+            else:
+                sc_from_cell = int(t.text.strip().replace("−", "-").replace("–", "-"))
+            break
+
+        info["club_caps"] = max(from_table, from_cell)
+        if sc_from_table < 0 or sc_from_cell < 0:
+            info["club_conceded"] = abs(min(sc_from_cell, sc_from_table))
+            info["club_scored"] = 0
+        else:
+            info["club_conceded"] = 0
+            info["club_scored"] = max(sc_from_table, sc_from_cell)
+                            
+
