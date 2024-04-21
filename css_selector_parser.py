@@ -6,20 +6,12 @@ import re
 import time
 
 class CssSelectorParser:
-
-    def _find_table_use_sibling(self, page, label_text):
-        target_element = page.find(attrs={"id": label_text})
-        if target_element is None:
-            return None
-        target_element = target_element.find_parent(re.compile(r"h\d"))
-        table = target_element.find_next_sibling("table")
-        return table
-
     def parse(self, content, current_url):
         netloc = urlparse(current_url).netloc
         scheme = urlparse(current_url).scheme
         domain = scheme + "://" + netloc
         self._domain = domain
+
         soup = BeautifulSoup(content, "html.parser")
         table = soup.select_one("table.infobox")
 
@@ -58,16 +50,40 @@ class CssSelectorParser:
 
         return None, all_web_links
 
+    def find_relevant_tags(self, data, headers):
+        tags = []
+
+        for header in headers:
+            tag = data.find('span', {'id' : header})
+            if tag is not None:
+                tags.append(tag)
+
+        return tags
+
     def _team_parse(self, data):
-        tables = [
-            self._find_table_use_sibling(data, re.compile(text))
-            for text in (r"[С,с]остав", r"Недавние_вызовы")
-        ]
+        tables = []
         actual_web_links = []
+
+        headers = [
+            "Текущий_состав",
+            "Текущий_состав_сборной",
+            "Состав",
+            "Состав_сборной",
+            'Недавние_вызовы',
+        ]
+
+        relevant_tags = self.find_relevant_tags(data, headers)
+
+        for tag in relevant_tags:
+            table = tag.find_next("table", {"class": "wikitable"})
+
+            if table is not None:
+                tables.append(table)
 
         for table in tables:
             if table is None:
                 continue
+
             for row in table.find_all("tr")[1:]:
                 cols = row.find_all("td")
 
@@ -309,11 +325,6 @@ class CssSelectorParser:
             selected_national_goals = []
             selected_national_matches = []
             selected_national_conceded = []
-
-            # print(national_teams)
-            # print(national_matches)
-            # print(national_goals)
-            # print(national_conceded)
 
             for i in range(len(national_teams)):
                 if not (
