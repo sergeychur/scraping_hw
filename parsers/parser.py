@@ -51,6 +51,7 @@ class CssParser:
         self._read_infobox(root, info)
         self._transform_height(info)
         self._find_club_caps(root, info)
+        self._find_national_caps(root, info)
 
         return info
 
@@ -112,7 +113,8 @@ class CssParser:
         cell = pointer.select_one("td:nth-child(3)")
         while cell:
             ln, sc = cell.text.strip().split("(")
-            sc = sc[:-1].replace("−", "-").replace("–", "-")
+            bracket = sc.find(")")
+            sc = sc[:bracket].replace("−", "-").replace("–", "-")
             slash = sc.find("/")
             if slash > 0:
                 sc = sc[:slash]
@@ -176,3 +178,53 @@ class CssParser:
             info["club_scored"] = max(sc_from_table, sc_from_cell)
                             
 
+    def _find_national_caps(self, root, info) -> None:
+        pointer = root.select_one(".infobox table tbody tr")
+        while "Национальная сборная" not in pointer.text:
+            pointer = pointer.next_sibling
+            if not pointer.name:
+                pointer = pointer.next_sibling
+            if not pointer:
+                info["national_caps"] = 0
+                info["national_conceded"] = 0
+                info["national_scored"] = 0
+                return
+
+        pointer = pointer.next_sibling
+        if not pointer.name:
+            pointer = pointer.next_sibling
+            
+        from_table = 0
+        sc_from_table = 0
+        cell = pointer.select_one("td:nth-child(2)")
+        while cell:
+            if "до" not in cell.text:
+                cell = cell.next_sibling
+                if not cell.name:
+                    cell = cell.next_sibling
+                ln, sc = cell.text.strip().split("(")
+                bracket = sc.find(")")
+                sc = sc[:bracket].replace("−", "-").replace("–", "-")
+                slash = sc.find("/")
+                if slash > 0:
+                    sc = sc[:slash]
+                if "?" in sc:
+                    sc = "0"
+                if ln.strip().isdigit():
+                    from_table += int(ln)
+                sc_from_table += int(sc)
+
+            pointer = pointer.next_sibling
+            if not pointer.name:
+                pointer = pointer.next_sibling
+            if not pointer:
+                break
+            cell = pointer.select_one("td:nth-child(2)")
+
+        info["national_caps"] = from_table
+        if sc_from_table < 0:
+            info["national_conceded"] = abs(sc_from_table)
+            info["national_scored"] = 0
+        else:
+            info["national_conceded"] = 0
+            info["national_scored"] = sc_from_table
