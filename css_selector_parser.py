@@ -104,7 +104,7 @@ class CssSelectorParser:
 
         return text
 
-    def get_bday(self, day : str, month : str, year : str) -> list:
+    def _get_bday(self, day : str, month : str, year : str) -> list:
         months = [
             "января",
             "февраля",
@@ -129,7 +129,7 @@ class CssSelectorParser:
 
         return utc_timestamp, birth_str
 
-    def calc_height(self, text_height : str) -> int:
+    def _calc_height(self, text_height : str) -> int:
         res_height = ""
         height_ind = 0
 
@@ -179,109 +179,40 @@ class CssSelectorParser:
                     goals = goals[: goals.index("/")]
                 player_data["club_scored"] += int(goals)
 
-    def _process_main_table(self, ):
-        pass
+    def _process_national_additional_table(self, data, player_data):
+        if (
+            data.find(id="Статистика_в_сборной") is not None
+            or data.find(id="Матчи_за_сборную") is not None
+        ):
+            tables = data.find_all("table", {"class": "wikitable"})
 
-    def _player_parse(self, data, current_url):
-        player_data = {}
-        club_career_ind = 0
-        national_team_career_ind = 0
+            for table in tables:
+                last_row = table.find_all("tr")[-1]
+                cols = last_row.find_all("th")
 
-        player_data = {
-            "url": current_url,
-            "name": "",
-            "height": 0,
-            "position": "",
-            "current_club": "",
-            "club_caps": 0,
-            "club_conceded": 0,
-            "club_scored": 0,
-            "national_caps": 0,
-            "national_conceded": 0,
-            "national_scored": 0,
-            "national_team": "",
-        }
+                if len(cols) != 0 and cols[0].text.strip() in ["Итого"]:
+                    if player_data["position"] == "вратарь":
+                        matches = int(cols[1].text.strip())
 
-        infobox = data.find("table", {"class": "infobox"})
-        rows = infobox.find_all("tr")
+                        goals = cols[2].text.strip()
+                        if not goals[0].isnumeric():
+                            goals = goals[1:]
+                        goals = int(goals)
 
-        #   Name
-        name = (
-            rows[0].find("div", {"class": "ts_Спортсмен_имя"}).text.strip().split()
-        )
+                        if player_data["national_caps"] < matches:
+                            player_data["national_caps"] = matches
+                        if player_data["national_conceded"] < goals:
+                            player_data["national_conceded"] = goals
+                    else:
+                        matches = int(cols[1].text.strip())
+                        goals = int(cols[2].text.strip())
 
-        if len(name) > 2:
-            name = [" ".join([name[0], name[1]]), name[2]]
+                        if player_data["national_caps"] < matches:
+                            player_data["national_caps"] = matches
+                        if player_data["national_scored"] < goals:
+                            player_data["national_scored"] = goals
 
-        player_data["name"] = name[::-1]
-
-        for row in rows[1:]:
-            line_type = row.find("th")
-
-            if line_type is None:
-                continue
-
-            line_type_text = self._standart_text_data(line_type.text.strip())
-
-            if line_type_text == "Родился":
-                bday = row.find("span", {"class": "nowrap"}).find_all("a")
-                bday[0] = bday[0].text
-                bday[1] = bday[1].text
-
-                day, month = bday[0].split()
-                year = bday[1]
-
-                utc_timestamp, birth_str = self.get_bday(day, month, year)
-
-                player_data["birth"] = utc_timestamp
-                player_data["birt_str"] = birth_str
-            elif line_type_text == "Рост":
-                height = self.calc_height(row.text.strip().split("\n")[2])
-                player_data["height"] = height
-            elif line_type_text == "Позиция":
-                pos = row.find("td").text.strip()
-                player_data["position"] = pos
-            elif line_type_text == "Клуб":
-                club = row.find("span", {"class": "no-wikidata"}).text.strip(" ")
-                player_data["current_club"] = club
-            elif line_type_text == "Клубная карьера":
-                club_career_ind = rows.index(row)
-            elif line_type_text == "Национальная сборная":
-                national_team_career_ind = rows.index(row)
-
-        if national_team_career_ind == 0:
-            national_team_career_ind = len(rows)
-
-        #   Procceed club career
-        for i in range(club_career_ind + 1, national_team_career_ind, 1):
-            td = rows[i].find_all("td")
-
-            if len(td) != 3:
-                break
-
-            right_td = td[-1]
-            text = right_td.text.strip()
-
-            matches, goals = "", ""
-            ind = 0
-
-            while text[ind] != "(":
-                matches += text[ind]
-                ind += 1
-
-            ind += 1
-
-            while text[ind] != ")":
-                goals += text[ind]
-                ind += 1
-
-            if matches.find("?") == -1:
-                player_data["club_caps"] += int(matches)
-
-            self._calc_goals(player_data, goals)
-
-        #   Proceed national career
-
+    def _calc_national_info_main_table(self, rows, national_team_career_ind, player_data):
         if national_team_career_ind != 0:
             national_teams = []
             national_matches = []
@@ -328,7 +259,10 @@ class CssSelectorParser:
                         national_matches.append(int(matches))
 
                     self._calc_national_goals_main_table(
-                        player_data['position'], goals, national_conceded, national_goals
+                        player_data["position"],
+                        goals,
+                        national_conceded,
+                        national_goals,
                     )
 
             n_matches = 0
@@ -364,8 +298,7 @@ class CssSelectorParser:
             else:
                 raise Exception("Player has not played for national team yet")
 
-        #   Check info in detail table
-
+    def _process_club_additional_table(self, data, player_data):
         tables = data.find_all("table")
 
         for table in tables:
@@ -419,37 +352,116 @@ class CssSelectorParser:
 
                 break
 
+    def _calc_club_main_table(self, rows, club_career_ind, national_team_career_ind, player_data):
+        for i in range(club_career_ind + 1, national_team_career_ind, 1):
+            td = rows[i].find_all("td")
+
+            if len(td) != 3:
+                break
+
+            right_td = td[-1]
+            text = right_td.text.strip()
+
+            matches, goals = "", ""
+            ind = 0
+
+            while text[ind] != "(":
+                matches += text[ind]
+                ind += 1
+
+            ind += 1
+
+            while text[ind] != ")":
+                goals += text[ind]
+                ind += 1
+
+            if matches.find("?") == -1:
+                player_data["club_caps"] += int(matches)
+
+            self._calc_goals(player_data, goals)
+
+    def _find_player_info(self, rows, player_data):
+        national_team_career_ind = 0
+        club_career_ind = 0
+        
+        name = rows[0].find("div", {"class": "ts_Спортсмен_имя"}).text.strip().split()
+
+        if len(name) > 2:
+            name = [" ".join([name[0], name[1]]), name[2]]
+
+        player_data["name"] = name[::-1]
+
+        for row in rows[1:]:
+            line_type = row.find("th")
+
+            if line_type is None:
+                continue
+
+            line_type_text = self._standart_text_data(line_type.text.strip())
+
+            if line_type_text == "Родился":
+                bday = row.find("span", {"class": "nowrap"}).find_all("a")
+                bday[0] = bday[0].text
+                bday[1] = bday[1].text
+
+                day, month = bday[0].split()
+                year = bday[1]
+
+                utc_timestamp, birth_str = self._get_bday(day, month, year)
+
+                player_data["birth"] = utc_timestamp
+                player_data["birt_str"] = birth_str
+            elif line_type_text == "Рост":
+                height = self._calc_height(row.text.strip().split("\n")[2])
+                player_data["height"] = height
+            elif line_type_text == "Позиция":
+                pos = row.find("td").text.strip()
+                player_data["position"] = pos
+            elif line_type_text == "Клуб":
+                club = row.find("span", {"class": "no-wikidata"}).text.strip(" ")
+                player_data["current_club"] = club
+            elif line_type_text == "Клубная карьера":
+                club_career_ind = rows.index(row)
+            elif line_type_text == "Национальная сборная":
+                national_team_career_ind = rows.index(row)
+
+        return club_career_ind, national_team_career_ind
+
+    def _player_parse(self, data, current_url):
+        player_data = {}
+
+        player_data = {
+            "url": current_url,
+            "name": "",
+            "height": 0,
+            "position": "",
+            "current_club": "",
+            "club_caps": 0,
+            "club_conceded": 0,
+            "club_scored": 0,
+            "national_caps": 0,
+            "national_conceded": 0,
+            "national_scored": 0,
+            "national_team": "",
+        }
+
+        infobox = data.find("table", {"class": "infobox"})
+        rows = infobox.find_all("tr")
+
+        club_career_ind, national_team_career_ind = self._find_player_info(
+            rows, player_data
+        )
+
+        if national_team_career_ind == 0:
+            national_team_career_ind = len(rows)
+
+        #   Procceed club career
+        self._calc_club_main_table(rows, club_career_ind, national_team_career_ind, player_data)
+        #   Proceed national career
+        self._calc_national_info_main_table(rows, national_team_career_ind, player_data)
+        #   Check info in detail table
+        self._process_club_additional_table(data, player_data)
         #   National team stats
-        if (
-            data.find(id="Статистика_в_сборной") is not None
-            or data.find(id="Матчи_за_сборную") is not None
-        ):
-            tables = data.find_all("table", {"class": "wikitable"})
-
-            for table in tables:
-                last_row = table.find_all("tr")[-1]
-                cols = last_row.find_all("th")
-
-                if len(cols) != 0 and cols[0].text.strip() in ["Итого"]:
-                    if player_data["position"] == "вратарь":
-                        matches = int(cols[1].text.strip())
-
-                        goals = cols[2].text.strip()
-                        if not goals[0].isnumeric():
-                            goals = goals[1:]
-                        goals = int(goals)
-
-                        if player_data["national_caps"] < matches:
-                            player_data["national_caps"] = matches
-                        if player_data["national_conceded"] < goals:
-                            player_data["national_conceded"] = goals
-                    else:
-                        matches = int(cols[1].text.strip())
-                        goals = int(cols[2].text.strip())
-
-                        if player_data["national_caps"] < matches:
-                            player_data["national_caps"] = matches
-                        if player_data["national_scored"] < goals:
-                            player_data["national_scored"] = goals
+        self._process_national_additional_table(data, player_data)
 
         return player_data, []
