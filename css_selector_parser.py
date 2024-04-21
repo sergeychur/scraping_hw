@@ -179,6 +179,9 @@ class CssSelectorParser:
                     goals = goals[: goals.index("/")]
                 player_data["club_scored"] += int(goals)
 
+    def _process_main_table(self, ):
+        pass
+
     def _player_parse(self, data, current_url):
         player_data = {}
         club_career_ind = 0
@@ -277,7 +280,7 @@ class CssSelectorParser:
 
             self._calc_goals(player_data, goals)
 
-        #   Procedd national career
+        #   Proceed national career
 
         if national_team_career_ind != 0:
             national_teams = []
@@ -328,10 +331,10 @@ class CssSelectorParser:
                         player_data['position'], goals, national_conceded, national_goals
                     )
 
-            selected_national_teams = []
-            selected_national_goals = []
-            selected_national_matches = []
-            selected_national_conceded = []
+            n_matches = 0
+            n_team = None
+            n_conceded = 0
+            n_scored = 0
 
             for i in range(len(national_teams)):
                 if not (
@@ -340,42 +343,24 @@ class CssSelectorParser:
                     or national_teams[i].find("Олимпийская") != -1
                     or national_teams[i].find("en:") != -1
                 ):
-                    selected_national_teams.append(national_teams[i])
-                    selected_national_matches.append(national_matches[i])
 
-                    if player_data["position"] == "вратарь":
-                        selected_national_conceded.append(national_conceded[i])
-                    else:
-                        selected_national_goals.append(national_goals[i])
-
-            if len(selected_national_teams) > 0:
-                restricted_national_teams = [
-                    "Сборная Каталонии по футболу",
-                    "Сборная Арубы по футболу",
-                    "Сборная ДР Конго по футболу",
-                    "Сборная Ирландии по футболу",
-                    "Сборная Северной Македонии по футболу",
-                ]
-
-                for restricted_team in restricted_national_teams:
-                    if restricted_team in selected_national_teams:
-                        ind = selected_national_teams.index(restricted_team)
-
-                        selected_national_teams.pop(ind)
-                        selected_national_matches.pop(ind)
+                    if national_teams[i] in teams:
+                        n_team = national_teams[i]
+                        n_matches = national_matches[i]
 
                         if player_data["position"] == "вратарь":
-                            selected_national_conceded.pop(ind)
+                            n_conceded = national_conceded[i]
                         else:
-                            selected_national_goals.pop(ind)
+                            n_scored = national_goals[i]
 
-                player_data["national_caps"] = selected_national_matches[0]
-                player_data["national_team"] = selected_national_teams[0]
+            if n_team is not None:
+                player_data["national_caps"] = n_matches
+                player_data["national_team"] = n_team
 
                 if player_data["position"] == "вратарь":
-                    player_data["national_conceded"] = selected_national_conceded[0]
+                    player_data["national_conceded"] = n_conceded
                 else:
-                    player_data["national_scored"] = selected_national_goals[0]
+                    player_data["national_scored"] = n_scored
             else:
                 raise Exception("Player has not played for national team yet")
 
