@@ -5,6 +5,8 @@ from urllib.parse import urljoin, urlparse
 import re
 import time
 
+teams = set()
+
 class CssSelectorParser:
     def parse(self, content, current_url):
         netloc = urlparse(current_url).netloc
@@ -46,6 +48,7 @@ class CssSelectorParser:
             url = col.select("a")[-1]
 
             if url is not None:
+                teams.add(url.get('title').strip("\n\r"))
                 all_web_links.append(self._domain + url.get("href"))
 
         return None, all_web_links
@@ -139,6 +142,42 @@ class CssSelectorParser:
             res_height = res_height[:ind]
 
         return int(res_height)
+
+    def _calc_national_goals_main_table(
+        self, position, goals, national_conceded, national_goals
+    ):
+        if position == "вратарь":
+            if goals.find("?") != -1:
+                national_conceded.append(0)
+            else:
+                if goals.find("/") != -1:
+                    goals = goals[: goals.index("/")]
+
+                if not goals[0].isnumeric():
+                    national_conceded.append(int(goals[1:]))
+                else:
+                    national_conceded.append(int(goals))
+
+        else:
+            if goals.find("?") != -1:
+                national_goals.append(0)
+            else:
+                if goals.find("/") != -1:
+                    goals = goals[: goals.index("/")]
+                national_goals.append(int(goals))
+
+    def _calc_goals(self, player_data, goals):
+        #   Для пропущенных голов для вратарей
+        if player_data["position"] == "вратарь":
+            if goals != "0" and goals.find("?") == -1:
+                if goals.find("/") != -1:
+                    goals = goals[: goals.index("/")]
+                player_data["club_conceded"] += int(goals[1:])
+        else:
+            if goals.find("?") == -1:
+                if goals.find("/") != -1:
+                    goals = goals[: goals.index("/")]
+                player_data["club_scored"] += int(goals)
 
     def _player_parse(self, data, current_url):
         player_data = {}
@@ -236,20 +275,7 @@ class CssSelectorParser:
             if matches.find("?") == -1:
                 player_data["club_caps"] += int(matches)
 
-            #   Для пропущенных голов для вратарей
-            if player_data["position"] == "вратарь":
-                if goals != "0" and goals.find("?") == -1:
-                    if goals.find("/") != -1:
-                        goals = goals[: goals.index("/")]
-                    player_data["club_conceded"] += int(goals[1:])
-            else:
-                if goals.find("?") == -1:
-                    if goals.find("/") != -1:
-                        goals = goals[: goals.index("/")]
-                    player_data["club_scored"] += int(goals)
-
-            # if td[0].find("abbr") is not None:
-            #     break
+            self._calc_goals(player_data, goals)
 
         #   Procedd national career
 
@@ -297,29 +323,10 @@ class CssSelectorParser:
 
                     if matches.find("?") == -1:
                         national_matches.append(int(matches))
-                        # player_data["national_caps"] = int(matches)
 
-                    #   Для пропущенных голов для вратарей
-                    if player_data["position"] == "вратарь":
-                        if goals.find("?") != -1:
-                            national_conceded.append(0)
-                        else:
-                            if goals.find("/") != -1:
-                                goals = goals[: goals.index("/")]
-                            # player_data["national_conceded"] = int(goals[1:])
-                            if not goals[0].isnumeric():
-                                national_conceded.append(int(goals[1:]))
-                            else:
-                                national_conceded.append(int(goals))
-
-                    else:
-                        if goals.find("?") != -1:
-                            national_goals.append(0)
-                        else:
-                            if goals.find("/") != -1:
-                                goals = goals[: goals.index("/")]
-                            # player_data["national_scored"] = int(goals)
-                            national_goals.append(int(goals))
+                    self._calc_national_goals_main_table(
+                        player_data['position'], goals, national_conceded, national_goals
+                    )
 
             selected_national_teams = []
             selected_national_goals = []
