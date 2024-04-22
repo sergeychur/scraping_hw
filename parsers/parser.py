@@ -52,6 +52,7 @@ class CssParser:
         self._transform_height(info)
         self._find_club_caps(root, info)
         self._find_national_caps(root, info)
+        self._find_national_team(root, info)
 
         return info
 
@@ -228,3 +229,25 @@ class CssParser:
         else:
             info["national_conceded"] = 0
             info["national_scored"] = sc_from_table
+
+    def _find_national_team(self, root, info):
+        pointer = root.select_one(".infobox tbody tr td table tbody tr:last-child")
+        possible = pointer.select_one("td:nth-child(2) > a")
+                                      
+        ln = possible["title"] if possible else ""
+        while not ln or not re.search("[сС]борная .*? по футболу", ln):
+            pointer = pointer.previous_sibling
+            if not pointer.name:
+                pointer = pointer.previous_sibling
+            if not pointer:
+                ln = ""
+                break
+            possible = pointer.select_one("td:nth-child(2) > a")
+            if not possible:
+                continue
+            ln = possible["title"]
+            
+        ln = re.search("[сС]борная .*? по футболу", ln)
+        ln = "С" + ln[0][1:] if ln else ""
+        print(ln)
+        
