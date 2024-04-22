@@ -1,5 +1,6 @@
 import re
 from urllib.parse import urljoin
+from datetime import datetime
 
 from bs4 import BeautifulSoup
 
@@ -53,6 +54,7 @@ class CssParser:
         self._find_club_caps(root, info)
         self._find_national_caps(root, info)
         self._find_national_team(root, info)
+        self._transform_birth(info)
 
         return info
 
@@ -68,7 +70,11 @@ class CssParser:
 
     def _read_infobox(self, root, info) -> None:
         infobox = root.select_one(".infobox-above").parent
-        translate = {"Рост": "height", "Позиция": "position", "Клуб": "current_club"}
+        translate = {"Рост": "height",
+                     "Позиция": "position",
+                     "Клуб": "current_club",
+                     "Родился": "birth"
+                     }
 
         while infobox.th:
             if infobox.th.text in translate:
@@ -237,6 +243,9 @@ class CssParser:
         ln = possible["title"] if possible else ""
         while not ln or not re.search("[сС]борная .*? по футболу", ln):
             pointer = pointer.previous_sibling
+            if not pointer:
+                ln = ""
+                break
             if not pointer.name:
                 pointer = pointer.previous_sibling
             if not pointer:
@@ -249,5 +258,19 @@ class CssParser:
             
         ln = re.search("[сС]борная .*? по футболу", ln)
         ln = "С" + ln[0][1:] if ln else ""
-        print(ln)
+        info["national_team"] = ln
         
+    def _transform_birth(self, info):
+        ln = info["birth"].split("(")[0].split("[")[0].strip()
+        dictionary = {
+            "января": "01", "февраля": "02",
+            "марта": "03", "апреля": "04",
+            "мая": "05", "июня": "06",
+            "июля": "07", "августа": "08",
+            "сентября": "09", "октября": "10",
+            "ноября": "11", "декабря": "12"
+        }
+        for m in dictionary.items():
+            ln = ln.replace(m[0], m[1])
+        birth = datetime.strptime(ln, "%d %m %Y")
+        info["birth"] = int(datetime.timestamp(birth))
