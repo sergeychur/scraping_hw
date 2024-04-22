@@ -1,6 +1,6 @@
 import re
-from urllib.parse import urljoin
 from datetime import datetime
+from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
@@ -63,18 +63,14 @@ class CssParser:
         name = name[: name.rfind("—") - 1]
         bracket = name.rfind("(")
         if bracket > 0:
-            name = name[: bracket]
+            name = name[:bracket]
         info["name"] = list(map(str.strip, name.split(",")))
         if len(info["name"]) < 2:
             info["name"] = list(map(str.strip, info["name"][0].split()))
 
     def _read_infobox(self, root, info) -> None:
         infobox = root.select_one(".infobox-above").parent
-        translate = {"Рост": "height",
-                     "Позиция": "position",
-                     "Клуб": "current_club",
-                     "Родился": "birth"
-                     }
+        translate = {"Рост": "height", "Позиция": "position", "Клуб": "current_club", "Родился": "birth"}
 
         while infobox.th:
             if infobox.th.text in translate:
@@ -103,7 +99,6 @@ class CssParser:
         info["height"] = info["height"].split("—")[-1]
         info["height"] = int(info["height"])
 
-
     def _find_club_caps(self, root, info) -> None:
         pointer = root.select_one(".infobox table tbody tr")
         while "Клубная карьера" not in pointer.text:
@@ -114,7 +109,7 @@ class CssParser:
         pointer = pointer.next_sibling
         if not pointer.name:
             pointer = pointer.next_sibling
-            
+
         from_table = 0
         sc_from_table = 0
         cell = pointer.select_one("td:nth-child(3)")
@@ -158,7 +153,7 @@ class CssParser:
             if not t_temp:
                 t_temp = t.parent.select_one("tr:last-child").select_one("td:last-child")
             t = t_temp
-            
+
             t = t.previous_sibling
             if not t.name:
                 t = t.previous_sibling
@@ -183,7 +178,6 @@ class CssParser:
         else:
             info["club_conceded"] = 0
             info["club_scored"] = max(sc_from_table, sc_from_cell)
-                            
 
     def _find_national_caps(self, root, info) -> None:
         pointer = root.select_one(".infobox table tbody tr")
@@ -200,7 +194,7 @@ class CssParser:
         pointer = pointer.next_sibling
         if not pointer.name:
             pointer = pointer.next_sibling
-            
+
         from_table = 0
         sc_from_table = 0
         cell = pointer.select_one("td:nth-child(2)")
@@ -239,7 +233,7 @@ class CssParser:
     def _find_national_team(self, root, info):
         pointer = root.select_one(".infobox tbody tr td table tbody tr:last-child")
         possible = pointer.select_one("td:nth-child(2) > a")
-                                      
+
         ln = possible["title"] if possible else ""
         while not ln or not re.search("[сС]борная .*? по футболу", ln):
             pointer = pointer.previous_sibling
@@ -255,20 +249,26 @@ class CssParser:
             if not possible:
                 continue
             ln = possible["title"]
-            
+
         ln = re.search("[сС]борная .*? по футболу", ln)
         ln = "С" + ln[0][1:] if ln else ""
         info["national_team"] = ln
-        
+
     def _transform_birth(self, info):
         ln = info["birth"].split("(")[0].split("[")[0].strip()
         dictionary = {
-            "января": "01", "февраля": "02",
-            "марта": "03", "апреля": "04",
-            "мая": "05", "июня": "06",
-            "июля": "07", "августа": "08",
-            "сентября": "09", "октября": "10",
-            "ноября": "11", "декабря": "12"
+            "января": "01",
+            "февраля": "02",
+            "марта": "03",
+            "апреля": "04",
+            "мая": "05",
+            "июня": "06",
+            "июля": "07",
+            "августа": "08",
+            "сентября": "09",
+            "октября": "10",
+            "ноября": "11",
+            "декабря": "12",
         }
         for m in dictionary.items():
             ln = ln.replace(m[0], m[1])
