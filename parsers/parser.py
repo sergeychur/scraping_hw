@@ -9,10 +9,12 @@ class CssParser:
     def parse(self, content, cur_page_url):
         soup = BeautifulSoup(content, "html.parser")
 
-        if "Чемпионат" in soup.title.text:
+        ln = soup.select_one("body div .infobox")["data-name"]
+
+        if "Соревнование" in ln:
             return None, self._parse_chempoinship(soup, cur_page_url)
 
-        if "Сборная" in soup.title.text:
+        if "Сборная" in ln:
             return None, self._parse_team(soup, cur_page_url)
 
         return self._parse_player(soup, cur_page_url), []
