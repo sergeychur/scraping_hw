@@ -1,12 +1,12 @@
 import time
 from collections import deque
+from urllib.parse import unquote
 
 import requests
 from bs4 import BeautifulSoup
 
 from runner import Item
 from runner.simple_rate_limiter import SimpleRateLimiter
-from urllib.parse import unquote
 
 
 class SimpleRunner:
@@ -24,10 +24,12 @@ class SimpleRunner:
             self._add(Item(seed_url))
 
         self._start_time = None
+        self._blacklist = ['https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D0%BF%D0%B8%D1%82%D0%B0%D0%BD_(%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB)']
 
     def run(self):
         self._logger.info('Start')
         self._start_time = time.time()
+
         while self._items_to_load:
             current_item = self._items_to_load.pop()
             if content := self._load_page(current_item):
@@ -41,10 +43,12 @@ class SimpleRunner:
                     self._logger.info(f'Scraped player {unquote(current_item.url)}')
                     continue
                 if not extracted:
-                    self._logger.info(f'Not scraped from url {unquote(current_item.url)}')
+                    self._logger.error(f'Not scraped from url {unquote(current_item.url)}')
                     continue
                 self._logger.info(f'Scraped from url {unquote(current_item.url)} items: {len(extracted)}')
                 for item in extracted:
+                    if item.url in self._blacklist:
+                        continue
                     self._add(item)
                 self._seen.add(current_item.url)
             except Exception as exep:

@@ -1,5 +1,5 @@
-import logging
 import re
+from datetime import datetime
 from urllib.parse import unquote, urljoin
 
 from runner import Item
@@ -7,14 +7,22 @@ from runner import Item
 
 class Parser:
     # Все селекторы - css
+    TITLE_SELECTOR = 'span[class="mw-page-title-main"]'
     TEAM_SELECTOR = 'table.standard tr td:nth-child(1) > a'
     PLAYER_SELECTOR = 'tr > td:nth-child(3) > a[href]'
-    TITLE_SELECTOR = 'span[class="mw-page-title-main"]'
+
+    # Информация о футболисте
+    INFOBOX_SELECTOR = 'table.infobox[data-name="Футболист"]'
+    HEIGHT_SELECTOR = 'span[data-wikidata-property-id="P2048"]'
+    POSITION_SELECTOR = '[data-wikidata-property-id="P413"]'
+
+    TABLE_SELECTOR = '#mw-content-text table > tbody'
+    # селектор для последнего столбца (если смотерть в контексте использования,
+    # то это в таблице, где сработал селектор HEAD_TABLE_SELECTOR и выполнились условия)
+    TAIL_TABLE_SELECTOR = 'tr:last-child > th'
+    SECOND_TRY_SELECTOR = 'tr:last-child > td'
 
     DOMAIN = 'https://ru.wikipedia.org/'
-
-    def __init__(self):
-        self.logger = logging.getLogger('parser')
 
     # ---------------------------------------------------------------------------------------
 
@@ -23,12 +31,9 @@ class Parser:
             case 'championship':
                 return self._parse_championship_page(item.content)
             case 'team':
-                self.logger.info(f'team: {item.url}')
                 return self._parse_team_page(item.content)
             case 'player':
-                # TODO try block (except - this is not player)
                 return self._parse_player_page(item.content, item.url)
-        return 1   # TODO clean
 
     def __make_choice(self, soup):
         title = soup.select_one(self.TITLE_SELECTOR).text.lower()
@@ -64,6 +69,58 @@ class Parser:
 
     # ---------------------------------------------------------------------------------------
 
+    def __get_player_info(self, soup):
+        infobox = soup.select_one(self.INFOBOX_SELECTOR)
+
+        answer = {
+            'height': self.__get_player_height(infobox),
+            'position': self.__get_player_position(infobox),
+            'current_club': self.__get_club_name(infobox),
+            'national_team': self.__get_national_team(infobox),
+            'birth': self.__get_birth(infobox)
+        }
+
+        caps_goals = self.__get_caps_and_goals(infobox, soup)
+        answer.update({
+            'club_caps': caps_goals['club_caps'],
+            'national_caps': caps_goals['national_caps']
+        })
+        if answer['position'] == 'вратарь':
+            answer.update({
+                'club_conceded': caps_goals['club_goals'],
+                'club_scored': 0,
+                'national_conceded': caps_goals['national_goals'],
+                'national_scored': 0
+            })
+        else:
+            answer.update({
+                'club_conceded': 0,
+                'club_scored': caps_goals['club_goals'],
+                'national_conceded': 0,
+                'national_scored': caps_goals['national_goals']
+            })
+
+        return answer
+
+    @staticmethod
+    def __get_birth(infobox):
+        birth = infobox.select_one('span.bday').text
+        return int(datetime.strptime(birth, '%Y-%m-%d').timestamp())
+
+    @staticmethod
+    def __get_national_team(infobox):
+        for th in infobox.select('tr > th'):
+            if 'национальная сборная' in th.contents[0].text.lower():
+                sibling = th.parent
+                while sibling := sibling.find_next_sibling('tr'):
+                    if 'н. в.' in sibling.text:
+                        links = sibling.select('a[href]')
+                        urls = list(map(lambda x: unquote(x.get('href')), links))
+                        for url in urls:
+                            name = url.split('/')[-1].replace('_', ' ')
+                            if re.match(r'сборная .+ по футболу', name.lower()):
+                                return name
+
     @staticmethod
     def __get_player_name(url):
         last = unquote(url).split('/')[-1].replace('_', ' ')
@@ -73,26 +130,97 @@ class Parser:
             'name': [surname, name]
         }
 
-    def __get_player_info(self, soup):
-        answer = dict()
-        infobox = soup.select_one('table.infobox[data-name="Футболист"]')
-
+    def __get_player_height(self, infobox):
         try:
-            height = infobox.select_one('span[data-wikidata-property-id="P2048"]').contents[0].text
-            height = re.split('[- ]', height)[0]
-            answer['height'] = int(height)
+            height = infobox.select_one(self.HEIGHT_SELECTOR).contents[0].text.strip()
+            height = height[:4] if ',' in height else height[:3]
+            return float(height.replace(',', '.')) * 100 if ',' in height else int(height)
         except Exception:
-            answer['height'] = None
+            return None
 
+    def __get_player_position(self, infobox):
         try:
-            position = infobox.select_one('[data-wikidata-property-id="P413"]').text.strip()
-            answer['position'] = ', '.join(position.split('\n'))
+            positions = []
+            for node in infobox.select_one(self.POSITION_SELECTOR).contents:
+                if node.text:
+                    positions.append(node.text)
+            return ', '.join(positions)
         except Exception:
-            answer['position'] = None
+            return None
 
-        def get_relevant_info(elem):
-            pass
-        return answer
+    @staticmethod
+    def __get_club_name(infobox):
+        for th in infobox.select('tr > th'):
+            if th.text.lower().strip() == 'клуб':
+                return th.find_next_sibling('td').text.strip()
+
+    def __get_caps_and_goals(self, infobox, soup):
+        club_infobox = self.__get_career_from_infobox(infobox, 'клубная карьера')
+        club_page = self.__get_career_from_page(soup, 'клуб')
+
+        national_infobox = self.__get_career_from_infobox(infobox, 'национальная сборная')
+        national_page = self.__get_career_from_page(soup, 'сборная')
+
+        return {
+            'club_caps': max(club_infobox[0], club_page[0]),
+            'club_goals': max(club_infobox[1], club_page[1]),
+            'national_caps': max(national_infobox[0], national_page[0]),
+            'national_goals': max(national_infobox[1], national_page[1])
+        }
+
+    def __get_career_from_infobox(self, infobox, s):
+        """
+        s - какая именно карьера - клубная или в национальной сборной
+        """
+        caps, goals = 0, 0
+        for th in infobox.select('tr > th'):
+            if s in th.contents[0].text.lower():
+                sibling = th.parent
+                while sibling := sibling.find_next_sibling('tr'):
+                    if not sibling.has_attr('class'):
+                        break
+                    if re.match(r'.+\(до .+\).+', sibling.text):
+                        continue
+                    try:
+                        tmp = self.__get_from_str(sibling.select_one('td:nth-child(3)').text.strip())
+                        caps += int(tmp[0])
+                        goals += int(tmp[1])
+                    except Exception:
+                        pass
+        if goals < 0:
+            goals *= -1
+        return (caps, goals)
+
+    def __get_career_from_page(self, soup, s):
+        """
+        s - какая именно карьера - клубная или в национальной сборной
+        """
+        def norma(n):
+            if '?' in n:
+                return 0
+            return abs(int(n))
+
+        def is_relevant_table(s):
+            keywords = ['молодёжные клубы', 'национальная сборная', 'информация ок лубе', 'общая информация', 'родился']
+            return not any(map(lambda x: x in s, keywords))
+        res = ('0', '0')
+        for tbody in soup.select(self.TABLE_SELECTOR):
+            splited = list(map(lambda x: x.text.lower().strip(), tbody.select('tr > th')))
+            if s in splited and is_relevant_table(splited):
+                # попали в таблицу клубной карьеры или сборной
+                selected = tbody.select(self.TAIL_TABLE_SELECTOR)
+                if not selected:
+                    selected = tbody.select(self.SECOND_TRY_SELECTOR)
+                row = list(map(lambda x: x.text.strip(), selected))
+                nums = self.__get_from_str(row)
+                try:
+                    res = (nums[-2], nums[-1]) if len(nums) % 3 != 0 else (nums[-3], nums[-2])
+                except Exception:
+                    pass
+                break
+        return tuple(map(norma, res))
+
+    # ---------------------------------------------------------------------------------------
 
     @staticmethod
     def __get_table_pointer(soup):
@@ -111,3 +239,17 @@ class Parser:
         items = list(map(lambda x: Item(url=x), urls))
 
         return items
+
+    def check(self, s):
+        if not s:
+            return False
+        if '?' in s:
+            return True
+        return s.isdigit() or s[1:].isdigit()
+
+    def __get_from_str(self, s):
+        if isinstance(s, str):
+            s = re.split('[ ()/]', s)
+        replaced = map(lambda x: re.sub(r'[—–−]', '-', x), s)
+        filtered = list(filter(self.check, replaced))
+        return filtered
