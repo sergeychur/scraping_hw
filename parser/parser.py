@@ -27,7 +27,8 @@ class Parser:
     # ---------------------------------------------------------------------------------------
 
     def parse(self, item):
-        match self.__make_choice(item.content):
+        choice = self.__make_choice(item.content)
+        match choice:
             case 'championship':
                 return self._parse_championship_page(item.content)
             case 'team':
