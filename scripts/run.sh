@@ -7,6 +7,8 @@ if [[ $# != 2 ]]; then
     exit 1
 fi
 
+which python
+
 seed_url=$1
 path_to_result=$2
 
