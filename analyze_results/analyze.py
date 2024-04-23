@@ -1,7 +1,7 @@
 '''
 Запросы:
 (1) club_caps       - имя игрока младше 25 лет, сыгравшего больше всего матчей за клубную карьеру;
-(2) club_scored     - имя игрока, забившего больше всего голов за клубную карьеру;
+(2) club_scored     - имя игрока младше 25 лет, забившего больше всего голов за клубную карьеру;
 (3) height          - имя самого высокого игрока, забившего больше 10 голов;
 (4) birth           - имя самого старшего вратаря;
 (5) national_caps   - имя игрока, сыгравшего больше всего матчей за сборную;
@@ -47,8 +47,11 @@ def update_1(player, current):
 
 
 def update_2(player, current):
-    if player['club_scored'] > current[1]:
-        return (player['name'][1], player['club_scored'])
+    current_timestamp = datetime.now(timezone.utc).timestamp()
+    years = (current_timestamp - player['birth']) // (60 * 60 * 24 * 365.25)
+    if years < 25:
+        if player['club_scored'] > current[1]:
+            return (player['name'][1], player['club_scored'])
     return current
 
 
