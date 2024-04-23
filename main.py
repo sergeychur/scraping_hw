@@ -1,13 +1,14 @@
 import logging
 import sys
 import time
+from typing import List
 
 from parsers.parser import CssParser
 from runners.runner import SimpleRunner
 from utils.file_sink import FileSink
 
 
-def main(argv: list[str]):
+def main(argv: List[str]):
     logging.basicConfig(
         format="[%(asctime)s] %(name)s %(levelname)s: %(message)s", datefmt="%d-%m-%y %H:%M:%S", level="INFO"
     )
