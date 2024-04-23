@@ -28,13 +28,12 @@ class Parser:
 
     def parse(self, item):
         choice = self.__make_choice(item.content)
-        match choice:
-            case 'championship':
-                return self._parse_championship_page(item.content)
-            case 'team':
-                return self._parse_team_page(item.content)
-            case 'player':
-                return self._parse_player_page(item.content, item.url)
+        if choice == 'championship':
+            return self._parse_championship_page(item.content)
+        elif choice == 'team':
+            return self._parse_team_page(item.content)
+        elif choice == 'player':
+            return self._parse_player_page(item.content, item.url)
 
     def __make_choice(self, soup):
         title = soup.select_one(self.TITLE_SELECTOR).text.lower()
