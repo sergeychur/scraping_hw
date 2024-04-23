@@ -37,9 +37,16 @@ class Parser:
 
     def __make_choice(self, soup):
         title = soup.select_one(self.TITLE_SELECTOR).text.lower()
+        if not title:
+            node = soup.select_one('p:nth-child(2) > b')
+            if node:
+                title += node.text.lower()
+            node = soup.select_one('body tr:nth-child(1) > th')
+            if node:
+                title += node.text.lower()
         if 'чемпионат' in title:
             return 'championship'
-        elif 'сборная' in title:
+        elif 'cбо́рная' in title:
             return 'team'
         else:
             return 'player'
