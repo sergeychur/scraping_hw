@@ -7,15 +7,16 @@ if [[ $# != 2 ]]; then
     exit 1
 fi
 
-which python3
-
 seed_url=$1
 path_to_result=$2
 
 # TODO: actual implementation should go here
+python3 -m venv venv
+. venv/bin/activate
+
 timeout 10 wget --recursive -w 0.1 -D localhost $seed_url || true
 
-# python3 ./main.py $seed_url ./test_data/result.jsonl
+python3 ./main.py $seed_url ./test_data/result.jsonl
 
 cp ./test_data/result.jsonl $path_to_result
 echo "Finished running"
