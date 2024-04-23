@@ -17,7 +17,7 @@ def main(argv: list[str]):
 
     parser = CssParser()
 
-    sink = FileSink("./test_data/result.jsonl")
+    sink = FileSink(argv[2])
 
     runner = SimpleRunner(parser, sink, logger, seed_urls)
 
