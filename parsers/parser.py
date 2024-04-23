@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from urllib.parse import urljoin
 
-from beautifulsoup4 import BeautifulSoup
+from bs4 import BeautifulSoup
 
 
 class CssParser:
