@@ -8,9 +8,9 @@ from utils.file_sink import FileSink
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Process seed URL and path to result")
-    parser.add_argument("seed_url", metavar="seed_url", type=str, help="seed url to parse")
-    parser.add_argument("path_to_result", metavar="path_to_result", type=str, help="path to save the result")
+    parser = argparse.ArgumentParser(description='Process seed URL and path to result')
+    parser.add_argument('seed_url', metavar='seed_url', type=str, help='seed url to parse')
+    parser.add_argument('path_to_result', metavar='path_to_result', type=str, help='path to save the result')
     args = parser.parse_args()
 
     logging.basicConfig(

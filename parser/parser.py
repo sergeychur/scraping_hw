@@ -123,9 +123,14 @@ class Parser:
 
     @staticmethod
     def __get_player_name(url):
-        last = unquote(url).split('/')[-1].replace('_', ' ')
-        clean_last = last[:last.find('(')].split(',')
-        surname, name = clean_last[0], ' '.join(clean_last[1:]).strip()
+        last = unquote(url).split('/')[-1]
+        stop = last.find('(')
+        if stop == -1:
+            stop = len(last)
+        clean_last = list(filter(bool, re.split(r'[\_\,]', last[:stop])))
+        surname, name = clean_last[0], ' '.join(clean_last[1:])
+        if not name:
+            surname, name = name, surname
         return {
             'name': [surname, name]
         }
@@ -169,9 +174,9 @@ class Parser:
         }
 
     def __get_career_from_infobox(self, infobox, s):
-        """
+        '''
         s - какая именно карьера - клубная или в национальной сборной
-        """
+        '''
         caps, goals = 0, 0
         for th in infobox.select('tr > th'):
             if s in th.contents[0].text.lower():
@@ -192,9 +197,9 @@ class Parser:
         return (caps, goals)
 
     def __get_career_from_page(self, soup, s):
-        """
+        '''
         s - какая именно карьера - клубная или в национальной сборной
-        """
+        '''
         def norma(n):
             if '?' in n:
                 return 0
