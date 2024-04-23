@@ -14,8 +14,6 @@ def main():
     args = parser.parse_args()
 
     logging.basicConfig(
-        filename='wiki.log',
-        filemode='w',
         format='[%(asctime)s] %(name)s %(levelname)s: %(message)s',
         datefmt='%d-%m-%y %H:%M:%S',
         level='INFO',
