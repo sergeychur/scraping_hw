@@ -5,7 +5,7 @@ import time
 class SimpleRateLimiter:
     def __init__(self, rate):
         self._lock = threading.Lock()
-        self._delta = 1. / rate
+        self._delta = 10. / rate
         self._last_called_ts = time.time()
 
     def get_delay(self, now=None):
