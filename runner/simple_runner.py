@@ -59,7 +59,7 @@ class SimpleRunner:
         item.start = time.time()
 
         try:
-            response = requests.get(item.url, timeout=60)
+            response = requests.get(unquote(item.url), timeout=60)
             response.raise_for_status()
         except Exception:
             item.tries += 1
