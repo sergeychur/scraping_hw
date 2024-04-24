@@ -29,6 +29,8 @@ class CssParser:
         return links
 
     def _parse_team(self, root, cur_page_url):
+        parsed = urlparse(cur_page_url)
+        
         pointer = root.find("span", id=re.compile("^Текущий_состав"))
         if not pointer:
             pointer = root.find("span", id=re.compile("^Состав"))
@@ -42,8 +44,23 @@ class CssParser:
 
         links = [ln.get("href") for ln in table if ln]
         links = [ln for ln in links if "index.php" not in ln]
+        
+        pointer = root.find("span", id=re.compile("^Недавние_вызовы"))
+        if not pointer:
+            links = [urljoin(parsed.scheme + "://" + parsed.netloc, ln) for ln in links]
+            return links
+        pointer = pointer.parent
 
-        parsed = urlparse(cur_page_url)
+        while not (pointer.name and pointer.name == "table"):
+            pointer = pointer.next_sibling
+
+        table = pointer.tbody.select("tr")
+        table = [ln.select_one("td:nth-child(3) > a") for ln in table]
+
+        links += [ln.get("href") for ln in table if ln]
+        links = [ln for ln in links if "index.php" not in ln]
+
+        
         links = [urljoin(parsed.scheme + "://" + parsed.netloc, ln) for ln in links]
 
         return links
