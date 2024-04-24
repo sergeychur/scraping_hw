@@ -19,7 +19,7 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%A2%D0%B5%D1%80_%D0%A1%D1%82%D0%B5%D0%B3%D0%B5%D0%BD,_%D0%9C%D0%B0%D1%80%D0%BA-%D0%90%D0%BD%D0%B4%D1%80%D0%B5",
   "name": [
-    "Тер Стеген",
+    "тер Стеген",
     "Марк-Андре"
   ],
   "birth": 704577600,
@@ -332,9 +332,9 @@
   "height": 193,
   "position": "полузащитник",
   "current_club": "Арсенал (Лондон)",
-  "club_caps": 332,
+  "club_caps": 336,
   "club_conceded": 0,
-  "club_scored": 88,
+  "club_scored": 90,
   "national_caps": 44,
   "national_conceded": 0,
   "national_scored": 15,
@@ -410,6 +410,474 @@
   "national_caps": 1,
   "national_conceded": 0,
   "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%9D%D0%BE%D0%B9%D0%B5%D1%80,_%D0%9C%D0%B0%D0%BD%D1%83%D1%8D%D0%BB%D1%8C",
+  "name": [
+    "Нойер",
+    "Мануэль"
+  ],
+  "birth": 512254800,
+  "height": 193,
+  "position": "вратарь",
+  "current_club": "Бавария",
+  "club_caps": 742,
+  "club_conceded": 631,
+  "club_scored": 0,
+  "national_caps": 117,
+  "national_conceded": 113,
+  "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%A2%D1%80%D0%B0%D0%BF%D0%BF,_%D0%9A%D0%B5%D0%B2%D0%B8%D0%BD",
+  "name": [
+    "Трапп",
+    "Кевин"
+  ],
+  "birth": 647380800,
+  "height": 189,
+  "position": "вратарь",
+  "current_club": "Айнтрахт (Франкфурт)",
+  "club_caps": 506,
+  "club_conceded": 632,
+  "club_scored": 0,
+  "national_caps": 9,
+  "national_conceded": 13,
+  "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%91%D0%BB%D0%B0%D1%81%D0%B2%D0%B8%D1%85,_%D0%AF%D0%BD%D0%B8%D1%81",
+  "name": [
+    "Бласвих",
+    "Янис"
+  ],
+  "birth": 673131600,
+  "height": 193,
+  "position": "вратарь",
+  "current_club": "РБ Лейпциг",
+  "club_caps": 338,
+  "club_conceded": 412,
+  "club_scored": 0,
+  "national_caps": 0,
+  "national_conceded": 0,
+  "national_scored": 0,
+  "national_team": ""
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%91%D0%B5%D1%81%D1%82%D0%B5,_%D0%AF%D0%BD-%D0%9D%D0%B8%D0%BA%D0%BB%D0%B0%D1%81",
+  "name": [
+    "Бесте",
+    "Ян-Никлас"
+  ],
+  "birth": 915397200,
+  "height": 175,
+  "position": "крайний полузащитник",
+  "current_club": "Хайденхайм",
+  "club_caps": 133,
+  "club_conceded": 0,
+  "club_scored": 27,
+  "national_caps": 0,
+  "national_conceded": 0,
+  "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%A5%D1%83%D0%BC%D0%BC%D0%B5%D0%BB%D1%8C%D1%81,_%D0%9C%D0%B0%D1%82%D1%81",
+  "name": [
+    "Хуммельс",
+    "Матс"
+  ],
+  "birth": 598222800,
+  "height": 191,
+  "position": "защитник",
+  "current_club": "Боруссия (Дортмунд)",
+  "club_caps": 608,
+  "club_conceded": 0,
+  "club_scored": 44,
+  "national_caps": 78,
+  "national_conceded": 0,
+  "national_scored": 5,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%97%D1%8E%D0%BB%D0%B5,_%D0%9D%D0%B8%D0%BA%D0%BB%D0%B0%D1%81",
+  "name": [
+    "Зюле",
+    "Никлас"
+  ],
+  "birth": 810072000,
+  "height": 195,
+  "position": "защитник",
+  "current_club": "Боруссия (Дортмунд)",
+  "club_caps": 346,
+  "club_conceded": 0,
+  "club_scored": 18,
+  "national_caps": 49,
+  "national_conceded": 0,
+  "national_scored": 1,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%93%D0%BE%D1%81%D0%B5%D0%BD%D1%81,_%D0%A0%D0%BE%D0%B1%D0%B8%D0%BD",
+  "name": [
+    "Госенс",
+    "Робин"
+  ],
+  "birth": 773352000,
+  "height": 183,
+  "position": "полузащитник, защитник, [2], [3]",
+  "current_club": "Унион (Берлин)",
+  "club_caps": 292,
+  "club_conceded": 0,
+  "club_scored": 41,
+  "national_caps": 20,
+  "national_conceded": 0,
+  "national_scored": 2,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%A2%D1%88%D0%B0%D1%83,_%D0%9C%D0%B0%D0%BB%D0%B8%D0%BA",
+  "name": [
+    "Тшау",
+    "Малик"
+  ],
+  "birth": 997214400,
+  "height": 191,
+  "position": "защитник",
+  "current_club": "Милан",
+  "club_caps": 88,
+  "club_conceded": 0,
+  "club_scored": 3,
+  "national_caps": 2,
+  "national_conceded": 0,
+  "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%A8%D0%BB%D0%BE%D1%82%D1%82%D0%B5%D1%80%D0%B1%D0%B5%D0%BA,_%D0%9D%D0%B8%D0%BA%D0%BE",
+  "name": [
+    "Шлоттербек",
+    "Нико"
+  ],
+  "birth": 943995600,
+  "height": 191,
+  "position": "защитник",
+  "current_club": "Боруссия Дортмунд",
+  "club_caps": 108,
+  "club_conceded": 0,
+  "club_scored": 10,
+  "national_caps": 11,
+  "national_conceded": 0,
+  "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%93%D0%B8%D0%BD%D1%82%D0%B5%D1%80,_%D0%9C%D0%B0%D1%82%D1%82%D0%B8%D0%B0%D1%81",
+  "name": [
+    "Гинтер",
+    "Маттиас"
+  ],
+  "birth": 758926800,
+  "height": 189,
+  "position": "защитник, полузащитник",
+  "current_club": "Фрайбург",
+  "club_caps": 299,
+  "club_conceded": 0,
+  "club_scored": 19,
+  "national_caps": 51,
+  "national_conceded": 0,
+  "national_scored": 2,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%9A%D0%B5%D1%80%D0%B5%D1%80,_%D0%A2%D0%B8%D0%BB%D0%BE",
+  "name": [
+    "Керер",
+    "Тило"
+  ],
+  "birth": 843249600,
+  "height": 186,
+  "position": "защитник",
+  "current_club": "Монако",
+  "club_caps": 185,
+  "club_conceded": 0,
+  "club_scored": 8,
+  "national_caps": 27,
+  "national_conceded": 0,
+  "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%92%D0%BE%D0%BB%D1%8C%D1%84,_%D0%9C%D0%B0%D1%80%D0%B8%D1%83%D1%81",
+  "name": [
+    "Вольф",
+    "Мариус"
+  ],
+  "birth": 801518400,
+  "height": 187,
+  "position": "правый защитник",
+  "current_club": "Боруссия (Дортмунд)",
+  "club_caps": 204,
+  "club_conceded": 0,
+  "club_scored": 18,
+  "national_caps": 5,
+  "national_conceded": 0,
+  "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%9A%D0%BB%D0%BE%D1%81%D1%82%D0%B5%D1%80%D0%BC%D0%B0%D0%BD,_%D0%9B%D1%83%D0%BA%D0%B0%D1%81",
+  "name": [
+    "Клостерман",
+    "Лукас"
+  ],
+  "birth": 833745600,
+  "height": 187,
+  "position": "защитник, защитник",
+  "current_club": "РБ Лейпциг",
+  "club_caps": 214,
+  "club_conceded": 0,
+  "club_scored": 14,
+  "national_caps": 22,
+  "national_conceded": 0,
+  "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%9F%D0%B0%D0%B2%D0%BB%D0%BE%D0%B2%D0%B8%D1%87,_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D0%B0%D1%80_(%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB%D0%B8%D1%81%D1%82)",
+  "name": [
+    "Павлович",
+    "Александар"
+  ],
+  "birth": 1083528000,
+  "height": 186,
+  "position": "полузащитник",
+  "current_club": "Бавария",
+  "club_caps": 21,
+  "club_conceded": 0,
+  "club_scored": 2,
+  "national_caps": 0,
+  "national_conceded": 0,
+  "national_scored": 0,
+  "national_team": ""
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%97%D0%B0%D0%BD%D0%B5,_%D0%9B%D0%B5%D1%80%D0%BE%D0%B9",
+  "name": [
+    "Зане",
+    "Лерой"
+  ],
+  "birth": 821307600,
+  "height": 183,
+  "position": "вингер",
+  "current_club": "Бавария",
+  "club_caps": 325,
+  "club_conceded": 0,
+  "club_scored": 90,
+  "national_caps": 55,
+  "national_conceded": 0,
+  "national_scored": 13,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%93%D0%BE%D1%80%D0%B5%D1%86%D0%BA%D0%B0,_%D0%9B%D0%B5%D0%BE%D0%BD",
+  "name": [
+    "Горецка",
+    "Леон"
+  ],
+  "birth": 792018000,
+  "height": 189,
+  "position": "полузащитник",
+  "current_club": "Бавария",
+  "club_caps": 383,
+  "club_conceded": 0,
+  "club_scored": 59,
+  "national_caps": 57,
+  "national_conceded": 0,
+  "national_scored": 14,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%91%D1%80%D0%B0%D0%BD%D0%B4%D1%82,_%D0%AE%D0%BB%D0%B8%D0%B0%D0%BD",
+  "name": [
+    "Брандт",
+    "Юлиан"
+  ],
+  "birth": 830980800,
+  "height": 186,
+  "position": "вингер",
+  "current_club": "Боруссия (Дортмунд)",
+  "club_caps": 410,
+  "club_conceded": 0,
+  "club_scored": 80,
+  "national_caps": 53,
+  "national_conceded": 0,
+  "national_scored": 3,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%A5%D0%BE%D1%84%D0%BC%D0%B0%D0%BD%D0%BD,_%D0%99%D0%BE%D0%BD%D0%B0%D1%81",
+  "name": [
+    "Хофманн",
+    "Йонас"
+  ],
+  "birth": 711057600,
+  "height": 176,
+  "position": "вингер",
+  "current_club": "Байер 04",
+  "club_caps": 324,
+  "club_conceded": 0,
+  "club_scored": 68,
+  "national_caps": 23,
+  "national_conceded": 0,
+  "national_scored": 4,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%9F%D1%80%D1%91%D0%BC%D0%B5%D0%BB%D1%8C,_%D0%93%D1%80%D0%B8%D1%88%D0%B0",
+  "name": [
+    "Прёмель",
+    "Гриша"
+  ],
+  "birth": 789598800,
+  "height": 183,
+  "position": "полузащитник",
+  "current_club": "Хоффенхайм",
+  "club_caps": 231,
+  "club_conceded": 0,
+  "club_scored": 31,
+  "national_caps": 0,
+  "national_conceded": 0,
+  "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%9D%D0%BC%D0%B5%D1%87%D0%B0,_%D0%A4%D0%B5%D0%BB%D0%B8%D0%BA%D1%81",
+  "name": [
+    "Нмеча",
+    "Феликс"
+  ],
+  "birth": 971121600,
+  "height": 190,
+  "position": "полузащитник",
+  "current_club": "Боруссия Дортмунд",
+  "club_caps": 53,
+  "club_conceded": 0,
+  "club_scored": 3,
+  "national_caps": 1,
+  "national_conceded": 0,
+  "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%94%D0%B6%D0%B0%D0%BD,_%D0%AD%D0%BC%D1%80%D0%B5",
+  "name": [
+    "Джан",
+    "Эмре"
+  ],
+  "birth": 758322000,
+  "height": 186,
+  "position": "полузащитник",
+  "current_club": "Боруссия (Дортмунд)",
+  "club_caps": 329,
+  "club_conceded": 0,
+  "club_scored": 33,
+  "national_caps": 43,
+  "national_conceded": 0,
+  "national_scored": 1,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%93%D0%BD%D0%B0%D0%B1%D1%80%D0%B8,_%D0%A1%D0%B5%D1%80%D0%B6",
+  "name": [
+    "Гнабри",
+    "Серж"
+  ],
+  "birth": 805665600,
+  "height": 175,
+  "position": "вингер",
+  "current_club": "Бавария",
+  "club_caps": 272,
+  "club_conceded": 0,
+  "club_scored": 97,
+  "national_caps": 43,
+  "national_conceded": 0,
+  "national_scored": 22,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%94%D1%83%D0%BA%D1%88,_%D0%9C%D0%B0%D1%80%D0%B2%D0%B8%D0%BD",
+  "name": [
+    "Дукш",
+    "Марвин"
+  ],
+  "birth": 762987600,
+  "height": 188,
+  "position": "нападающий",
+  "current_club": "Вердер",
+  "club_caps": 230,
+  "club_conceded": 0,
+  "club_scored": 95,
+  "national_caps": 2,
+  "national_conceded": 0,
+  "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%91%D0%B5%D1%80%D0%B5%D0%BD%D1%81,_%D0%9A%D0%B5%D0%B2%D0%B8%D0%BD",
+  "name": [
+    "Беренс",
+    "Кевин"
+  ],
+  "birth": 665528400,
+  "height": 190,
+  "position": "нападающий",
+  "current_club": "Вольфсбург",
+  "club_caps": 354,
+  "club_conceded": 0,
+  "club_scored": 118,
+  "national_caps": 1,
+  "national_conceded": 0,
+  "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%A8%D0%B0%D0%B4%D0%B5,_%D0%9A%D0%B5%D0%B2%D0%B8%D0%BD",
+  "name": [
+    "Шаде",
+    "Кевин"
+  ],
+  "birth": 1006808400,
+  "height": 183,
+  "position": "нападающий",
+  "current_club": "Брентфорд",
+  "club_caps": 79,
+  "club_conceded": 0,
+  "club_scored": 16,
+  "national_caps": 1,
+  "national_conceded": 0,
+  "national_scored": 0,
+  "national_team": "Сборная Германии по футболу"
+}
+{
+  "url": "https://ru.wikipedia.org/wiki/%D0%92%D0%B5%D1%80%D0%BD%D0%B5%D1%80,_%D0%A2%D0%B8%D0%BC%D0%BE",
+  "name": [
+    "Вернер",
+    "Тимо"
+  ],
+  "birth": 826059600,
+  "height": 180,
+  "position": "нападающий",
+  "current_club": "Тоттенхэм Хотспур",
+  "club_caps": 418,
+  "club_conceded": 0,
+  "club_scored": 152,
+  "national_caps": 57,
+  "national_conceded": 0,
+  "national_scored": 24,
   "national_team": "Сборная Германии по футболу"
 }
 {
@@ -746,9 +1214,9 @@
   "height": 178,
   "position": "нападающий",
   "current_club": "Пари Сен-Жермен",
-  "club_caps": 362,
+  "club_caps": 363,
   "club_conceded": 0,
-  "club_scored": 280,
+  "club_scored": 282,
   "national_caps": 77,
   "national_conceded": 0,
   "national_scored": 46,
@@ -764,10 +1232,10 @@
   "height": 178,
   "position": "нападающий",
   "current_club": "Пари Сен-Жермен",
-  "club_caps": 286,
+  "club_caps": 323,
   "club_conceded": 0,
-  "club_scored": 75,
-  "national_caps": 41,
+  "club_scored": 80,
+  "national_caps": 43,
   "national_conceded": 0,
   "national_scored": 5,
   "national_team": "Сборная Франции по футболу"
@@ -776,7 +1244,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%A2%D1%8E%D1%80%D0%B0%D0%BC,_%D0%9C%D0%B0%D1%80%D0%BA%D1%83%D1%81",
   "name": [
     "Тюрам",
-    "Маркус"
+    "Маркюс"
   ],
   "birth": 870811200,
   "height": 189,
@@ -1027,7 +1495,7 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%94%D0%B5_%D0%92%D0%B8%D0%BD%D1%82%D0%B5%D1%80,_%D0%9A%D0%BE%D0%BD%D0%B8",
   "name": [
-    "Де Винтер",
+    "де Винтер",
     "Кони"
   ],
   "birth": 1023825600,
@@ -1494,8 +1962,8 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%96%D1%83%D0%B0%D0%BD_%D0%9C%D0%B0%D1%80%D0%B8%D1%83_(%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB%D0%B8%D1%81%D1%82,_2000)",
   "name": [
-    "Жуан",
-    "Мариу"
+    "Мариу",
+    "Жуан"
   ],
   "birth": 946846800,
   "height": 178,
@@ -1620,8 +2088,7 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%94%D0%B0_%D0%A1%D0%B8%D0%BB%D0%B2%D0%B0_%D0%9C%D0%BE%D0%BD%D1%82%D0%B5%D0%B9%D1%80%D0%BE,_%D0%9E%D1%82%D0%B0%D0%B2%D0%B8%D0%BE_%D0%AD%D0%B4%D0%BC%D0%B8%D0%BB%D1%81%D0%BE%D0%BD",
   "name": [
-    "Да Силва Монтейро",
-    "Отавио Эдмилсон"
+    "Отавио"
   ],
   "birth": 792277200,
   "height": 171,
@@ -1638,8 +2105,7 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%A4%D0%B5%D1%80%D1%80%D0%B5%D0%B9%D1%80%D0%B0,_%D0%92%D0%B8%D1%82%D0%BE%D1%80",
   "name": [
-    "Феррейра",
-    "Витор"
+    "Витинья"
   ],
   "birth": 950389200,
   "height": 172,
@@ -1692,8 +2158,8 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%9A%D1%80%D0%B8%D1%88%D1%82%D0%B8%D0%B0%D0%BD%D1%83_%D0%A0%D0%BE%D0%BD%D0%B0%D0%BB%D0%B4%D1%83",
   "name": [
-    "Криштиану",
-    "Роналду"
+    "Роналду",
+    "Криштиану"
   ],
   "birth": 476398800,
   "height": 189,
@@ -1710,8 +2176,8 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%96%D1%83%D0%B0%D0%BD_%D0%A4%D0%B5%D0%BB%D0%B8%D0%BA%D1%81",
   "name": [
-    "Жуан",
-    "Феликс"
+    "Феликс",
+    "Жуан"
   ],
   "birth": 942181200,
   "height": 181,
@@ -1781,8 +2247,8 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%96%D0%BE%D1%82%D0%B0_%D0%A1%D0%B8%D0%BB%D0%B2%D0%B0",
   "name": [
-    "Жота",
-    "Силва"
+    "Силва",
+    "Жота"
   ],
   "birth": 933451200,
   "height": 179,
@@ -2069,7 +2535,6 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%A0%D1%83%D0%B8%D1%81,_%D0%A4%D0%B0%D0%B1%D0%B8%D0%B0%D0%BD",
   "name": [
-    "Руис",
     "Фабиан"
   ],
   "birth": 828475200,
@@ -2284,8 +2749,8 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%9B%D0%B0%D0%BC%D0%B8%D0%BD_%D0%AF%D0%BC%D0%B0%D0%BB%D1%8C",
   "name": [
-    "Ламин",
-    "Ямаль"
+    "Ямаль",
+    "Ламин"
   ],
   "birth": 1184270400,
   "height": 178,
@@ -2734,8 +3199,8 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%93%D1%8E%D0%BD%D0%BE%D0%BA,_%D0%A4%D0%B5%D1%85%D0%BC%D0%B8_%D0%9C%D0%B5%D1%80%D1%82",
   "name": [
-    "Гюнок",
-    "Фехми Мерт"
+    "Мерт Гюнок",
+    "Фехми"
   ],
   "birth": 604702800,
   "height": 188,
@@ -2986,7 +3451,7 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D1%85%D0%B2%D0%B5%D0%B4%D0%B6%D0%B8,_%D0%98%D1%80%D1%84%D0%B0%D0%BD",
   "name": [
-    "Кахведжи",
+    "Джан Кахведжи",
     "Ирфан"
   ],
   "birth": 805752000,
@@ -3041,7 +3506,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9E%D0%BC%D1%8E%D1%80,_%D0%90%D0%B1%D0%B4%D1%83%D0%BB%D0%BA%D0%B0%D0%B4%D0%B8%D1%80",
   "name": [
     "Омюр",
-    "Абдулкадир"
+    "Адбулкадир"
   ],
   "birth": 930254400,
   "height": 168,
@@ -3095,7 +3560,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9E%D0%B7%D0%B4%D0%B5%D0%BC%D0%B8%D1%80,_%D0%91%D0%B5%D1%80%D0%B0%D1%82_%D0%90%D0%B9%D0%B1%D0%B5%D1%80%D0%BA",
   "name": [
     "Оздемир",
-    "Берат Айберк"
+    "Берат"
   ],
   "birth": 895867200,
   "height": 187,
@@ -3742,7 +4207,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%93%D0%BE%D0%BC%D0%B5%D1%81,_%D0%94%D0%B6%D0%BE%D0%B7%D0%B5%D1%84",
   "name": [
     "Гомес",
-    "Джозеф"
+    "Джо"
   ],
   "birth": 864331200,
   "height": 188,
@@ -4875,7 +5340,7 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%A1%D1%82%D1%80%D0%B0%D0%BA%D0%BE%D1%88%D0%B0,_%D0%A2%D0%BE%D0%BC%D0%B0%D1%81",
   "name": [
-    "Стракоша",
+    "Фотак Стракоша",
     "Томас"
   ],
   "birth": 795560400,
@@ -4930,7 +5395,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9B%D0%B5%D0%BD%D1%8C%D1%8F%D0%BD%D0%B8,_%D0%AD%D1%80%D0%BC%D0%B8%D1%80",
   "name": [
     "Леньяни",
-    "Эрмир"
+    "Эмир"
   ],
   "birth": 618264000,
   "height": 175,
@@ -4983,8 +5448,8 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%9C%D0%B8%D1%85%D0%B0%D0%B9,_%D0%AD%D0%BD%D0%B5%D0%B0",
   "name": [
-    "Михай",
-    "Энеа"
+    "Энеа",
+    "Михай"
   ],
   "birth": 899582400,
   "height": 186,
@@ -5666,7 +6131,7 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%92%D0%B0%D0%BD_%D0%94%D0%B5%D0%B9%D0%BA,_%D0%92%D0%B8%D1%80%D0%B4%D0%B6%D0%B8%D0%BB",
   "name": [
-    "Ван Дейк",
+    "ван Дейк",
     "Вирджил"
   ],
   "birth": 678920400,
@@ -5702,7 +6167,7 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%94%D0%B5_%D0%9B%D0%B8%D0%B3%D1%82,_%D0%9C%D0%B0%D1%82%D1%82%D0%B5%D0%B9%D1%81",
   "name": [
-    "Де Лигт",
+    "де Лигт",
     "Маттейс"
   ],
   "birth": 934401600,
@@ -5792,7 +6257,7 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%94%D0%B5_%D0%A0%D0%BE%D0%BD,_%D0%9C%D0%B0%D1%80%D1%82%D0%B5%D0%BD",
   "name": [
-    "Де Рон",
+    "де Рон",
     "Мартен"
   ],
   "birth": 670194000,
@@ -6621,7 +7086,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%A1%D1%82%D0%B0%D0%BD%D1%87%D1%83,_%D0%9D%D0%B8%D0%BA%D0%BE%D0%BB%D0%B0%D0%B5_%D0%9A%D0%BB%D0%B0%D1%83%D0%B4%D0%B8%D1%83",
   "name": [
     "Станчу",
-    "Николае Клаудиу"
+    "Николае"
   ],
   "birth": 736718400,
   "height": 170,
@@ -7717,7 +8182,7 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%94%D0%B7%D0%B0%D0%BA%D0%BA%D0%B0%D0%BD%D1%8C%D0%B8,_%D0%9C%D0%B0%D1%82%D1%82%D0%B8%D0%B0",
   "name": [
-    "Дзакканьи",
+    "Дзаканьи",
     "Маттиа"
   ],
   "birth": 803246400,
@@ -8419,8 +8884,8 @@
 {
   "url": "https://ru.wikipedia.org/wiki/%D0%AD%D0%BB%D1%88%D0%BD%D0%B8%D0%BA,_%D0%A2%D0%B8%D0%BC%D0%B8_%D0%9C%D0%B0%D0%BA%D1%81",
   "name": [
-    "Элшник",
-    "Тими Макс"
+    "Макс Элшик",
+    "Тими"
   ],
   "birth": 893793600,
   "height": 178,
@@ -8465,9 +8930,9 @@
   "club_caps": 153,
   "club_conceded": 0,
   "club_scored": 62,
-  "national_caps": 26,
+  "national_caps": 28,
   "national_conceded": 0,
-  "national_scored": 10,
+  "national_scored": 11,
   "national_team": "Сборная Словении по футболу"
 }
 {
@@ -8750,7 +9215,7 @@
   "height": 189,
   "position": "защитник",
   "current_club": "Лечче",
-  "club_caps": 104,
+  "club_caps": 135,
   "club_conceded": 0,
   "club_scored": 3,
   "national_caps": 5,
@@ -9176,7 +9641,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%A1%D0%B0%D0%B7%D0%BE%D0%BD%D0%BE%D0%B2,_%D0%A1%D0%B0%D0%B1%D0%B0_%D0%90%D0%BD%D0%B4%D1%80%D0%B5%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Сазонов",
-    "Саба Андреевич"
+    "Саба"
   ],
   "birth": 1012510800,
   "height": 194,
@@ -9302,7 +9767,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D0%BD%D0%BA%D0%B0%D0%B2%D0%B0,_%D0%94%D0%B6%D0%B0%D0%B1%D0%B0_%D0%93%D0%B5%D0%BE%D1%80%D0%B3%D0%B8%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Канкава",
-    "Джаба Георгиевич"
+    "Джаба"
   ],
   "birth": 511477200,
   "height": 178,
@@ -9398,12 +9863,12 @@
   "height": 193,
   "position": "нападающий",
   "current_club": "АПОЭЛ",
-  "club_caps": 215,
+  "club_caps": 277,
   "club_conceded": 0,
-  "club_scored": 99,
-  "national_caps": 35,
+  "club_scored": 115,
+  "national_caps": 37,
   "national_conceded": 0,
-  "national_scored": 6,
+  "national_scored": 5,
   "national_team": "Сборная Грузии по футболу"
 }
 {
@@ -9428,7 +9893,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%91%D1%83%D1%89%D0%B0%D0%BD,_%D0%93%D0%B5%D0%BE%D1%80%D0%B3%D0%B8%D0%B9_%D0%9D%D0%B8%D0%BA%D0%BE%D0%BB%D0%B0%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Бущан",
-    "Георгий Николаевич"
+    "Георгий"
   ],
   "birth": 770328000,
   "height": 196,
@@ -9446,7 +9911,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%A2%D1%80%D1%83%D0%B1%D0%B8%D0%BD,_%D0%90%D0%BD%D0%B0%D1%82%D0%BE%D0%BB%D0%B8%D0%B9_%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Трубин",
-    "Анатолий Владимирович"
+    "Анатолий"
   ],
   "birth": 996609600,
   "height": 199,
@@ -9464,7 +9929,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9B%D1%83%D0%BD%D0%B8%D0%BD,_%D0%90%D0%BD%D0%B4%D1%80%D0%B5%D0%B9_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Лунин",
-    "Андрей Алексеевич"
+    "Андрей"
   ],
   "birth": 918680400,
   "height": 191,
@@ -9482,7 +9947,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%A0%D0%B8%D0%B7%D0%BD%D1%8B%D0%BA,_%D0%94%D0%BC%D0%B8%D1%82%D1%80%D0%B8%D0%B9_%D0%93%D1%80%D0%B8%D0%B3%D0%BE%D1%80%D1%8C%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Ризнык",
-    "Дмитрий Григорьевич"
+    "Дмитрий"
   ],
   "birth": 917643600,
   "height": 191,
@@ -9500,7 +9965,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%BD%D0%BE%D0%BF%D0%BB%D1%8F,_%D0%95%D1%84%D0%B8%D0%BC_%D0%94%D0%BC%D0%B8%D1%82%D1%80%D0%B8%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Конопля",
-    "Ефим Дмитриевич"
+    "Ефим"
   ],
   "birth": 935611200,
   "height": 180,
@@ -9518,7 +9983,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9C%D0%B8%D1%85%D0%B0%D0%B9%D0%BB%D0%B8%D1%87%D0%B5%D0%BD%D0%BA%D0%BE,_%D0%91%D0%BE%D0%B3%D0%B4%D0%B0%D0%BD_%D0%92%D0%B0%D1%81%D0%B8%D0%BB%D1%8C%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Михайличенко",
-    "Богдан Васильевич"
+    "Богдан"
   ],
   "birth": 858891600,
   "height": 175,
@@ -9536,7 +10001,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%A2%D0%B0%D0%BB%D0%BE%D0%B2%D0%B5%D1%80%D0%BE%D0%B2,_%D0%9C%D0%B0%D0%BA%D1%81%D0%B8%D0%BC_%D0%92%D0%B0%D0%B4%D0%B8%D0%BC%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Таловеров",
-    "Максим Вадимович"
+    "Максим"
   ],
   "birth": 962136000,
   "height": 195,
@@ -9554,7 +10019,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%97%D0%B0%D0%B1%D0%B0%D1%80%D0%BD%D1%8B%D0%B9,_%D0%98%D0%BB%D1%8C%D1%8F_%D0%91%D0%BE%D1%80%D0%B8%D1%81%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Забарный",
-    "Илья Борисович"
+    "Илья"
   ],
   "birth": 1030824000,
   "height": 189,
@@ -9572,7 +10037,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9C%D0%B8%D0%BA%D0%BE%D0%BB%D0%B5%D0%BD%D0%BA%D0%BE,_%D0%92%D0%B8%D1%82%D0%B0%D0%BB%D0%B8%D0%B9_%D0%A1%D0%B5%D1%80%D0%B3%D0%B5%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Миколенко",
-    "Виталий Сергеевич"
+    "Виталий"
   ],
   "birth": 927921600,
   "height": 180,
@@ -9590,7 +10055,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%91%D0%BE%D0%BD%D0%B4%D0%B0%D1%80%D1%8C,_%D0%92%D0%B0%D0%BB%D0%B5%D1%80%D0%B8%D0%B9_%D0%AE%D1%80%D1%8C%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Бондарь",
-    "Валерий Юрьевич"
+    "Валерий"
   ],
   "birth": 920062800,
   "height": 184,
@@ -9608,7 +10073,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%A2%D1%8B%D0%BC%D1%87%D0%B8%D0%BA,_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80_%D0%92%D0%B0%D1%81%D0%B8%D0%BB%D1%8C%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Тымчик",
-    "Александр Васильевич"
+    "Александр"
   ],
   "birth": 853707600,
   "height": 180,
@@ -9626,7 +10091,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9C%D0%B0%D1%82%D0%B2%D0%B8%D0%B5%D0%BD%D0%BA%D0%BE,_%D0%9D%D0%B8%D0%BA%D0%BE%D0%BB%D0%B0%D0%B9_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Матвиенко",
-    "Николай Александрович"
+    "Николай"
   ],
   "birth": 830980800,
   "height": 182,
@@ -9644,7 +10109,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D1%80%D0%B0%D0%B2%D0%B0%D0%B5%D0%B2,_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Караваев",
-    "Александр Александрович"
+    "Александр"
   ],
   "birth": 707428800,
   "height": 173,
@@ -9662,7 +10127,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9F%D0%BE%D0%BF%D0%BE%D0%B2,_%D0%94%D0%B5%D0%BD%D0%B8%D1%81_%D0%AE%D1%80%D1%8C%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Попов",
-    "Денис Юрьевич"
+    "Денис"
   ],
   "birth": 919198800,
   "height": 185,
@@ -9680,7 +10145,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%A1%D0%B8%D0%B4%D0%BE%D1%80%D1%87%D1%83%D0%BA,_%D0%A1%D0%B5%D1%80%D0%B3%D0%B5%D0%B9_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Сидорчук",
-    "Сергей Александрович"
+    "Сергей"
   ],
   "birth": 673131600,
   "height": 189,
@@ -9698,7 +10163,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%A8%D0%B0%D0%BF%D0%B0%D1%80%D0%B5%D0%BD%D0%BA%D0%BE,_%D0%9D%D0%B8%D0%BA%D0%BE%D0%BB%D0%B0%D0%B9_%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Шапаренко",
-    "Николай Владимирович"
+    "Николай"
   ],
   "birth": 907444800,
   "height": 178,
@@ -9716,7 +10181,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%A1%D1%83%D0%B4%D0%B0%D0%BA%D0%BE%D0%B2,_%D0%93%D0%B5%D0%BE%D1%80%D0%B3%D0%B8%D0%B9_%D0%92%D0%B8%D0%BA%D1%82%D0%BE%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Судаков",
-    "Георгий Викторович"
+    "Георгий"
   ],
   "birth": 1030824000,
   "height": 177,
@@ -9734,7 +10199,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9C%D0%B0%D0%BB%D0%B8%D0%BD%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9,_%D0%A0%D1%83%D1%81%D0%BB%D0%B0%D0%BD_%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Малиновский",
-    "Руслан Владимирович"
+    "Руслан"
   ],
   "birth": 736459200,
   "height": 181,
@@ -9752,15 +10217,15 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9C%D1%83%D0%B4%D1%80%D0%B8%D0%BA,_%D0%9C%D0%B8%D1%85%D0%B0%D0%B8%D0%BB_%D0%9F%D0%B5%D1%82%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Мудрик",
-    "Михаил Петрович"
+    "Михаил"
   ],
   "birth": 978642000,
   "height": 175,
   "position": "полузащитник",
   "current_club": "Челси",
-  "club_caps": 116,
+  "club_caps": 119,
   "club_conceded": 0,
-  "club_scored": 17,
+  "club_scored": 18,
   "national_caps": 18,
   "national_conceded": 0,
   "national_scored": 2,
@@ -9770,7 +10235,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%91%D1%80%D0%B0%D0%B6%D0%BA%D0%BE,_%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%BC%D0%B8%D1%80_%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Бражко",
-    "Владимир Владимирович"
+    "Владимир"
   ],
   "birth": 1011733200,
   "height": 184,
@@ -9788,7 +10253,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%A6%D1%8B%D0%B3%D0%B0%D0%BD%D0%BA%D0%BE%D0%B2,_%D0%92%D0%B8%D0%BA%D1%82%D0%BE%D1%80_%D0%92%D0%B8%D1%82%D0%B0%D0%BB%D1%8C%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Цыганков",
-    "Виктор Витальевич"
+    "Виктор"
   ],
   "birth": 879541200,
   "height": 178,
@@ -9806,7 +10271,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%97%D0%B8%D0%BD%D1%87%D0%B5%D0%BD%D0%BA%D0%BE,_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80_%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D0%BC%D0%B8%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Зинченко",
-    "Александр Владимирович"
+    "Александр"
   ],
   "birth": 850597200,
   "height": 175,
@@ -9824,7 +10289,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%97%D1%83%D0%B1%D0%BA%D0%BE%D0%B2,_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80_%D0%92%D0%B0%D0%BB%D0%B5%D1%80%D1%8C%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Зубков",
-    "Александр Валерьевич"
+    "Александр"
   ],
   "birth": 839016000,
   "height": 182,
@@ -9842,7 +10307,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%93%D1%83%D1%86%D1%83%D0%BB%D1%8F%D0%BA,_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B5%D0%B9_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Гуцуляк",
-    "Алексей Александрович"
+    "Алексей"
   ],
   "birth": 882997200,
   "height": 184,
@@ -9860,7 +10325,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9F%D0%B8%D1%85%D0%B0%D0%BB%D1%91%D0%BD%D0%BE%D0%BA,_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Пихалёнок",
-    "Александр Александрович"
+    "Александр"
   ],
   "birth": 862948800,
   "height": 174,
@@ -9878,7 +10343,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%9D%D0%B0%D0%B7%D0%B0%D1%80%D0%B8%D0%BD%D0%B0,_%D0%95%D0%B3%D0%BE%D1%80_%D0%90%D0%BD%D0%B0%D1%82%D0%BE%D0%BB%D1%8C%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Назарина",
-    "Егор Анатольевич"
+    "Егор"
   ],
   "birth": 868478400,
   "height": 183,
@@ -9896,7 +10361,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%AF%D1%80%D0%B5%D0%BC%D1%87%D1%83%D0%BA,_%D0%A0%D0%BE%D0%BC%D0%B0%D0%BD_%D0%9E%D0%BB%D0%B5%D0%B3%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Яремчук",
-    "Роман Олегович"
+    "Роман"
   ],
   "birth": 817419600,
   "height": 191,
@@ -9914,7 +10379,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%94%D0%BE%D0%B2%D0%B1%D0%B8%D0%BA,_%D0%90%D1%80%D1%82%D1%91%D0%BC_%D0%90%D0%BB%D0%B5%D0%BA%D1%81%D0%B0%D0%BD%D0%B4%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Довбик",
-    "Артём Александрович"
+    "Артём"
   ],
   "birth": 866836800,
   "height": 189,
@@ -9932,7 +10397,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%92%D0%B0%D0%BD%D0%B0%D1%82,_%D0%92%D0%BB%D0%B0%D0%B4%D0%B8%D1%81%D0%BB%D0%B0%D0%B2_%D0%90%D0%BD%D0%B4%D1%80%D0%B5%D0%B5%D0%B2%D0%B8%D1%87",
   "name": [
     "Ванат",
-    "Владислав Андреевич"
+    "Владислав"
   ],
   "birth": 1010091600,
   "height": 185,
@@ -9950,7 +10415,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%A1%D0%B8%D0%BA%D0%B0%D0%BD,_%D0%94%D0%B0%D0%BD%D0%B8%D0%B8%D0%BB_%D0%AF%D1%80%D0%BE%D1%81%D0%BB%D0%B0%D0%B2%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Сикан",
-    "Даниил Ярославович"
+    "Даниил"
   ],
   "birth": 987364800,
   "height": 185,
@@ -10238,7 +10703,7 @@
   "url": "https://ru.wikipedia.org/wiki/%D0%A0%D0%BE%D0%BC%D0%B0%D0%BD%D1%87%D1%83%D0%BA,_%D0%A2%D0%B0%D1%80%D0%B0%D1%81_%D0%92%D0%B8%D0%BA%D1%82%D0%BE%D1%80%D0%BE%D0%B2%D0%B8%D1%87",
   "name": [
     "Романчук",
-    "Тарас Викторович"
+    "Тарас"
   ],
   "birth": 690069600,
   "height": 186,
