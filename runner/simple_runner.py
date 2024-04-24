@@ -63,11 +63,11 @@ class SimpleRunner:
             response.raise_for_status()
         except Exception as e:
             item.tries += 1
-            if item.tries >= self._max_tries:
-                self._logger.warning(f'Download tries limit exceeded {unquote(item.url)} DURATION {time.time() - item.start} ststus: {e}')
+            if item.tries >= self._max_tries or '404' in e:
+                self._logger.warning(f'Download tries limit exceeded {unquote(item.url)} DURATION {time.time() - item.start} or status is 404: {e}')
                 return None
             else:
-                self._logger.info(f'One more try {unquote(item.url)} DURATION {time.time() - item.start} ststus: {e}')
+                self._logger.info(f'One more try {unquote(item.url)} DURATION {time.time() - item.start} status: {e}')
                 return self._load_page(item)
         self._logger.info(f'Loaded page: {unquote(item.url)}')
         return response.text
