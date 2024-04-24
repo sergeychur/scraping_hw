@@ -47,7 +47,7 @@ class SimpleRunner:
                     self._logger.error(f'Not scraped from url {unquote(current_item.url)}')
                     continue
                 for item in extracted:
-                    if item.url in self._blacklist or 'flag_of_' in item.url.lower():
+                    if item.url in self._blacklist or 'flag_of_' in item.url.lower() or 'index.php' in item.url:
                         continue
                     self._add(item)
                 self._seen.add(current_item.url)
@@ -59,10 +59,8 @@ class SimpleRunner:
         item.start = time.time()
 
         try:
-            # response = requests.get(unquote(item.url), timeout=60)
-            # response.raise_for_status()
-            with open(item.url, 'r') as f:
-                return f.read()
+            response = requests.get(unquote(item.url), timeout=60)
+            response.raise_for_status()
         except Exception:
             item.tries += 1
             if item.tries >= self._max_tries:
