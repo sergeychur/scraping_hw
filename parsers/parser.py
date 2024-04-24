@@ -42,7 +42,6 @@ class CssParser:
 
         links = [ln.get("href") for ln in table if ln]
         links = [ln for ln in links if "index.php" not in ln]
-        links = [urljoin("https://ru.wikipedia.org/", ln) for ln in links]
 
         parsed = urlparse(cur_page_url)
         links = [urljoin(parsed.scheme + "://" + parsed.netloc, ln) for ln in links]
