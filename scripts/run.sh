@@ -16,7 +16,6 @@ python3 -m venv venv
 
 timeout 10 wget --recursive -w 0.1 -D localhost $seed_url || true
 
-python3 ./main.py $seed_url ./test_data/result.jsonl
+python3 ./main.py $seed_url $path_to_result
 
-cp ./test_data/result.jsonl $path_to_result
 echo "Finished running"
