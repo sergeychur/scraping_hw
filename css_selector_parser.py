@@ -162,24 +162,16 @@ class CssSelectorParser:
                 cols = last_row.find_all("th")
 
                 if len(cols) != 0 and cols[0].text.strip() == "Итого":
+                    goals = int(re.search(r"\b\d+\b", cols[2].text.strip()).group(0))
+                    matches = int(cols[1].text.strip())
+
+                    if player_data["national_caps"] < matches:
+                        player_data["national_caps"] = matches
+
                     if player_data["position"] == "вратарь":
-                        matches = int(cols[1].text.strip())
-
-                        goals = cols[2].text.strip()
-                        if not goals[0].isnumeric():
-                            goals = goals[1:]
-                        goals = int(goals)
-
-                        if player_data["national_caps"] < matches:
-                            player_data["national_caps"] = matches
                         if player_data["national_conceded"] < goals:
                             player_data["national_conceded"] = goals
                     else:
-                        matches = int(cols[1].text.strip())
-                        goals = int(cols[2].text.strip())
-
-                        if player_data["national_caps"] < matches:
-                            player_data["national_caps"] = matches
                         if player_data["national_scored"] < goals:
                             player_data["national_scored"] = goals
 
@@ -213,18 +205,9 @@ class CssSelectorParser:
                 ):
                     national_teams.append(team_line)
 
-                    matches, goals = "", ""
-                    ind = 0
-
-                    while text[ind] != "(":
-                        matches += text[ind]
-                        ind += 1
-
-                    ind += 1
-
-                    while text[ind] != ")":
-                        goals += text[ind]
-                        ind += 1
+                    matches, goals = text.split('(')
+                    matches = matches.strip()
+                    goals = goals.strip()[:-1]
 
                     if matches.find("?") == -1:
                         national_matches.append(int(matches))
