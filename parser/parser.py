@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import datetime
 from urllib.parse import unquote, urljoin
@@ -7,7 +8,6 @@ from runner import Item
 
 class Parser:
     # Все селекторы - css
-    TITLE_SELECTOR = 'span[class="mw-page-title-main"]'
     TEAM_SELECTOR = 'table.standard tr td:nth-child(1) > a'
     PLAYER_SELECTOR = 'tr > td:nth-child(3) > a[href]'
 
@@ -22,31 +22,33 @@ class Parser:
     TAIL_TABLE_SELECTOR = 'tr:last-child > th'
     SECOND_TRY_SELECTOR = 'tr:last-child > td'
 
-    DOMAIN = 'https://ru.wikipedia.org/'
+    def __init__(self, domain='https://ru.wikipedia.org/'):
+        self._logger = logging.getLogger('pasrer')
+        self.DOMAIN = domain
 
     # ---------------------------------------------------------------------------------------
 
     def parse(self, item):
-        choice = self.__make_choice(item.content)
+        choice = self.__make_choice(item.url)
         if choice == 'championship':
-            return self._parse_championship_page(item.content)
+            result = self._parse_championship_page(item.content)
+            self._logger.info(f'Scraped championship {unquote(item.url)}, count of items: {len(result)}')
+            return result
         elif choice == 'team':
-            return self._parse_team_page(item.content)
+            result = self._parse_team_page(item.content)
+            self._logger.info(f'Scraped team {unquote(item.url)}, count of items: {len(result)}')
+            return result
         elif choice == 'player':
-            return self._parse_player_page(item.content, item.url)
+            result = self._parse_player_page(item.content, item.url)
+            self._logger.info(f'Scraped player {unquote(item.url)}')
+            return result
 
-    def __make_choice(self, soup):
-        title = soup.select_one(self.TITLE_SELECTOR).text.lower()
-        if not title:
-            node = soup.select_one('p:nth-child(2) > b')
-            if node:
-                title += node.text.lower()
-            node = soup.select_one('body tr:nth-child(1) > th')
-            if node:
-                title += node.text.lower()
-        if 'чемпионат' in title:
+    @staticmethod
+    def __make_choice(url):
+        last = unquote(url).split('/')[-1].lower()
+        if 'чемпионат' in last:
             return 'championship'
-        elif 'cбо́рная' in title or 'сборная' in title:
+        elif 'сборная' in last:
             return 'team'
         else:
             return 'player'
@@ -120,13 +122,14 @@ class Parser:
             if 'национальная сборная' in th.contents[0].text.lower():
                 sibling = th.parent
                 while sibling := sibling.find_next_sibling('tr'):
-                    if 'н. в.' in sibling.text:
-                        links = sibling.select('a[href]')
-                        urls = list(map(lambda x: unquote(x.get('href')), links))
-                        for url in urls:
-                            name = url.split('/')[-1].replace('_', ' ')
-                            if re.match(r'сборная .+ по футболу', name.lower()):
-                                return name
+                    if 'н. в.' not in sibling.text or ' (до ' in sibling.text:
+                        continue
+                    links = sibling.select('a[href]')
+                    urls = list(map(lambda x: unquote(x.get('href')), links))
+                    for url in urls:
+                        name = url.split('/')[-1].replace('_', ' ')
+                        if re.match(r'сборная .+ по футболу', name.lower()):
+                            return name
 
     @staticmethod
     def __get_player_name(url):
@@ -192,7 +195,7 @@ class Parser:
                 while sibling := sibling.find_next_sibling('tr'):
                     if not sibling.has_attr('class'):
                         break
-                    if re.match(r'.+\(до .+\).+', sibling.text):
+                    if ' (до ' in sibling.text:
                         continue
                     try:
                         tmp = self.__get_from_str(sibling.select_one('td:nth-child(3)').text.strip())

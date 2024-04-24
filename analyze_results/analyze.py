@@ -18,8 +18,8 @@ def main():
     parser.add_argument('path_to_result', metavar='path_to_result', type=str, help='path to save the result')
     args = parser.parse_args()
 
-    answer = [('', 0) for _ in range(6)]
-    answer[3] = ('', datetime.now(timezone.utc).timestamp())
+    answer = [(['', ''], 0) for _ in range(6)]
+    answer[3] = (['', ''], datetime.now(timezone.utc).timestamp())
 
     with open(args.parsing_result, 'r') as f:
         lines = f.readlines()
@@ -34,7 +34,8 @@ def main():
         answer[5] = update_6(player, answer[5])
     with open(args.path_to_result, 'w') as f:
         for elem in answer:
-            f.write(f'{elem[0]}\n')
+            f.write(' '.join(elem[0]))
+            f.write('\n')
 
 
 def update_1(player, current):
@@ -42,7 +43,7 @@ def update_1(player, current):
     years = (current_timestamp - player['birth']) // (60 * 60 * 24 * 365.25)
     if years < 25:
         if player['club_caps'] > current[1]:
-            return (player['name'][1], player['club_caps'])
+            return player['name'], player['club_caps']
     return current
 
 
@@ -51,7 +52,7 @@ def update_2(player, current):
     years = (current_timestamp - player['birth']) // (60 * 60 * 24 * 365.25)
     if years < 25:
         if player['club_scored'] > current[1]:
-            return (player['name'][1], player['club_scored'])
+            return player['name'], player['club_scored']
     return current
 
 
@@ -60,25 +61,25 @@ def update_3(player, current):
         return current
     if player['club_scored'] + player['national_scored'] > 10:
         if player['height'] > current[1]:
-            return (player['name'][1], player['height'])
+            return player['name'], player['height']
     return current
 
 
 def update_4(player, current):
     if player['position'] == 'вратарь' and player['birth'] < current[1]:
-        return (player['name'][1], player['birth'])
+        return player['name'], player['birth']
     return current
 
 
 def update_5(player, current):
     if player['national_caps'] > current[1]:
-        return (player['name'][1], player['national_caps'])
+        return player['name'], player['national_caps']
     return current
 
 
 def update_6(player, current):
     if player['national_scored'] > current[1]:
-        return (player['name'][1], player['national_scored'])
+        return player['name'], player['national_scored']
     return current
 
 

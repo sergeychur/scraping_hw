@@ -5,6 +5,7 @@ from parser.parser import Parser
 
 from runner.simple_runner import SimpleRunner
 from utils.file_sink import FileSink
+from urllib.parse import urlparse
 
 
 def main():
@@ -19,7 +20,11 @@ def main():
         level='INFO',
     )
     logger = logging.getLogger('runner')
-    parser = Parser()
+
+    parsed = urlparse(args.seed_url)
+    domain = parsed.scheme + '://' + parsed.netloc
+    parser = Parser(domain)
+
     sink = FileSink(args.path_to_result)
     runner = SimpleRunner(parser, sink, logger, [args.seed_url])
     start = time.time()

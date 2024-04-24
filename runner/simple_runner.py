@@ -24,7 +24,9 @@ class SimpleRunner:
             self._add(Item(seed_url))
 
         self._start_time = None
-        self._blacklist = ['https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D0%BF%D0%B8%D1%82%D0%B0%D0%BD_(%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB)']
+        self._blacklist = [
+            'https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D0%BF%D0%B8%D1%82%D0%B0%D0%BD_(%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB)'
+        ]
 
     def run(self):
         self._logger.info('Start')
@@ -40,12 +42,10 @@ class SimpleRunner:
                 extracted = self._parser.parse(current_item)
                 if isinstance(extracted, dict):
                     self._sink.write(extracted)
-                    self._logger.info(f'Scraped player {unquote(current_item.url)}')
                     continue
                 if not extracted:
                     self._logger.error(f'Not scraped from url {unquote(current_item.url)}')
                     continue
-                self._logger.info(f'Scraped from url {unquote(current_item.url)} items: {len(extracted)}')
                 for item in extracted:
                     if item.url in self._blacklist:
                         continue
