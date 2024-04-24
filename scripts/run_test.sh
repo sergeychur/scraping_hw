@@ -2,6 +2,8 @@
 
 set -eu
 
+rm -rf ./real_results
+
 mkdir ./real_results/
 echo "Running parser implementation "
 cur_user=$(whoami)

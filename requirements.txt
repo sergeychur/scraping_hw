@@ -1,1 +1,5 @@
 requests==2.31.0
+aiohttp
+pydantic
+aiolimiter
+beautifulsoup4
