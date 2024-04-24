@@ -1,5 +1,6 @@
 import time
 from collections import deque
+from urllib.parse import unquote
 
 import requests
 
@@ -37,7 +38,7 @@ class SimpleRunner:
         while self._to_process:
             item = self._to_process.pop()
             item.start = time.time()
-            self._logger.info(f"Start: {item.url}")
+            self._logger.info(f"Start: {unquote(item.url)}")
 
             try:
                 result, next = self._download(item)
@@ -48,14 +49,14 @@ class SimpleRunner:
                 item.end = time.time()
                 duration = item.end - item.start
                 if item.tries >= self._max_tries:
-                    self._logger.error(f"Fail: {item.url} {e}. Tries = {item.tries}. Duration: {duration}")
+                    self._logger.error(f"Fail: {unquote(item.url)} {e}. Tries = {item.tries}. Duration: {duration}")
                     self._write(item, error=str(e))
                     continue
-                self._logger.warning(f"Postpone: {item.url} {e}. Tries = {item.tries}. Duration: {duration}")
+                self._logger.warning(f"Postpone: {unquote(item.url)} {e}. Tries = {item.tries}. Duration: {duration}")
                 self._submit(item)
                 continue
 
-            self._logger.info(f"Success: {item.url}. Tries = {item.tries}. Duration: {item.end - item.start}")
+            self._logger.info(f"Success: {unquote(item.url)}. Tries = {item.tries}. Duration: {item.end - item.start}")
 
             if result:
                 self._write(item, result=result)
