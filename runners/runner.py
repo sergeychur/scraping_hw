@@ -9,7 +9,7 @@ from utils.simple_rate_limiter import SimpleRateLimiter
 
 
 class SimpleRunner:
-    def __init__(self, parser, sink, logger, seed_urls, rate=10, max_tries=5):
+    def __init__(self, parser, sink, logger, seed_urls, rate=5, max_tries=5):
         self._logger = logger.getChild("SyncRunner")
         self._parser = parser
         self._sink = sink
@@ -71,7 +71,7 @@ class SimpleRunner:
             raise RuntimeError("Invalid result. Both result and error are None")
 
         if error:
-            self._sink.write({"url": item.url, "error": error})
+            self._sink.write({"url": unquote(item.url), "error": error})
             return
 
         self._sink.write(result)
