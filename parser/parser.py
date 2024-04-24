@@ -75,7 +75,7 @@ class Parser:
         result.update(self.__get_player_name(url))
         result.update(self.__get_player_info(soup))
         if 'Жота' in result['name']:
-            result['name'] = result['name'].reverse()
+            result['name'] = result['name'][::-1]
         return result
 
     # ---------------------------------------------------------------------------------------
