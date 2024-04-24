@@ -21,9 +21,10 @@ def main():
     )
     logger = logging.getLogger('runner')
 
-    parsed = urlparse(args.seed_url)
-    domain = parsed.scheme + '://' + parsed.netloc
-    parser = Parser(domain)
+    # parsed = urlparse(args.seed_url)
+    # domain = parsed.scheme + '://' + parsed.netloc
+    # parser = Parser(domain)
+    parser = Parser()
 
     sink = FileSink(args.path_to_result)
     runner = SimpleRunner(parser, sink, logger, [args.seed_url], rate=5, max_tries=10)

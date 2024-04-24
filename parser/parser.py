@@ -61,10 +61,10 @@ class Parser:
         return answer
 
     def _parse_team_page(self, soup):
-        table = self.__get_table_pointer(soup)
-        selected = table.select(self.PLAYER_SELECTOR)
-
-        answer = self.__get_items(selected)
+        answer = []
+        for table in self.__get_table_pointer(soup):
+            selected = table.select(self.PLAYER_SELECTOR)
+            answer.extend(self.__get_items(selected))
 
         return answer
 
@@ -240,17 +240,17 @@ class Parser:
 
     @staticmethod
     def __get_table_pointer(soup):
-        table_names = ['Текущий_состав', 'Игроки', 'Состав', 'Состав_сборной', 'Текущий_состав_сборной']
+        table_names = ['Текущий_состав', 'Игроки', 'Состав', 'Состав_сборной', 'Текущий_состав_сборной', 'Недавние_вызовы']
+        tables = []
         for id in table_names:
             pointer = soup.find('span', id=id)
             if pointer:
-                break
-        table = pointer.parent.find_next_sibling('table')
-        return table
+                tables.append(pointer.parent.find_next_sibling('table'))
+        return tables
 
     def __get_items(self, selected):
         urls = map(lambda x: x.get('href'), selected)
-        urls = filter(lambda x: 'index.php' not in x, urls)  # delete not existed pages
+        urls = filter(lambda x: 'index.php' not in x and 'Flag' not in x, urls)  # delete not existed pages
         urls = list(set(map(lambda x: urljoin(self.DOMAIN, x), urls)))
         items = list(map(lambda x: Item(url=x), urls))
 

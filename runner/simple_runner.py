@@ -47,8 +47,6 @@ class SimpleRunner:
                     self._logger.error(f'Not scraped from url {unquote(current_item.url)}')
                     continue
                 for item in extracted:
-                    if item.url in self._blacklist or 'flag_of_' in item.url.lower() or 'index.php' in item.url:
-                        continue
                     self._add(item)
                 self._seen.add(current_item.url)
             except Exception as exep:
@@ -73,5 +71,9 @@ class SimpleRunner:
         return response.text
 
     def _add(self, item: Item) -> None:
+        if item.url in self._seen or item.url.endswith('.svg'):
+            return
+        if item.url in self._blacklist:
+            return
         self._items_to_load.appendleft(item)
         self._seen.add(item)
