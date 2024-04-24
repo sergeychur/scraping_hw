@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
 
@@ -23,7 +23,8 @@ class CssParser:
         table = root.select("table.standard tr td:nth-child(1) > a")
 
         links = [ln.get("href") for ln in table]
-        links = [urljoin("https://ru.wikipedia.org/", ln) for ln in links]
+        parsed = urlparse(cur_page_url)
+        links = [urljoin(parsed.scheme + "://" + parsed.netloc, ln) for ln in links]
 
         return links
 
