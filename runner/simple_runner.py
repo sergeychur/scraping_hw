@@ -63,7 +63,7 @@ class SimpleRunner:
             response.raise_for_status()
         except Exception as e:
             item.tries += 1
-            if item.tries >= self._max_tries:
+            if item.tries >= self._max_tries or 'Not Found for url' in str(e):
                 self._logger.warning(f'Download tries limit exceeded {unquote(item.url)} DURATION {time.time() - item.start} or status is 404: {e}')
                 return None
             else:
