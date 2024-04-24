@@ -44,6 +44,9 @@ class CssParser:
         links = [ln for ln in links if "index.php" not in ln]
         links = [urljoin("https://ru.wikipedia.org/", ln) for ln in links]
 
+        parsed = urlparse(cur_page_url)
+        links = [urljoin(parsed.scheme + "://" + parsed.netloc, ln) for ln in links]
+
         return links
 
     def _parse_player(self, root, cur_page_url):
