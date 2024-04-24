@@ -61,13 +61,13 @@ class SimpleRunner:
         try:
             response = requests.get(item.url, timeout=60)
             response.raise_for_status()
-        except Exception:
+        except Exception as e:
             item.tries += 1
             if item.tries >= self._max_tries:
-                self._logger.warning(f'Download tries limit exceeded {unquote(item.url)} DURATION {time.time() - item.start}')
+                self._logger.warning(f'Download tries limit exceeded {unquote(item.url)} DURATION {time.time() - item.start} ststus: {e}')
                 return None
             else:
-                self._logger.info(f'One more try {unquote(item.url)} DURATION {time.time() - item.start}')
+                self._logger.info(f'One more try {unquote(item.url)} DURATION {time.time() - item.start} ststus: {e}')
                 return self._load_page(item)
         self._logger.info(f'Loaded page: {unquote(item.url)}')
         return response.text
