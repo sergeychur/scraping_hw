@@ -206,11 +206,11 @@ class CssSelectorParser:
                     national_teams.append(team_line)
 
                     matches, goals = text.split('(')
-                    matches = matches.strip()
+                    matches = re.search(r'\b\d+\b', matches)
                     goals = goals.strip()[:-1]
 
-                    if matches.find("?") == -1:
-                        national_matches.append(int(matches))
+                    if matches is not None:
+                        national_matches.append(int(matches.group(0)))
 
                     self._calc_national_goals_main_table(
                         player_data["position"],
@@ -287,14 +287,16 @@ class CssSelectorParser:
                 if player_data["club_caps"] < matches:
                     player_data["club_caps"] = matches
 
+                
+
                 if player_data["position"] == "вратарь":
                     if not is_diff_location:
-                        goals = cols[-1].text.strip()
-                        if not goals[0].isnumeric() and goals != "?":
-                            goals = goals[1:]
-                        elif goals == "?":
-                            goals = "0"
-                        goals = int(goals)
+                        goals = re.search(r'\b\d+\b', cols[-1].text.strip())
+                        
+                        if goals is not None:
+                            goals = int(goals.group(0))
+                        else:
+                            goals = 0
 
                     if player_data["club_conceded"] < goals:
                         player_data["club_conceded"] = goals
@@ -316,21 +318,14 @@ class CssSelectorParser:
             right_td = td[-1]
             text = right_td.text.strip()
 
-            matches, goals = "", ""
-            ind = 0
+            matches, goals = text.split('(')
+            matches = matches.strip()
+            goals = goals.strip()[:-1]
 
-            while text[ind] != "(":
-                matches += text[ind]
-                ind += 1
+            matches = re.search(r'\b\d+\b', matches)
 
-            ind += 1
-
-            while text[ind] != ")":
-                goals += text[ind]
-                ind += 1
-
-            if matches.find("?") == -1:
-                player_data["club_caps"] += int(matches)
+            if matches is not None:
+                player_data["club_caps"] += int(matches.group(0))
 
             self._calc_club_goals(player_data, goals)
 
