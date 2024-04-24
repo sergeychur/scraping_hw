@@ -1,8 +1,7 @@
 import json
-from pathlib import Path
 
 class ResultWriter:
-    def __init__(self, path: str | Path):
+    def __init__(self, path):
         self.__file = open(path, 'w', encoding="utf-8")
 
     def write(self, item):
