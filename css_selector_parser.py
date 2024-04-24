@@ -90,19 +90,13 @@ class CssSelectorParser:
             for row in table.find_all("tr")[1:]:
                 cols = row.find_all("td")
 
-                if len(cols) == 0 or len(cols) == 1:
+                if len(cols) < 2:
                     continue
 
                 url = self._domain + cols[2].find("a").get("href")
                 actual_web_links.append(url)
 
         return None, actual_web_links
-
-    def _standart_text_data(self, text):
-        while not text[-1].isalpha():
-            text = text[: len(text) - 1]
-
-        return text
 
     def _get_bday(self, day : str, month : str, year : str) -> list:
         months = [
@@ -121,27 +115,12 @@ class CssSelectorParser:
         ]
 
         month_num = months.index(month) + 1
-        birth_str = f"{year}.{month_num}.{day}"
-        start = DT.datetime(int(year), int(month_num), int(day), 0, 0, 0)
+        utc_timestamp = int(calendar.timegm(DT.datetime(int(year), month_num, int(day), 0, 0, 0).utctimetuple()))
 
-        utc_tuple = start.utctimetuple()
-        utc_timestamp = calendar.timegm(utc_tuple)
-
-        return utc_timestamp, birth_str
+        return utc_timestamp, f"{year}.{month_num}.{day}"
 
     def _calc_height(self, text_height : str) -> int:
-        res_height = ""
-        height_ind = 0
-
-        while text_height[height_ind].isnumeric():
-            res_height += text_height[height_ind]
-            height_ind += 1
-
-        if res_height[-1] == "]":
-            ind = res_height.index("[")
-            res_height = res_height[:ind]
-
-        return int(res_height)
+        return int(re.match(r"\b\d+\b", text_height).group(0))
 
     def _calc_national_goals_main_table(
         self, position, goals, national_conceded, national_goals
@@ -383,7 +362,7 @@ class CssSelectorParser:
     def _find_player_info(self, rows, player_data):
         national_team_career_ind = 0
         club_career_ind = 0
-        
+
         name = rows[0].find("div", {"class": "ts_Спортсмен_имя"}).text.strip().split()
 
         if len(name) > 2:
@@ -397,9 +376,9 @@ class CssSelectorParser:
             if line_type is None:
                 continue
 
-            line_type_text = self._standart_text_data(line_type.text.strip())
+            line_type_text = line_type.text.strip()
 
-            if line_type_text == "Родился":
+            if re.search(r"\bРодился\b", line_type_text):
                 bday = row.find("span", {"class": "nowrap"}).find_all("a")
                 bday[0] = bday[0].text
                 bday[1] = bday[1].text
@@ -411,18 +390,18 @@ class CssSelectorParser:
 
                 player_data["birth"] = utc_timestamp
                 player_data["birt_str"] = birth_str
-            elif line_type_text == "Рост":
+            elif re.search(r"\bРост\b", line_type_text):
                 height = self._calc_height(row.text.strip().split("\n")[2])
                 player_data["height"] = height
-            elif line_type_text == "Позиция":
+            elif re.search(r"\bПозиция\b", line_type_text):
                 pos = row.find("td").text.strip()
                 player_data["position"] = pos
-            elif line_type_text == "Клуб":
+            elif re.search(r"\bКлуб\b", line_type_text):
                 club = row.find("span", {"class": "no-wikidata"}).text.strip(" ")
                 player_data["current_club"] = club
-            elif line_type_text == "Клубная карьера":
+            elif re.search(r"\bКлубная карьера\b", line_type_text):
                 club_career_ind = rows.index(row)
-            elif line_type_text == "Национальная сборная":
+            elif re.search(r"\bНациональная сборная\b", line_type_text):
                 national_team_career_ind = rows.index(row)
 
         return club_career_ind, national_team_career_ind
