@@ -8,10 +8,10 @@ class SimpleRateLimiter:
         self._delta = 1. / rate
         self._last_called_ts = 0
 
-    def get_delay(self, timestamp=None):
+    def get_delay(self, now=None):
         with self._lock:
-            expected_next_call_ts = self._last_called_ts + self._delta
-            if timestamp is None:
-                timestamp = time.time()
-            self._last_called_ts = timestamp
-            return max(expected_next_call_ts - timestamp, 0)
+            if now is None:
+                now = time.time()
+            expected_next_call_ts = max(self._last_called_ts + self._delta, now)
+            self._last_called_ts = expected_next_call_ts
+            return max(expected_next_call_ts - now, 0)
