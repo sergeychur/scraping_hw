@@ -47,7 +47,7 @@ class SimpleRunner:
                     self._logger.error(f'Not scraped from url {unquote(current_item.url)}')
                     continue
                 for item in extracted:
-                    if item.url in self._blacklist:
+                    if item.url in self._blacklist or 'flag_of_' in item.url.lower():
                         continue
                     self._add(item)
                 self._seen.add(current_item.url)
