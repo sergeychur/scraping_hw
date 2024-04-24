@@ -230,7 +230,7 @@ class Parser:
                 row = list(map(lambda x: x.text.strip(), selected))
                 nums = self.__get_from_str(row)
                 try:
-                    res = (nums[-2], nums[-1]) if len(nums) % 3 != 0 else (nums[-3], nums[-2])
+                    res = (nums[-2], nums[-1]) if 'сух' not in tbody.text.lower() else (nums[-3], nums[-2])
                 except Exception:
                     pass
                 break
