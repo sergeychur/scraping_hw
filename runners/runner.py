@@ -1,5 +1,5 @@
-from collections import deque
 import time
+from collections import deque
 
 import requests
 
@@ -52,6 +52,7 @@ class SimpleRunner:
                     self._write(item, error=str(e))
                     continue
                 self._logger.warning(f"Postpone: {item.url} {e}. Tries = {item.tries}. Duration: {duration}")
+                selt._submit(item)
                 continue
 
             self._logger.info(f"Success: {item.url}. Tries = {item.tries}. Duration: {item.end - item.start}")
