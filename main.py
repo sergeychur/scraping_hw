@@ -26,7 +26,7 @@ def main():
     parser = Parser(domain)
 
     sink = FileSink(args.path_to_result)
-    runner = SimpleRunner(parser, sink, logger, [args.seed_url], rate=100, max_tries=100)
+    runner = SimpleRunner(parser, sink, logger, [args.seed_url], rate=20, max_tries=50)
     start = time.time()
     runner.run()
     logger.info(f'Total duration is {time.time() - start}')
