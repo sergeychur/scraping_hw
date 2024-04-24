@@ -69,7 +69,7 @@ class CssParser:
         bracket = name.rfind("(")
         if bracket > 0:
             name = name[:bracket]
-        info["name"] = list(map(str.strip, name.split(" ", 1)))[:-1]
+        info["name"] = list(map(str.strip, name.split(" ", 1)))[::-1]
 
     def _read_infobox(self, root, info) -> None:
         infobox = root.select_one(".infobox-above").parent
