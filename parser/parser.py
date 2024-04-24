@@ -46,7 +46,7 @@ class Parser:
                 title += node.text.lower()
         if 'чемпионат' in title:
             return 'championship'
-        elif 'cбо́рная' in title:
+        elif 'cбо́рная' in title or 'сборная' in title:
             return 'team'
         else:
             return 'player'
@@ -154,8 +154,9 @@ class Parser:
         try:
             positions = []
             for node in infobox.select_one(self.POSITION_SELECTOR).contents:
-                if node.text:
-                    positions.append(node.text)
+                text = node.text.strip()
+                if text:
+                    positions.append(text)
             return ', '.join(positions)
         except Exception:
             return None
