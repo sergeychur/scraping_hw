@@ -64,7 +64,6 @@ class CssParser:
         return info
 
     def _find_name(self, root, info) -> None:
-        # name = root.title.text
         name = root.select_one(".infobox tbody tr .ts_Спортсмен_имя").text
         bracket = name.rfind("(")
         if bracket > 0:
