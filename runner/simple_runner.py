@@ -59,8 +59,10 @@ class SimpleRunner:
         item.start = time.time()
 
         try:
-            response = requests.get(unquote(item.url), timeout=60)
-            response.raise_for_status()
+            # response = requests.get(unquote(item.url), timeout=60)
+            # response.raise_for_status()
+            with open(item.url, 'r') as f:
+                return f.read()
         except Exception:
             item.tries += 1
             if item.tries >= self._max_tries:

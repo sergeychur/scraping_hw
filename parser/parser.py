@@ -16,7 +16,7 @@ class Parser:
     HEIGHT_SELECTOR = 'span[data-wikidata-property-id="P2048"]'
     POSITION_SELECTOR = '[data-wikidata-property-id="P413"]'
 
-    TABLE_SELECTOR = '#mw-content-text table > tbody'
+    TABLE_SELECTOR = 'table > tbody'
     # селектор для последнего столбца (если смотерть в контексте использования,
     # то это в таблице, где сработал селектор HEAD_TABLE_SELECTOR и выполнились условия)
     TAIL_TABLE_SELECTOR = 'tr:last-child > th'
@@ -217,7 +217,7 @@ class Parser:
             return abs(int(n))
 
         def is_relevant_table(s):
-            keywords = ['молодёжные клубы', 'национальная сборная', 'информация ок лубе', 'общая информация', 'родился']
+            keywords = ['молодёжные клубы', 'национальная сборная', 'информация о клубе', 'общая информация', 'родился']
             return not any(map(lambda x: x in s, keywords))
         res = ('0', '0')
         for tbody in soup.select(self.TABLE_SELECTOR):
