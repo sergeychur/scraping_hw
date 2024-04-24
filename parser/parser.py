@@ -122,7 +122,7 @@ class Parser:
             if 'национальная сборная' in th.contents[0].text.lower():
                 sibling = th.parent
                 while sibling := sibling.find_next_sibling('tr'):
-                    if 'н. в.' not in sibling.text or ' (до ' in sibling.text:
+                    if ' (до ' in sibling.text:
                         continue
                     links = sibling.select('a[href]')
                     urls = list(map(lambda x: unquote(x.get('href')), links))
