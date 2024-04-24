@@ -64,14 +64,12 @@ class CssParser:
         return info
 
     def _find_name(self, root, info) -> None:
-        name = root.title.text
-        name = name[: name.rfind("—") - 1]
+        # name = root.title.text
+        name = root.select_one(".infobox tbody tr .ts_Спортсмен_имя").text
         bracket = name.rfind("(")
         if bracket > 0:
             name = name[:bracket]
-        info["name"] = list(map(str.strip, name.split(",")))
-        if len(info["name"]) < 2:
-            info["name"] = list(map(str.strip, info["name"][0].split()))
+        info["name"] = list(map(str.strip, name.split(" ", 1)))
 
     def _read_infobox(self, root, info) -> None:
         infobox = root.select_one(".infobox-above").parent
