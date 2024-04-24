@@ -73,7 +73,8 @@ class SimpleRunner:
         return response.text
 
     def _add(self, item: Item) -> None:
-        if item.url in self._seen or item.url.endswith('.svg'):
+        if (item.url in self._seen or item.url.endswith('.svg') or
+                'Flag' in item.url or 'index.php' in item.url):
             return
         if item.url in self._blacklist:
             return

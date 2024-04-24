@@ -160,7 +160,7 @@ class Parser:
                 text = node.text.strip()
                 if text:
                     positions.append(text)
-            return ', '.join(positions)
+            return ' '.join(positions)
         except Exception:
             return None
 
@@ -250,7 +250,6 @@ class Parser:
 
     def __get_items(self, selected):
         urls = map(lambda x: x.get('href'), selected)
-        urls = filter(lambda x: 'index.php' not in x and 'Flag' not in x, urls)  # delete not existed pages
         urls = list(set(map(lambda x: urljoin(self.DOMAIN, x), urls)))
         items = list(map(lambda x: Item(url=x), urls))
 
