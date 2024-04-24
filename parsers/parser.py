@@ -95,7 +95,11 @@ class CssParser:
             if infobox.th.text in translate:
                 ln = ""
                 if infobox.th.text == "Позиция":
-                    ln = "\n".join([p.text for p in infobox.select("a")])
+                    roles = infobox.select("a")
+                    if len(roles) > 1:
+                        ln = "\n".join([p.text.strip() for p in roles])
+                    else:
+                        ln = infobox.td.text
                 else:
                     ln = infobox.td.text.strip()
                 info[translate[infobox.th.text]] = ln.strip().replace("\n", ", ")
