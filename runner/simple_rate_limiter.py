@@ -5,13 +5,14 @@ import time
 class SimpleRateLimiter:
     def __init__(self, rate):
         self._lock = threading.Lock()
-        self._delta = 10. / rate
+        self._delta = 1. / rate
         self._last_called_ts = time.time()
 
     def get_delay(self, now=None):
         with self._lock:
             if now is None:
                 now = time.time()
-            expected_next_call_ts = max(self._last_called_ts + self._delta, now)
-            self._last_called_ts = expected_next_call_ts
-            return max(expected_next_call_ts - now, 0)
+            expected_next_call_ts = self._last_called_ts + self._delta
+            delay = max(expected_next_call_ts - now, 0)
+            self._last_called_ts = max(expected_next_call_ts, now)
+            return delay
