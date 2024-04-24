@@ -175,61 +175,7 @@ class PlayerParser:
             "position": self._parse_position(table, link),
             "current_club": self._parse_club(table, link),
         }
-
-
-        # match_table = table.select_one("table.ts-Спортивная_карьера-table")
-        # matches = match_table.select("tr")
-        # is_club_match = False
-        # is_national_match = False
-        # club_match_counter, national_match_counter = 0, 0
-        # missed_club_goal_counter, scored_club_goal_counter = 0, 0
-        # missed_national_goal_counter, scored_national_goal_counter = 0, 0
-        # for row in matches:
-        #     probe = row.select_one("th")
-        #     if probe is not None:
-        #         if "Клубная карьера" in probe.text:
-        #             is_club_match = True
-        #             is_national_match = False
-        #         elif "Национальная сборная" in probe.text:
-        #             is_club_match = False
-        #             is_national_match = True
-        #         continue
-        #     probe = row.select("td")
-        #     if probe is None or len(probe) < 3:
-        #         continue
-        #     pattern = r"[−,-]?\d+"
-        #     match = re.findall(pattern, probe[2].text)
-        #     mathes_count = int(match[0] if len(match) > 0 else 0)
-        #     gouls_count = int(match[1].replace("−", "-") if len(match) == 2 else 0)
-        #     nation_team = None
-        #     if is_club_match:
-        #         club_match_counter += mathes_count
-        #         if "вратарь" in result["position"]:
-        #             missed_club_goal_counter += abs(gouls_count)
-        #         else:
-        #             scored_club_goal_counter += gouls_count
-        #     elif is_national_match:
-        #         nation_team = probe[1].select("a")[-1]["title"]
-        #         if "(до" in nation_team or "(до" in probe[1].text or "Флаг" in nation_team or "Молодёжная" in nation_team or "Олимпийская сборная" in nation_team:
-        #             continue
-        #         national_match_counter += mathes_count
-        #         if "вратарь" in result["position"]:
-        #             missed_national_goal_counter += abs(gouls_count)
-        #         else:
-        #             scored_national_goal_counter += gouls_count
-        #     else:
-        #         self._logger.error(f" В основной таблице для {link} пропущена строка по какой-то причине")
-
-        # result["national_team"] = self.team_players[link]
-        # result["club_caps"] = club_match_counter
-        # result["club_conceded"] = missed_club_goal_counter
-        # result["club_scored"] = scored_club_goal_counter
-        # result["national_caps"] = national_match_counter
-        # result["national_conceded"] = missed_national_goal_counter
-        # result["national_scored"] = scored_national_goal_counter
-        
         result = self._parse_match_data(table, result, link)
-
         result["national_team"] = self.team_players.get(link, "Unknown")
         return result
 
