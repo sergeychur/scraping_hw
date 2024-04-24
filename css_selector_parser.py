@@ -363,14 +363,9 @@ class CssSelectorParser:
         national_team_career_ind = 0
         club_career_ind = 0
 
-        name = rows[0].find("div", {"class": "ts_Спортсмен_имя"}).text.strip().split()
+        has_name = False
 
-        if len(name) > 2:
-            name = [" ".join([name[0], name[1]]), name[2]]
-
-        player_data["name"] = name[::-1]
-
-        for row in rows[1:]:
+        for row in rows:
             line_type = row.find("th")
 
             if line_type is None:
@@ -378,7 +373,19 @@ class CssSelectorParser:
 
             line_type_text = line_type.text.strip()
 
-            if re.search(r"\bРодился\b", line_type_text):
+            if not has_name:
+                name_line = row.find("div", {"class": "ts_Спортсмен_имя"})
+
+                if  name_line is not None:
+                    name = name_line.text.strip().split()
+
+                    if len(name) > 2:
+                        name = [" ".join([name[0], name[1]]), name[2]]
+
+                    player_data["name"] = name[::-1]
+                    has_name = True
+
+            elif re.search(r"\bРодился\b", line_type_text):
                 bday = row.find("span", {"class": "nowrap"}).find_all("a")
                 bday[0] = bday[0].text
                 bday[1] = bday[1].text
@@ -397,7 +404,7 @@ class CssSelectorParser:
                 pos = row.find("td").text.strip()
                 player_data["position"] = pos
             elif re.search(r"\bКлуб\b", line_type_text):
-                club = row.find("span", {"class": "no-wikidata"}).text.strip(" ")
+                club = row.find("span", {"class": "no-wikidata"}).text.strip()
                 player_data["current_club"] = club
             elif re.search(r"\bКлубная карьера\b", line_type_text):
                 club_career_ind = rows.index(row)
