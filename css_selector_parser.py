@@ -5,7 +5,7 @@ from urllib.parse import urljoin, urlparse
 import re
 import time
 
-teams = set("Сборная Германии по футболу")
+teams = set()
 
 class CssSelectorParser:
     def parse(self, content, current_url):
