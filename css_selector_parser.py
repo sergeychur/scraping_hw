@@ -37,7 +37,6 @@ class CssSelectorParser:
     def _main_page_parse(self, data):
         """Find table with all teams that will participate, find all links in row and take the last that goes to country team page"""
 
-        # team_table = data.find("table", {"class": "standard sortable"})
         team_table = data.find(id="Квалифицировались_в_финальный_турнир").find_next(
             "table", {"class": "standard sortable"}
         )
@@ -53,7 +52,7 @@ class CssSelectorParser:
 
         return None, all_web_links
 
-    def find_relevant_tags(self, data, headers):
+    def _find_relevant_tags(self, data, headers):
         tags = []
 
         for header in headers:
@@ -75,7 +74,7 @@ class CssSelectorParser:
             'Недавние_вызовы',
         ]
 
-        relevant_tags = self.find_relevant_tags(data, headers)
+        relevant_tags = self._find_relevant_tags(data, headers)
 
         for tag in relevant_tags:
             table = tag.find_next("table", {"class": "wikitable"})
