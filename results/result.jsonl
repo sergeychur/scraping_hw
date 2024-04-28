@@ -332,9 +332,9 @@
     "height": 193,
     "position": "полузащитник",
     "current_club": "Арсенал (Лондон)",
-    "club_caps": 336,
+    "club_caps": 337,
     "club_conceded": 0,
-    "club_scored": 90,
+    "club_scored": 91,
     "national_caps": 44,
     "national_conceded": 0,
     "national_scored": 15,
@@ -464,7 +464,7 @@
     "national_caps": 0,
     "national_conceded": 0,
     "national_scored": 0,
-    "national_team": ""
+    "national_team": "Сборная Германии по футболу"
 }
 {
     "url": "https://ru.wikipedia.org/wiki/%D0%91%D0%B5%D1%81%D1%82%D0%B5,_%D0%AF%D0%BD-%D0%9D%D0%B8%D0%BA%D0%BB%D0%B0%D1%81",
@@ -662,7 +662,7 @@
     "national_caps": 0,
     "national_conceded": 0,
     "national_scored": 0,
-    "national_team": ""
+    "national_team": "Сборная Германии по футболу"
 }
 {
     "url": "https://ru.wikipedia.org/wiki/%D0%97%D0%B0%D0%BD%D0%B5,_%D0%9B%D0%B5%D1%80%D0%BE%D0%B9",
@@ -872,7 +872,7 @@
     "height": 180,
     "position": "нападающий",
     "current_club": "Тоттенхэм Хотспур",
-    "club_caps": 418,
+    "club_caps": 421,
     "club_conceded": 0,
     "club_scored": 152,
     "national_caps": 57,
@@ -1520,12 +1520,12 @@
     "height": 176,
     "position": "центральный полузащитник",
     "current_club": "Астон Вилла",
-    "club_caps": 434,
+    "club_caps": 490,
     "club_conceded": 0,
-    "club_scored": 69,
-    "national_caps": 65,
+    "club_scored": 71,
+    "national_caps": 67,
     "national_conceded": 0,
-    "national_scored": 5,
+    "national_scored": 7,
     "national_team": "Сборная Бельгии по футболу"
 }
 {
@@ -1556,7 +1556,7 @@
     "height": 195,
     "position": "полузащитник",
     "current_club": "Эвертон",
-    "club_caps": 136,
+    "club_caps": 137,
     "club_conceded": 0,
     "club_scored": 10,
     "national_caps": 10,
@@ -2476,7 +2476,7 @@
     "national_caps": 3,
     "national_conceded": 0,
     "national_scored": 0,
-    "national_team": "Сборная Каталонии по футболу"
+    "national_team": "Сборная Испании по футболу"
 }
 {
     "url": "https://ru.wikipedia.org/wiki/%D0%9A%D1%83%D0%B1%D0%B0%D1%80%D1%81%D0%B8,_%D0%9F%D0%B0%D1%83",
@@ -2673,7 +2673,7 @@
     "national_caps": 27,
     "national_conceded": 0,
     "national_scored": 8,
-    "national_team": "Сборная Страны Басков по футболу"
+    "national_team": "Сборная Испании по футболу"
 }
 {
     "url": "https://ru.wikipedia.org/wiki/%D0%A1%D0%B0%D1%80%D0%B0%D0%B1%D0%B8%D1%8F,_%D0%9F%D0%B0%D0%B1%D0%BB%D0%BE",
@@ -3386,10 +3386,10 @@
     "height": 174,
     "position": "левый защитник",
     "current_club": "Рейнджерс",
-    "club_caps": 55,
+    "club_caps": 78,
     "club_conceded": 0,
-    "club_scored": 4,
-    "national_caps": 2,
+    "club_scored": 5,
+    "national_caps": 7,
     "national_conceded": 0,
     "national_scored": 0,
     "national_team": "Сборная Турции по футболу"
@@ -3656,7 +3656,7 @@
     "height": 185,
     "position": "атакующий полузащитник",
     "current_club": "Ювентус",
-    "club_caps": 36,
+    "club_caps": 38,
     "club_conceded": 0,
     "club_scored": 3,
     "national_caps": 2,
@@ -4087,7 +4087,7 @@
     "height": 185,
     "position": "вратарь",
     "current_club": "Эвертон",
-    "club_caps": 430,
+    "club_caps": 431,
     "club_conceded": 601,
     "club_scored": 0,
     "national_caps": 59,
@@ -4267,7 +4267,7 @@
     "height": 195,
     "position": "защитник",
     "current_club": "Эвертон",
-    "club_caps": 111,
+    "club_caps": 112,
     "club_conceded": 0,
     "club_scored": 9,
     "national_caps": 0,
@@ -4393,9 +4393,9 @@
     "height": 188,
     "position": "нападающий",
     "current_club": "Бавария",
-    "club_caps": 537,
+    "club_caps": 542,
     "club_conceded": 0,
-    "club_scored": 334,
+    "club_scored": 338,
     "national_caps": 89,
     "national_conceded": 0,
     "national_scored": 62,
@@ -4429,9 +4429,9 @@
     "height": 178,
     "position": "правый вингер",
     "current_club": "Арсенал",
-    "club_caps": 219,
+    "club_caps": 224,
     "club_conceded": 0,
-    "club_scored": 56,
+    "club_scored": 57,
     "national_caps": 32,
     "national_conceded": 0,
     "national_scored": 11,
@@ -4669,7 +4669,7 @@
     "national_caps": 0,
     "national_conceded": 0,
     "national_scored": 0,
-    "national_team": ""
+    "national_team": "Сборная Венгрии по футболу"
 }
 {
     "url": "https://ru.wikipedia.org/wiki/%D0%9E%D1%80%D0%B1%D0%B0%D0%BD,_%D0%92%D0%B8%D0%BB%D0%BB%D0%B8",
@@ -4885,6 +4885,24 @@
     "national_caps": 22,
     "national_conceded": 0,
     "national_scored": 4,
+    "national_team": "Сборная Венгрии по футболу"
+}
+{
+    "url": "https://ru.wikipedia.org/wiki/%D0%A5%D0%BE%D1%80%D0%B2%D0%B0%D1%82,_%D0%9A%D1%80%D0%B8%D1%81%D1%82%D0%BE%D1%84%D0%B5%D1%80",
+    "name": [
+        "Хорват",
+        "Кристофер"
+    ],
+    "birth": 1010437200,
+    "height": 172,
+    "position": "полузащитник",
+    "current_club": "Кечкемет",
+    "club_caps": 106,
+    "club_conceded": 0,
+    "club_scored": 37,
+    "national_caps": 3,
+    "national_conceded": 0,
+    "national_scored": 0,
     "national_team": "Сборная Венгрии по футболу"
 }
 {
@@ -6300,7 +6318,7 @@
     "height": 179,
     "position": "полузащитник",
     "current_club": "РБ Лейпциг",
-    "club_caps": 95,
+    "club_caps": 100,
     "club_conceded": 0,
     "club_scored": 31,
     "national_caps": 11,
@@ -9827,7 +9845,7 @@
     "height": 183,
     "position": "вингер",
     "current_club": "Наполи",
-    "club_caps": 200,
+    "club_caps": 202,
     "club_conceded": 0,
     "club_scored": 46,
     "national_caps": 29,
@@ -9917,8 +9935,8 @@
     "height": 199,
     "position": "вратарь",
     "current_club": "Бенфика",
-    "club_caps": 93,
-    "club_conceded": 67,
+    "club_caps": 95,
+    "club_conceded": 69,
     "club_scored": 0,
     "national_caps": 10,
     "national_conceded": 13,
@@ -10061,7 +10079,7 @@
     "height": 184,
     "position": "защитник",
     "current_club": "Шахтёр (Донецк)",
-    "club_caps": 68,
+    "club_caps": 73,
     "club_conceded": 0,
     "club_scored": 2,
     "national_caps": 3,
@@ -10097,7 +10115,7 @@
     "height": 182,
     "position": "защитник",
     "current_club": "Шахтёр (Донецк)",
-    "club_caps": 148,
+    "club_caps": 161,
     "club_conceded": 0,
     "club_scored": 12,
     "national_caps": 63,
@@ -10223,7 +10241,7 @@
     "height": 175,
     "position": "полузащитник",
     "current_club": "Челси",
-    "club_caps": 119,
+    "club_caps": 120,
     "club_conceded": 0,
     "club_scored": 18,
     "national_caps": 18,
@@ -10385,9 +10403,9 @@
     "height": 189,
     "position": "нападающий",
     "current_club": "Жирона",
-    "club_caps": 225,
+    "club_caps": 226,
     "club_conceded": 0,
-    "club_scored": 102,
+    "club_scored": 103,
     "national_caps": 25,
     "national_conceded": 0,
     "national_scored": 8,
@@ -10403,9 +10421,9 @@
     "height": 185,
     "position": "нападающий",
     "current_club": "Динамо (Киев)",
-    "club_caps": 60,
+    "club_caps": 68,
     "club_conceded": 0,
-    "club_scored": 25,
+    "club_scored": 28,
     "national_caps": 3,
     "national_conceded": 0,
     "national_scored": 0,

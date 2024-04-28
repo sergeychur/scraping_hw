@@ -1,11 +1,14 @@
 import re
 from datetime import datetime
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, unquote
 
 from bs4 import BeautifulSoup
 
 
 class CssParser:
+    def __init__(self):
+        self._teams = {}
+        
     def parse(self, content, cur_page_url):
         soup = BeautifulSoup(content, "html.parser")
 
@@ -20,6 +23,7 @@ class CssParser:
         return self._parse_player(soup, cur_page_url), []
 
     def _parse_chempoinship(self, root, cur_page_url):
+        self._teams = {}
         table = root.select("table.standard tr td:nth-child(1) > a")
 
         links = [ln.get("href") for ln in table]
@@ -48,20 +52,24 @@ class CssParser:
         pointer = root.find("span", id=re.compile("^Недавние_вызовы"))
         if not pointer:
             links = [urljoin(parsed.scheme + "://" + parsed.netloc, ln) for ln in links]
-            return links
-        pointer = pointer.parent
+        else:
+            pointer = pointer.parent
 
-        while not (pointer.name and pointer.name == "table"):
-            pointer = pointer.next_sibling
+            while not (pointer.name and pointer.name == "table"):
+                pointer = pointer.next_sibling
 
-        table = pointer.tbody.select("tr")
-        table = [ln.select_one("td:nth-child(3) > a") for ln in table]
+            table = pointer.tbody.select("tr")
+            table = [ln.select_one("td:nth-child(3) > a") for ln in table]
 
-        links += [ln.get("href") for ln in table if ln]
-        links = [ln for ln in links if "index.php" not in ln]
+            links += [ln.get("href") for ln in table if ln]
+            links = [ln for ln in links if "index.php" not in ln]
 
         
         links = [urljoin(parsed.scheme + "://" + parsed.netloc, ln) for ln in links]
+
+        ln = unquote(cur_page_url).split("/")[-1].replace("_", " ").strip()
+        for l in links:
+            self._teams[l] = ln
 
         return links
 
@@ -75,7 +83,7 @@ class CssParser:
         self._transform_height(info)
         self._find_club_caps(root, info)
         self._find_national_caps(root, info)
-        self._find_national_team(root, info)
+        self._find_national_team(cur_page_url, info)
         self._transform_birth(info)
 
         return info
@@ -253,8 +261,10 @@ class CssParser:
             info["national_conceded"] = 0
             info["national_scored"] = sc_from_table
 
-    def _find_national_team(self, root, info):
-        pointer = root.select_one(".infobox tbody tr td table tbody tr:last-child")
+    def _find_national_team(self, url, info):
+        info["national_team"] = self._teams[url]
+        del self._teams[url]
+        """pointer = root.select_one(".infobox tbody tr td table tbody tr:last-child")
         possible = pointer.select_one("td:nth-child(2) > a")
 
         ln = possible["title"] if possible else ""
@@ -275,7 +285,7 @@ class CssParser:
 
         ln = re.search("[сС]борная .*? по футболу", ln)
         ln = "С" + ln[0][1:] if ln else ""
-        info["national_team"] = ln
+        info["national_team"] = ln"""
 
     def _transform_birth(self, info):
         ln = info["birth"].split("(")[0].split("[")[0].strip()
