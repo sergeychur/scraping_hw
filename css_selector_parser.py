@@ -306,46 +306,49 @@ class CssSelectorParser:
         if national_team_career_ind != 0:
             has_national_team = False
 
-            for i in range(national_team_career_ind + 1, len(rows)):
-                tds = rows[i].find_all("td")
+            trs = infobox.find_all('tr', {'class': "nowrap odd"})
+            last_tr = trs[-1]
+            tds = last_tr.find_all('td')
+            right_td = tds[-1]
+            text = right_td.text.strip()
+            team_line = tds[1].find_all("a")[-1]["title"].strip()
 
-                if len(tds) != 3:
-                    break
-
-                if tds[-1].find("span", {"class": "reference-text"}) is not None:
-                    break
-
+            if team_line in teams:
+                has_national_team = True
+            else:
+                trs = infobox.find_all("tr", {"class": "nowrap even"})
+                last_tr = trs[-1]
+                tds = last_tr.find_all("td")
                 right_td = tds[-1]
                 text = right_td.text.strip()
-
                 team_line = tds[1].find_all("a")[-1]["title"].strip()
 
                 if team_line in teams:
                     has_national_team = True
 
-                    matches, goals = text.split("(")
-                    matches = re.search(r"\b\d+\b", matches)
-                    goals = goals.strip()[:-1]
+            if (has_national_team):
+                matches, goals = text.split("(")
+                matches = re.search(r"\b\d+\b", matches)
+                goals = goals.strip()[:-1]
 
-                    if matches is not None:
-                        matches = int(matches.group(0))
+                if matches is not None:
+                    matches = int(matches.group(0))
 
-                    player_data["national_caps"] = matches
-                    player_data["national_team"] = team_line
+                player_data["national_caps"] = matches
+                player_data["national_team"] = team_line
 
-                    goals = re.search(r"\b\d+\b", goals)
+                goals = re.search(r"\b\d+\b", goals)
 
-                    if goals is not None:
-                        goals = int(goals.group(0))
-                    else:
-                        goals = 0
+                if goals is not None:
+                    goals = int(goals.group(0))
+                else:
+                    goals = 0
 
-                    if player_data["position"] == "вратарь":
-                        player_data["national_conceded"] = goals
-                    else:
-                        player_data["national_scored"] = goals
-
-            if not has_national_team:
+                if player_data["position"] == "вратарь":
+                    player_data["national_conceded"] = goals
+                else:
+                    player_data["national_scored"] = goals
+            else:
                 raise Exception("Player has not played for national team yet")
 
     def _player_parse(self, data, current_url):

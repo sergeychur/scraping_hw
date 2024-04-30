@@ -34,12 +34,11 @@ fields_to_compare = [
     'birth',
 ]
 
-# for url, expected_value in expected.items():
-#     real_value = real.get(url)
-    
-#     if real_value is None:
-#         raise RuntimeError(f'Real result doesn\'t contain element for url {url}')
-#     for field in fields_to_compare:
-#         expected_field_value = expected_value.get(field)
-#         real_field_value = real_value.get(field)
-#         assert expected_field_value == real_field_value, f'URL: {url}. Expected value for field {field} = {expected_field_value} while real is {real_field_value}'
+for url, expected_value in expected.items():
+    real_value = real.get(url)
+    if real_value is None:
+        raise RuntimeError(f'Real result doesn\'t contain element for url {url}')
+    for field in fields_to_compare:
+        expected_field_value = expected_value.get(field)
+        real_field_value = real_value.get(field)
+        assert expected_field_value == real_field_value, f'URL: {url}. Expected value for field {field} = {expected_field_value} while real is {real_field_value}'
