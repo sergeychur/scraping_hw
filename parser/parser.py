@@ -127,7 +127,7 @@ class Parser:
         if len(clean_last) == 1:
             surname, name = None, clean_last[0]
         else:
-            surname, name = clean_last[0], clean_last[1]
+            surname, name = clean_last[0], ' '.join(clean_last[1:])
         return {
             'name': [surname, name] if ',' in last else [name, surname]
         }
