@@ -153,7 +153,7 @@ class Parser:
             return None
 
     def __get_club_name(self, infobox):
-        return infobox.select_one(self.CLUB_SELECTOR).text
+        return infobox.select_one(self.CLUB_SELECTOR).text.strip()
 
     def __get_caps_and_goals(self, infobox, soup):
         club_infobox = self.__get_career_from_infobox(infobox, 'клубная карьера')
