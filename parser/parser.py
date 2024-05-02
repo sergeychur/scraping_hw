@@ -144,10 +144,10 @@ class Parser:
         try:
             positions = []
             for node in infobox.select_one(self.POSITION_SELECTOR).contents:
-                text = node.text.strip().replace(',', '')
+                text = node.text.strip()
                 if text:
                     positions.append(text)
-            ans = ' ,'.join(positions)
+            ans = ' '.join(positions)
             return re.sub(r'\[.*?\]', '', ans)
         except Exception:
             return None
