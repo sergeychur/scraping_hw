@@ -15,6 +15,7 @@ class Parser:
     INFOBOX_SELECTOR = 'table.infobox[data-name="Футболист"]'
     HEIGHT_SELECTOR = 'span[data-wikidata-property-id="P2048"]'
     POSITION_SELECTOR = '[data-wikidata-property-id="P413"]'
+    CLUB_SELECTOR = '[data-wikidata-property-id="P54"] '
 
     TABLE_SELECTOR = 'table > tbody'
     # селектор для последнего столбца (если смотерть в контексте использования,
@@ -29,28 +30,27 @@ class Parser:
     # ---------------------------------------------------------------------------------------
 
     def parse(self, item):
-        choice = self.__make_choice(item.url)
+        choice = self.__make_choice(item.url, item.content)
         if choice == 'championship':
             result = self._parse_championship_page(item.content)
             self._logger.info(f'Scraped championship {unquote(item.url)}, count of items: {len(result)}')
             return result
         elif choice == 'team':
-            result = self._parse_team_page(item.content)
+            result = self._parse_team_page(item.url, item.content)
             self._logger.info(f'Scraped team {unquote(item.url)}, count of items: {len(result)}')
             return result
         elif choice == 'player':
-            result = self._parse_player_page(item.content, item.url)
+            result = self._parse_player_page(item.content, item.url, item.info)
             self._logger.info(f'Scraped player {unquote(item.url)}')
             return result
 
-    @staticmethod
-    def __make_choice(url):
+    def __make_choice(self, url, soup):
         last = unquote(url).split('/')[-1].lower()
         if 'чемпионат' in last:
             return 'championship'
         elif 'сборная' in last:
             return 'team'
-        else:
+        elif soup.select_one(self.INFOBOX_SELECTOR):
             return 'player'
 
     # ---------------------------------------------------------------------------------------
@@ -60,22 +60,22 @@ class Parser:
         answer = self.__get_items(selected)
         return answer
 
-    def _parse_team_page(self, soup):
+    def _parse_team_page(self, url, soup):
         answer = []
+        extra = {'national_team': self.__get_national_team(url)}
         for table in self.__get_table_pointer(soup):
             selected = table.select(self.PLAYER_SELECTOR)
-            answer.extend(self.__get_items(selected))
+            answer.extend(self.__get_items(selected, extra=extra))
 
-        return answer
+        return list(set(answer))
 
-    def _parse_player_page(self, soup, url):
+    def _parse_player_page(self, soup, url, info):
         result = {
             'url': url
         }
+        result.update(info)
         result.update(self.__get_player_name(url))
         result.update(self.__get_player_info(soup))
-        if 'Жота' in result['name']:
-            result['name'] = result['name'][::-1]
         return result
 
     # ---------------------------------------------------------------------------------------
@@ -87,7 +87,6 @@ class Parser:
             'height': self.__get_player_height(infobox),
             'position': self.__get_player_position(infobox),
             'current_club': self.__get_club_name(infobox),
-            'national_team': self.__get_national_team(infobox),
             'birth': self.__get_birth(infobox)
         }
 
@@ -119,32 +118,18 @@ class Parser:
         return int(datetime.strptime(birth, '%Y-%m-%d').timestamp())
 
     @staticmethod
-    def __get_national_team(infobox):
-        for th in infobox.select('tr > th'):
-            if 'национальная сборная' in th.contents[0].text.lower():
-                sibling = th.parent
-                while sibling := sibling.find_next_sibling('tr'):
-                    if ' (до ' in sibling.text:
-                        continue
-                    links = sibling.select('a[href]')
-                    urls = list(map(lambda x: unquote(x.get('href')), links))
-                    for url in urls:
-                        name = url.split('/')[-1].replace('_', ' ')
-                        if re.match(r'сборная .+ по футболу', name.lower()):
-                            return name
-
-    @staticmethod
     def __get_player_name(url):
         last = unquote(url).split('/')[-1]
         stop = last.find('(')
         if stop == -1:
             stop = len(last)
         clean_last = list(filter(bool, re.split(r'[\_\,]', last[:stop])))
-        surname, name = clean_last[0], ' '.join(clean_last[1:])
-        if not name:
-            surname, name = name, surname
+        if len(clean_last) == 1:
+            surname, name = None, clean_last[0]
+        else:
+            surname, name = clean_last[0], clean_last[1]
         return {
-            'name': [surname, name]
+            'name': [surname, name] if ',' in last else [name, surname]
         }
 
     def __get_player_height(self, infobox):
@@ -159,18 +144,16 @@ class Parser:
         try:
             positions = []
             for node in infobox.select_one(self.POSITION_SELECTOR).contents:
-                text = node.text.strip()
+                text = node.text.strip().replace(',', '')
                 if text:
                     positions.append(text)
-            return ' '.join(positions)
+            ans = ' ,'.join(positions)
+            return re.sub(r'\[.*?\]', '', ans)
         except Exception:
             return None
 
-    @staticmethod
-    def __get_club_name(infobox):
-        for th in infobox.select('tr > th'):
-            if th.text.lower().strip() == 'клуб':
-                return th.find_next_sibling('td').text.strip()
+    def __get_club_name(self, infobox):
+        return infobox.select_one(self.CLUB_SELECTOR).text
 
     def __get_caps_and_goals(self, infobox, soup):
         club_infobox = self.__get_career_from_infobox(infobox, 'клубная карьера')
@@ -241,6 +224,11 @@ class Parser:
     # ---------------------------------------------------------------------------------------
 
     @staticmethod
+    def __get_national_team(url):
+        name = unquote(url).split('/')[-1].replace('_', ' ')
+        return name
+
+    @staticmethod
     def __get_table_pointer(soup):
         table_names = ['Текущий_состав', 'Игроки', 'Состав', 'Состав_сборной', 'Текущий_состав_сборной', 'Недавние_вызовы']
         tables = []
@@ -250,10 +238,10 @@ class Parser:
                 tables.append(pointer.parent.find_next_sibling('table'))
         return tables
 
-    def __get_items(self, selected):
+    def __get_items(self, selected, extra=None):
         urls = map(lambda x: x.get('href'), selected)
         urls = list(set(map(lambda x: urljoin(self.DOMAIN, x), urls)))
-        items = list(map(lambda x: Item(url=x), urls))
+        items = list(map(lambda x: Item(url=x, info=extra), urls))
 
         return items
 

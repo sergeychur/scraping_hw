@@ -21,10 +21,6 @@ class SimpleRunner:
         self._seen = set()
         self._items_to_load = deque()
 
-        self._blacklist = [
-            'https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D0%BF%D0%B8%D1%82%D0%B0%D0%BD_(%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB)'
-        ]
-
         for seed_url in seed_urls:
             self._add(Item(seed_url))
 
@@ -46,7 +42,7 @@ class SimpleRunner:
                     self._sink.write(extracted)
                     continue
                 if not extracted:
-                    self._logger.error(f'Not scraped from url {unquote(current_item.url)}')
+                    self._logger.info(f'Not scraped from url {unquote(current_item.url)}')
                     continue
                 for item in extracted:
                     self._add(item)
@@ -73,10 +69,7 @@ class SimpleRunner:
         return response.text
 
     def _add(self, item: Item) -> None:
-        if (item.url in self._seen or item.url.endswith('.svg') or
-                'Flag' in item.url or 'index.php' in item.url):
-            return
-        if item.url in self._blacklist:
+        if item.url in self._seen:
             return
         self._items_to_load.appendleft(item)
-        self._seen.add(item)
+        self._seen.add(item.url)
