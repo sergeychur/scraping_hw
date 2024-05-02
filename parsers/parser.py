@@ -35,34 +35,27 @@ class CssParser:
     def _parse_team(self, root, cur_page_url):
         parsed = urlparse(cur_page_url)
         
-        pointer = root.find("span", id=re.compile("^Текущий_состав"))
-        if not pointer:
-            pointer = root.find("span", id=re.compile("^Состав"))
-        pointer = pointer.parent
+        pointers = []
+        table = root.find("span", id=re.compile("^Текущий_состав"))
+        if not table:
+            table = root.find("span", id=re.compile("^Состав"))
+        if table:
+            pointers.append(table.parent)
+        table = root.find("span", id=re.compile("^Недавние_вызовы"))
+        if table:
+            pointers.append(table.parent)
 
-        while not (pointer.name and pointer.name == "table"):
-            pointer = pointer.next_sibling
-
-        table = pointer.tbody.select("tr")
-        table = [ln.select_one("td:nth-child(3) > a") for ln in table]
-
-        links = [ln.get("href") for ln in table if ln]
-        links = [ln for ln in links if "index.php" not in ln]
-        
-        pointer = root.find("span", id=re.compile("^Недавние_вызовы"))
-        if not pointer:
-            links = [urljoin(parsed.scheme + "://" + parsed.netloc, ln) for ln in links]
-        else:
-            pointer = pointer.parent
-
+        links = []
+        for pointer in pointers:
             while not (pointer.name and pointer.name == "table"):
                 pointer = pointer.next_sibling
 
             table = pointer.tbody.select("tr")
             table = [ln.select_one("td:nth-child(3) > a") for ln in table]
 
-            links += [ln.get("href") for ln in table if ln]
-            links = [ln for ln in links if "index.php" not in ln]
+            links_tmp = [ln.get("href") for ln in table if ln]
+            links_tmp = [ln for ln in links_tmp if "index.php" not in ln]
+            links += links_tmp
 
         
         links = [urljoin(parsed.scheme + "://" + parsed.netloc, ln) for ln in links]
@@ -99,43 +92,25 @@ class CssParser:
         infobox = root.select_one(".infobox-above").parent
         translate = {"Рост": "height", "Позиция": "position", "Клуб": "current_club", "Родился": "birth"}
 
-        while infobox.th:
-            if infobox.th.text in translate:
-                ln = ""
-                if infobox.th.text == "Позиция":
-                    roles = infobox.select("a")
-                    if len(roles) > 1:
-                        ln = "\n".join([p.text.strip() for p in roles])
-                    else:
-                        ln = infobox.td.text
-                else:
-                    ln = infobox.td.text.strip()
-                info[translate[infobox.th.text]] = ln.strip().replace("\n", ", ")
-            infobox = infobox.next_sibling
-            if not infobox.name:
-                infobox = infobox.next_sibling
-            if infobox.td and "infobox-image" in infobox.td.__dict__["attrs"]["class"]:
-                infobox = infobox.next_sibling
-            if not infobox.name:
-                infobox = infobox.next_sibling
+        info["height"] = root.select_one('span[data-wikidata-property-id="P2048"]').text
+        info["position"] = root.select_one('span[data-wikidata-property-id="P413"]').text
+        info["current_club"] = root.select_one('span[data-wikidata-property-id="P54"]').text
+        info["birth"] = root.select_one('span[data-wikidata-property-id="P569"]').text
+        
 
     def _transform_height(self, info) -> None:
         if "height" not in info:
             return
-        info["height"] = info["height"].split()[0]
-        bracket = info["height"].find("[")
-        if bracket > 0:
-            info["height"] = info["height"][:bracket]
-        info["height"] = info["height"].replace(",", "")
-        info["height"] = info["height"].split("—")[-1]
-        info["height"] = int(info["height"])
+        info["height"] = re.findall(".*?[[ ]", info["height"])[0]
+        info["height"] = re.findall("[0-9]+", info["height"])[-1]
 
     def _find_club_caps(self, root, info) -> None:
-        pointer = root.select_one(".infobox table tbody tr")
-        while "Клубная карьера" not in pointer.text:
-            pointer = pointer.next_sibling
-            if not pointer.name:
-                pointer = pointer.next_sibling
+        pointers = root.select(".infobox table tbody tr")
+        pointer = pointers[0]
+        for p in pointers:
+            if "Клубная карьера" in p.text:
+                pointer = p
+                break
 
         pointer = pointer.next_sibling
         if not pointer.name:
@@ -143,42 +118,25 @@ class CssParser:
 
         from_table = 0
         sc_from_table = 0
-        cell = pointer.select_one("td:nth-child(3)")
-        while cell:
+        cells = pointer.select("td:nth-child(3)")
+        for cell in cells:
             ln, sc = cell.text.strip().split("(")
-            bracket = sc.find(")")
-            sc = sc[:bracket].replace("−", "-").replace("–", "-")
-            slash = sc.find("/")
-            if slash > 0:
-                sc = sc[:slash]
+            sc = re.findall(".*?[)/]", sc)[0][:-1].replace("−", "-").replace("–", "-")
             if "?" in sc:
                 sc = "0"
             if ln.strip().isdigit():
                 from_table += int(ln)
                 sc_from_table += int(sc)
-            pointer = pointer.next_sibling
-            if not pointer.name:
-                pointer = pointer.next_sibling
-            if not pointer:
-                break
-            cell = pointer.select_one("td:nth-child(3)")
 
-        tables = root.select("table tbody tr")
+        tables = root.select("table:not(.infobox) tbody tr")
         from_cell = 0
         sc_from_cell = 0
         for t in tables:
-            if "infobox" in t.parent.parent.__dict__["attrs"].get("class", [""]):
+            rows = t.select("th")
+            if len(rows) < 2:
                 continue
-            if not t.th:
+            if rows[0].text.strip() != "Клуб" and rows[1].text.strip() != "Клуб":
                 continue
-            if t.th.text.strip() != "Клуб":
-                t = t.next_sibling
-                if not t:
-                    continue
-                if not t.name:
-                    t = t.next_sibling
-                if not t.th or t.th.text != "Клуб":
-                    continue
 
             t_temp = t.parent.select_one("tr:last-child").select_one("th:last-child")
             if not t_temp:
@@ -264,28 +222,6 @@ class CssParser:
     def _find_national_team(self, url, info):
         info["national_team"] = self._teams[url]
         del self._teams[url]
-        """pointer = root.select_one(".infobox tbody tr td table tbody tr:last-child")
-        possible = pointer.select_one("td:nth-child(2) > a")
-
-        ln = possible["title"] if possible else ""
-        while not ln or not re.search("[сС]борная .*? по футболу", ln):
-            pointer = pointer.previous_sibling
-            if not pointer:
-                ln = ""
-                break
-            if not pointer.name:
-                pointer = pointer.previous_sibling
-            if not pointer:
-                ln = ""
-                break
-            possible = pointer.select_one("td:nth-child(2) > a")
-            if not possible:
-                continue
-            ln = possible["title"]
-
-        ln = re.search("[сС]борная .*? по футболу", ln)
-        ln = "С" + ln[0][1:] if ln else ""
-        info["national_team"] = ln"""
 
     def _transform_birth(self, info):
         ln = info["birth"].split("(")[0].split("[")[0].strip()
