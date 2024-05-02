@@ -90,12 +90,11 @@ class CssParser:
 
     def _read_infobox(self, root, info) -> None:
         infobox = root.select_one(".infobox-above").parent
-        translate = {"Рост": "height", "Позиция": "position", "Клуб": "current_club", "Родился": "birth"}
 
-        info["height"] = root.select_one('span[data-wikidata-property-id="P2048"]').text
-        info["position"] = root.select_one('span[data-wikidata-property-id="P413"]').text
-        info["current_club"] = root.select_one('span[data-wikidata-property-id="P54"]').text
-        info["birth"] = root.select_one('span[data-wikidata-property-id="P569"]').text
+        info["height"] = root.select_one('span[data-wikidata-property-id="P2048"]').text.strip()
+        info["position"] = root.select_one('span[data-wikidata-property-id="P413"]').text.strip()
+        info["current_club"] = root.select_one('span[data-wikidata-property-id="P54"]').text.strip()
+        info["birth"] = root.select_one('span[data-wikidata-property-id="P569"]').text.strip()
         
 
     def _transform_height(self, info) -> None:
