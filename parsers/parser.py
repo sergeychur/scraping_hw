@@ -105,20 +105,17 @@ class CssParser:
 
     def _find_club_caps(self, root, info) -> None:
         pointers = root.select(".infobox table tbody tr")
-        pointer = pointers[0]
-        for p in pointers:
-            if "Клубная карьера" in p.text:
-                pointer = p
-                break
+        i = 0
+        while "Клубная карьера" not in pointers[i].text:
+            i += 1
 
-        pointer = pointer.next_sibling
-        if not pointer.name:
-            pointer = pointer.next_sibling
+        i += 1
+        pointer = pointers[i]
 
         from_table = 0
         sc_from_table = 0
-        cells = pointer.select("td:nth-child(3)")
-        for cell in cells:
+        cell = pointer.select_one("td:nth-child(3)")
+        while cell:
             ln, sc = cell.text.strip().split("(")
             sc = re.findall(".*?[)/]", sc)[0][:-1].replace("−", "-").replace("–", "-")
             if "?" in sc:
@@ -126,6 +123,11 @@ class CssParser:
             if ln.strip().isdigit():
                 from_table += int(ln)
                 sc_from_table += int(sc)
+            i += 1
+            if i >= len(pointers):
+                break
+            pointer = pointers[i]
+            cell = pointer.select_one("td:nth-child(3)")
 
         tables = root.select("table:not(.infobox) tbody tr")
         from_cell = 0
