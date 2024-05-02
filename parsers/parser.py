@@ -102,7 +102,7 @@ class CssParser:
         if "height" not in info:
             return
         info["height"] = re.findall(".*?[[ ]", info["height"])[0]
-        info["height"] = re.findall("[0-9]+", info["height"])[-1]
+        info["height"] = int(re.findall("[0-9]+", info["height"])[-1])
 
     def _find_club_caps(self, root, info) -> None:
         pointers = root.select(".infobox table tbody tr")
