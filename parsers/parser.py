@@ -170,47 +170,40 @@ class CssParser:
             info["club_scored"] = max(sc_from_table, sc_from_cell)
 
     def _find_national_caps(self, root, info) -> None:
-        pointer = root.select_one(".infobox table tbody tr")
-        while "Национальная сборная" not in pointer.text:
-            pointer = pointer.next_sibling
-            if not pointer.name:
-                pointer = pointer.next_sibling
-            if not pointer:
+        pointers = root.select(".infobox table tbody tr")
+        i = 0
+        pointer = pointers[i]
+        while "Национальная сборная" not in pointers[i].text:
+            i += 1
+            if i >= len(pointers):
                 info["national_caps"] = 0
                 info["national_conceded"] = 0
                 info["national_scored"] = 0
                 return
 
-        pointer = pointer.next_sibling
-        if not pointer.name:
-            pointer = pointer.next_sibling
+        i += 1
 
         from_table = 0
         sc_from_table = 0
-        cell = pointer.select_one("td:nth-child(2)")
+        cell = pointers[i].select_one("td:nth-child(2)")
         while cell:
             if "до" not in cell.text:
                 cell = cell.next_sibling
                 if not cell.name:
                     cell = cell.next_sibling
                 ln, sc = cell.text.strip().split("(")
-                bracket = sc.find(")")
-                sc = sc[:bracket].replace("−", "-").replace("–", "-")
-                slash = sc.find("/")
-                if slash > 0:
-                    sc = sc[:slash]
+                sc = re.findall(".*?[)/]", sc)[0][:-1]
+                sc = re.sub("[−–]", "-", sc)
                 if "?" in sc:
                     sc = "0"
                 if ln.strip().isdigit():
                     from_table += int(ln)
                 sc_from_table += int(sc)
 
-            pointer = pointer.next_sibling
-            if not pointer.name:
-                pointer = pointer.next_sibling
-            if not pointer:
+            i += 1
+            if i >= len(pointers):
                 break
-            cell = pointer.select_one("td:nth-child(2)")
+            cell = pointers[i].select_one("td:nth-child(2)")
 
         info["national_caps"] = from_table
         if sc_from_table < 0:
