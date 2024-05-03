@@ -89,8 +89,6 @@ class CssParser:
         info["name"] = list(map(str.strip, name.rsplit(" ", 1)))[::-1]
 
     def _read_infobox(self, root, info) -> None:
-        infobox = root.select_one(".infobox-above").parent
-
         info["height"] = root.select_one('span[data-wikidata-property-id="P2048"]').text.strip()
         info["position"] = root.select_one('span[data-wikidata-property-id="P413"]').text.strip()
         info["current_club"] = root.select_one('span[data-wikidata-property-id="P54"]').text.strip()
@@ -117,7 +115,8 @@ class CssParser:
         cell = pointer.select_one("td:nth-child(3)")
         while cell:
             ln, sc = cell.text.strip().split("(")
-            sc = re.findall(".*?[)/]", sc)[0][:-1].replace("−", "-").replace("–", "-")
+            sc = re.findall(".*?[)/]", sc)[0][:-1]
+            sc = re.sub("[−–]", "-", sc)
             if "?" in sc:
                 sc = "0"
             if ln.strip().isdigit():
@@ -158,7 +157,7 @@ class CssParser:
             if "?" in t.text:
                 sc_from_cell = 0
             else:
-                sc_from_cell = int(t.text.strip().replace("−", "-").replace("–", "-"))
+                sc_from_cell = int(re.replace("[−-]", "-", t.text.strip()))
             break
 
         info["club_caps"] = max(from_table, from_cell)
