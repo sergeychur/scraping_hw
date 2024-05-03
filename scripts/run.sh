@@ -14,7 +14,6 @@ path_to_result=$2
 python3 -m venv venv
 . venv/bin/activate
 
-timeout 10 wget --recursive -w 0.1 -D localhost $seed_url || true
 
 python3 ./main.py $seed_url $path_to_result
 
