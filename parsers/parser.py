@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from urllib.parse import urljoin, urlparse, unquote
+from urllib.parse import unquote, urljoin, urlparse
 
 from bs4 import BeautifulSoup
 
@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 class CssParser:
     def __init__(self):
         self._teams = {}
-        
+
     def parse(self, content, cur_page_url):
         soup = BeautifulSoup(content, "html.parser")
 
@@ -34,7 +34,7 @@ class CssParser:
 
     def _parse_team(self, root, cur_page_url):
         parsed = urlparse(cur_page_url)
-        
+
         pointers = []
         table = root.find("span", id=re.compile("^Текущий_состав"))
         if not table:
@@ -57,7 +57,7 @@ class CssParser:
             links_tmp = [ln for ln in links_tmp if "index.php" not in ln]
             links += links_tmp
 
-        
+
         links = [urljoin(parsed.scheme + "://" + parsed.netloc, ln) for ln in links]
 
         ln = unquote(cur_page_url).split("/")[-1].replace("_", " ").strip()
@@ -93,7 +93,7 @@ class CssParser:
         info["position"] = root.select_one('span[data-wikidata-property-id="P413"]').text.strip()
         info["current_club"] = root.select_one('span[data-wikidata-property-id="P54"]').text.strip()
         info["birth"] = root.select_one('span[data-wikidata-property-id="P569"]').text.strip()
-        
+
 
     def _transform_height(self, info) -> None:
         if "height" not in info:
@@ -157,7 +157,7 @@ class CssParser:
             if "?" in t.text:
                 sc_from_cell = 0
             else:
-                sc_from_cell = int(re.replace("[−-]", "-", t.text.strip()))
+                sc_from_cell = int(re.sub("[−-]", "-", t.text.strip()))
             break
 
         info["club_caps"] = max(from_table, from_cell)
