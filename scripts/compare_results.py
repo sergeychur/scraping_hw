@@ -1,5 +1,7 @@
 import json
 import sys
+import traceback
+from urllib.parse import unquote
 
 def load_result(path_to_file):
     with open(path_to_file) as f:
@@ -34,11 +36,20 @@ fields_to_compare = [
     'birth',
 ]
 
+has_fails = False
+
 for url, expected_value in expected.items():
     real_value = real.get(url)
     if real_value is None:
-        raise RuntimeError(f'Real result doesn\'t contain element for url {url}')
+        print(f'Real result doesn\'t contain element for url {unquote(url)}')
+        has_fails = True
+        continue
     for field in fields_to_compare:
         expected_field_value = expected_value.get(field)
         real_field_value = real_value.get(field)
-        assert expected_field_value == real_field_value, f'URL: {url}. Expected value for field {field} = {expected_field_value} while real is {real_field_value}'
+        if expected_field_value != real_field_value:
+            print(f'URL: {unquote(url)}. Expected value for field {field} = {expected_field_value} while real is {real_field_value}')
+            has_fails = True
+            continue
+
+exit(0 if not has_fails else -1)
