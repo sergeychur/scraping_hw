@@ -1,0 +1,17 @@
+name: Manual launch to test
+run-name: Assessing work
+on:
+  workflow_dispatch:
+    inputs:
+      data-dir:
+        required: true
+        default: './test_data/local'
+        type: choice
+        options:
+        - './test_data/local'
+        - './test_data/real'
+jobs:
+  local_part:
+    uses: ./.github/workflows/workflow.yaml
+    with:
+      data-dir: ${{ inputs.data-dir }}
